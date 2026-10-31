@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A three student narrative writing game for Contour VSE Core Writing.">
+<title>The Writer’s Room</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F6FC; --panel:#FFFFFF; --ink:#12203D; --muted:#46557A; --line:#D3DDEC; --wash:#F6F9FE;
+  --navy:#0B3D91; --navy-soft:#E4ECF8;
+  --blue:#007AFF; --blue-ink:#0060C7; --blue-soft:#E5F1FF;
+  --green:#2FB76A; --green-ink:#17793F; --green-soft:#E2F5EA;
+  --orange:#E88100; --orange-ink:#9A5400; --orange-soft:#FFF0DC;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 20px 48px;display:flex;flex-direction:column;gap:16px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+input,textarea{font:inherit;color:var(--ink)}
+
+/* top */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mark{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.brand h1{font-weight:850;font-size:30px;letter-spacing:-.025em;margin:0;color:var(--navy);line-height:1}
+.rnd{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--navy);background:var(--navy-soft);border-radius:999px;padding:4px 10px;letter-spacing:.04em}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:2px solid var(--line);background:var(--panel);border-radius:11px;padding:8px 14px;font-weight:700;font-size:15px;line-height:1.2}
+.btn:hover{border-color:var(--navy)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-ink);border-color:var(--blue-ink)}
+.btn.orange{background:var(--orange);border-color:var(--orange);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.ghost-navy{border-color:var(--navy);color:var(--navy)}
+.btn.sm{padding:5px 10px;font-size:14px;border-radius:9px}
+.k{font-family:var(--mono);font-size:12px;opacity:.85;margin-left:4px}
+
+/* roster */
+.roster{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.seat{border:2px solid var(--line);border-radius:14px;padding:10px 14px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 10px;background:var(--panel)}
+.seat input{border:0;background:transparent;font-weight:800;font-size:21px;width:100%;padding:0;min-width:0;letter-spacing:-.01em}
+.seat .role{font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.seat .pts{grid-row:1 / span 2;grid-column:2;font-family:var(--mono);font-weight:800;font-size:30px;font-variant-numeric:tabular-nums;color:var(--navy)}
+.seat .pts small{font-size:14px;color:var(--orange-ink);margin-left:4px}
+.seat.a{border-color:var(--blue);background:var(--blue-soft)} .seat.a .role{color:var(--blue-ink)}
+.seat.b{border-color:var(--green);background:var(--green-soft)} .seat.b .role{color:var(--green-ink)}
+.seat.e{border-color:var(--orange);background:var(--orange-soft)} .seat.e .role{color:var(--orange-ink)}
+
+/* rail */
+.rail{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.rail button{flex:1 0 auto;border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 13px;font-size:14px;font-weight:700;color:var(--muted);white-space:nowrap}
+.rail button .n{font-family:var(--mono);margin-right:6px}
+.rail button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.rail button.done{color:var(--navy);border-color:#AFC2E3}
+
+/* stage */
+.stage{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:26px 28px;display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:28px}
+.eyebrow{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-ink);margin:0 0 6px}
+.stage h2{font-weight:850;font-size:clamp(26px,3.3vw,40px);line-height:1.1;letter-spacing:-.025em;margin:0 0 16px;color:var(--navy);text-wrap:balance}
+.prompt{font-weight:850;font-size:clamp(34px,5.2vw,66px);line-height:1.04;letter-spacing:-.03em;color:var(--navy);text-wrap:balance;margin:4px 0 18px}
+.minip{font-weight:800;font-size:clamp(20px,2.2vw,26px);color:var(--navy);margin:0 0 14px;letter-spacing:-.015em}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.say{font-size:21px;line-height:1.45;margin:0 0 16px}
+.ca{color:var(--blue-ink);font-weight:800} .cb{color:var(--green-ink);font-weight:800} .ce{color:var(--orange-ink);font-weight:800}
+.fuzzy{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--navy-soft);border-radius:14px;padding:12px 14px;margin-bottom:16px}
+.fuzzy .lbl{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--navy)}
+.fuzzy .word{font-weight:850;font-size:26px;color:var(--navy);background:#fff;border-radius:10px;padding:2px 12px}
+.fuzzy input{flex:1 1 220px;border:2px solid #BFD0EC;border-radius:10px;padding:9px 12px;background:#fff;font-size:17px;min-width:0}
+.veil{border:2px dashed var(--line);border-radius:16px;padding:28px;text-align:center;font-size:19px;color:var(--navy)}
+
+/* writer cards */
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.wc{border:2px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.wc.a{border-color:var(--blue);background:linear-gradient(var(--blue-soft),#fff 70%)}
+.wc.b{border-color:var(--green);background:linear-gradient(var(--green-soft),#fff 70%)}
+.wc h3{margin:0;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;gap:8px}
+.wc.a h3{color:var(--blue-ink)} .wc.b h3{color:var(--green-ink)}
+.wc h3 span{color:var(--ink);text-transform:none;letter-spacing:0;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld label{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--navy)}
+.fld input,.fld textarea{border:2px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff;font-size:17px;width:100%;resize:vertical;min-width:0}
+.fld textarea{min-height:66px;line-height:1.4}
+.ed{border-top:2px dashed #F2C998;padding-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ed .who{font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-ink);margin-right:4px}
+.chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:14.5px;font-weight:700;color:var(--ink)}
+.chip.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.chip.good.on{background:var(--green-ink);border-color:var(--green-ink)}
+.chip.pickA.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.chip.pickB.on{background:var(--green-ink);border-color:var(--green-ink);color:#fff}
+
+/* call it */
+.calls{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.calls li{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border:2px solid var(--line);border-radius:10px;padding:6px 8px 6px 12px;font-size:17px}
+.calls li.ban{background:var(--orange-soft);border-color:var(--orange)}
+.calls li.ban > span:first-child{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:var(--orange-ink)}
+.calls li .x{border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;padding:0 4px}
+.offl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--orange-soft);border:2px solid var(--orange);border-radius:12px;padding:8px 12px;margin-bottom:16px}
+.offl b{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-ink);margin-right:4px}
+.offl span{font-size:15px;background:#fff;border-radius:999px;padding:2px 10px;text-decoration:line-through;text-decoration-color:var(--orange-ink)}
+.usual{margin-top:14px;border:2px solid var(--orange);border-radius:14px;padding:12px 14px}
+
+/* readings */
+.reads{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.rd{border:2px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.rd b{font-size:20px;color:var(--navy);letter-spacing:-.01em}
+.rd .pk{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.rd.pa{border-color:var(--blue)} .rd.pb{border-color:var(--green)} .rd.pa.pb{border-color:var(--navy)}
+.rd .ex1{font-size:15px;color:var(--ink);background:var(--wash);border-radius:8px;padding:6px 9px}
+
+/* nudge */
+.nudge{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.nudge p{margin:0;font-weight:800;color:var(--orange-ink);font-size:18px}
+
+/* exemplar */
+.ex{margin-top:20px;border:2px solid var(--navy);border-radius:16px;overflow:hidden}
+.ex .hd{background:var(--navy);color:#fff;padding:9px 16px;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.ex .hd span:last-child{text-transform:none;letter-spacing:0;font-weight:600;opacity:.9}
+.ex .bd{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.ex .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.xc{border-radius:12px;padding:10px 13px;display:flex;flex-direction:column;gap:4px;font-size:17px;line-height:1.45}
+.xc .l{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.xc.weak{background:var(--wash);border:2px dashed var(--line)} .xc.weak .l{color:var(--muted)}
+.xc.strong{background:var(--green-soft);border:2px solid var(--green)} .xc.strong .l{color:var(--green-ink)}
+.xc.note{background:var(--orange-soft);border:2px solid var(--orange)} .xc.note .l{color:var(--orange-ink)}
+.xc.info{background:var(--blue-soft);border:2px solid var(--blue)} .xc.info .l{color:var(--blue-ink)}
+
+/* verdict */
+.gridwrap{overflow-x:auto}
+table.score{border-collapse:collapse;width:100%;min-width:560px;font-size:16px}
+.score th,.score td{border-bottom:2px solid var(--line);padding:10px 8px;text-align:left;vertical-align:middle}
+.score th{font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.score td small{display:block;color:var(--muted);font-size:14px}
+.pick{display:flex;gap:4px}
+.pick button{width:38px;height:38px;border:2px solid var(--line);background:#fff;border-radius:9px;font-family:var(--mono);font-weight:800}
+.pick.a button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.pick.b button.on{background:var(--green-ink);border-color:var(--green-ink);color:#fff}
+.tot{font-family:var(--mono);font-weight:800;font-size:22px;color:var(--navy)}
+.edbox{margin-top:14px;background:var(--orange-soft);border:2px solid var(--orange);border-radius:14px;padding:12px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.edbox label{display:flex;gap:8px;align-items:center;font-weight:800;color:var(--orange-ink)}
+.edbox input{width:22px;height:22px;accent-color:var(--orange)}
+.fbs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+
+/* timer */
+.side{display:flex;flex-direction:column;gap:14px}
+.clock{border:2px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.clock svg{width:170px;height:170px;max-width:100%}
+.clock .t{font-family:var(--mono);font-weight:800;font-size:40px;font-variant-numeric:tabular-nums;fill:var(--navy)}
+.clock .lab{font-family:var(--sans);font-size:12px;font-weight:700;fill:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.clock .ctl{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.arc{stroke:var(--blue);transition:stroke-dashoffset .25s linear}
+.clock.warn .arc{stroke:var(--orange)} .clock.over .arc{stroke:#D0342C}
+.clock.over .t{fill:#B42318}
+.presets{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.presets button{border:2px solid var(--line);background:#fff;border-radius:8px;padding:2px 8px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--navy)}
+.presets button.on{border-color:var(--blue);color:var(--blue-ink)}
+.unit{border-radius:14px;background:var(--navy-soft);padding:12px 14px}
+.unit b{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy)}
+.unit span{font-weight:800;font-size:18px;color:var(--navy)}
+
+/* tutor */
+.tutor{background:#fff;border:2px solid var(--navy);border-radius:20px;overflow:hidden}
+.tutor .th{background:var(--navy);color:#fff;padding:10px 18px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.tutor .th b{font-size:14px;letter-spacing:.1em;text-transform:uppercase}
+.tutor .th .row{gap:6px}
+.tutor .th .btn{border-color:#fff;background:transparent;color:#fff}
+.tutor .th .btn.on{background:#fff;color:var(--navy)}
+.tgrid{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:0}
+.tcol{padding:16px 18px;display:flex;flex-direction:column;gap:12px;border-right:2px solid var(--line)}
+.tcol:last-child{border-right:0}
+.tcol h4{margin:0;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy)}
+.tcol p{margin:0;font-size:16.5px}
+.tcol ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px;font-size:16px}
+.trap{background:var(--orange-soft);border-radius:10px;padding:9px 12px;font-size:15.5px}
+.trap b{color:var(--orange-ink)}
+.cardn{background:var(--blue-soft);border-radius:10px;padding:9px 12px;font-size:15.5px}
+.cardn b{color:var(--blue-ink)}
+.bon{display:flex;flex-direction:column;gap:6px}
+.bon div{display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;font-weight:700}
+.bon .v{font-family:var(--mono);min-width:34px;text-align:right;color:var(--orange-ink)}
+.keys{font-size:14px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 12px}
+kbd{font-family:var(--mono);font-size:12.5px;border:2px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;color:var(--navy);background:#fff}
+
+/* wildcard */
+.wild{position:fixed;inset:0;background:rgba(11,29,64,.62);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10}
+.card{background:#fff;border:4px solid var(--orange);border-radius:22px;max-width:580px;width:100%;padding:28px;display:flex;flex-direction:column;gap:12px;animation:pop .28s ease-out;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.card .eyebrow{color:var(--orange-ink)}
+.card h3{font-weight:850;font-size:36px;line-height:1.05;margin:0;color:var(--navy);letter-spacing:-.02em}
+.card p{font-size:21px;margin:0}
+@keyframes pop{from{transform:scale(.94) rotate(-1.5deg);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.card{animation:none}.arc{transition:none}}
+
+@media (max-width:980px){.tgrid{grid-template-columns:1fr 1fr}.tcol:first-child{grid-column:1 / -1;border-right:0;border-bottom:2px solid var(--line)}}
+@media (max-width:860px){
+  .stage{grid-template-columns:minmax(0,1fr);padding:20px 18px;gap:20px}
+  .side{display:grid;grid-template-columns:auto 1fr;align-items:start}
+  .clock svg{width:130px;height:130px}
+}
+@media (max-width:760px){.reads{grid-template-columns:1fr}.duo,.fbs{grid-template-columns:1fr}}
+@media (max-width:640px){
+  .wrap{padding:12px 16px 40px;gap:12px}
+  .brand h1{font-size:25px}.mark{width:34px;height:34px}
+  .roster{grid-template-columns:1fr;gap:6px}
+  .seat{padding:7px 12px}.seat input{font-size:18px}.seat .pts{font-size:24px}
+  .tgrid{grid-template-columns:1fr}.tcol{border-right:0;border-bottom:2px solid var(--line)}
+  .side{grid-template-columns:1fr}
+  .clock{flex-direction:row;flex-wrap:wrap;justify-content:center}
+  .card h3{font-size:30px}.card p{font-size:19px}
+  .tools .btn{padding:7px 11px;font-size:14px}
+  .stage{padding:18px 14px}
+  table.score{min-width:0}
+  .score thead{display:none}
+  .score tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 10px;padding:10px 0;border-bottom:2px solid var(--line)}
+  .score td{border:0;padding:0}
+  .score td:first-child{grid-column:1 / -1}
+  .score td[data-l]::before{content:attr(data-l);display:block;font-family:var(--sans);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;color:var(--navy)}
+  .pick{gap:3px}.pick button{flex:1 1 0;width:auto;min-width:0;height:36px;padding:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></div>
+      <h1>The Writer’s Room</h1><span class="rnd" id="rnd">Round 1</span>
+    </div>
+    <div class="tools">
+      <button class="btn orange" id="wildBtn" type="button">Wildcard<span class="k">W</span></button>
+      <button class="btn ghost-navy" id="tutBtn" type="button">Tutor<span class="k">T</span></button>
+      <button class="btn" id="resetBtn" type="button">Reset scores</button>
+    </div>
+  </header>
+
+  <section class="roster" id="roster" aria-label="Students"></section>
+  <nav class="rail" id="rail" aria-label="Phases"></nav>
+
+  <main class="stage">
+    <div id="phase"></div>
+    <aside class="side">
+      <div class="clock" id="clock">
+        <svg viewBox="0 0 170 170" role="img" aria-label="Timer">
+          <circle cx="85" cy="85" r="74" fill="none" stroke="var(--line)" stroke-width="11"/>
+          <circle class="arc" id="arc" cx="85" cy="85" r="74" fill="none" stroke-width="11" stroke-linecap="round" transform="rotate(-90 85 85)" stroke-dasharray="465" stroke-dashoffset="0"/>
+          <text class="t" id="tText" x="85" y="92" text-anchor="middle">1:00</text>
+          <text class="lab" id="tLab" x="85" y="120" text-anchor="middle">ready</text>
+        </svg>
+        <div class="ctl">
+          <button class="btn primary" id="goBtn" type="button">Start</button>
+          <button class="btn" id="rsBtn" type="button">Reset</button>
+        </div>
+        <div class="presets" id="presets"></div>
+      </div>
+      <div class="unit" id="unit"></div>
+    </aside>
+  </main>
+
+  <section class="tutor" id="tutor" aria-label="Tutor panel" hidden></section>
+</div>
+
+<div class="wild" id="wild" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="wTitle">
+    <p class="eyebrow">Wildcard</p>
+    <h3 id="wTitle"></h3>
+    <p id="wBody"></p>
+    <div class="row"><button class="btn primary" id="wClose" type="button">Play it</button><button class="btn" id="wAgain" type="button">Draw another</button></div>
+  </div>
+</div>
+
+<script>
+/* PROMPTS: p prompt, w fuzzy word, d meanings, o what everyone writes, r readings [literal, metaphorical, inverted], n nudges per phase [prompt, call, readings, belief, dilemma, stretch, twist] */
+const PROMPTS=[
+ {p:"The last one to leave…",w:"leave",d:["walk out of a place","quit a group","leave something behind"],
+  o:["The last student at school hears footsteps in the empty building","The last night before moving house","The last guest at a party finds something strange"],
+  r:["A swimmer is the last in the pool when the caretaker cuts the lights","The last friend still turning up to a band everyone else quit","Everyone is leaving one person, who pretends it was her choice"],
+  n:["Leave a place, leave a person, or leave something behind?","Picture the cover of a scary book. Ban that.","Who is it hardest to be the last one for?","What does your character think staying proves?","What does leaving cost? What does staying cost?","Slow down the moment their hand touches the door.","What if the one who left first never really left?"]},
+ {p:"Nobody had claimed it for a year…",w:"claimed",d:["picked up as yours","said it was yours","owned up to it"],
+  o:["A lost property item turns out to be magic","A lost wallet full of money is handed back","A prize nobody collected"],
+  r:["A jumper in the lost property box with a name sewn inside","A garden bed at the community garden that everyone avoids","The character has spent a year avoiding claiming something: a mistake, a drawing, a win"],
+  n:["Claim a thing, claim a place, or claim the blame?","If it involves finding money, ban it.","What would someone be embarrassed to claim?","What does your character believe about owning up?","Claiming it helps someone. What does it cost?","Slow down the moment their hand closes on it.","What if the owner has been watching all year?"]},
+ {p:"Some things are better left unfound…",w:"unfound",d:["never discovered","never worked out","never searched for"],
+  o:["A treasure chest that turns out to be cursed","A diary full of family secrets","A creepy basement with something living in it"],
+  r:["A time capsule buried under the school oval","The real reason a friendship ended","The character is the thing someone has been searching for"],
+  n:["Is it an object, a fact or a person?","Curses and ghosts are banned.","Who would be hurt if it were found?","Does your character believe the truth always helps?","Finding it fixes one thing and breaks another. What?","Slow down the second before the lid comes off.","What if they bury it again, and that is the change?"]},
+ {p:"It used to be easy…",w:"easy",d:["simple to do","comfortable to be around","not frightening"],
+  o:["A friendship gets hard after one friend moves away","A sport gets hard after an injury","School gets harder in high school"],
+  r:["Riding up the steep hill home before the bike got too small","Talking to a grandparent before the language gap grew","It used to be easy to be the troublemaker, and now someone looks up to them"],
+  n:["Easy for whom? Easy to do, or easy to be?","Moving away and injuries are banned.","What changed: the thing, or the person?","What did your character believe back when it was easy?","Going back to easy costs what?","Slow down the first moment it feels hard.","What if it was never easy for the other person?"]},
+ {p:"The note was still in my pocket…",w:"still",d:["not yet given","not yet read","kept on purpose"],
+  o:["An unsent note confessing a crush","A note from a grandparent who has died","A secret message from a mystery person"],
+  r:["A shopping list in a jacket bought from the op shop","An apology the character keeps rewriting and never hands over","The note was written to the narrator, and they have not dared to read it"],
+  n:["Why is it still there? Forgotten, or chosen?","Crushes and secret admirers are banned.","Who wrote it, and who was it for?","What does keeping it say about your character?","Handing it over helps. What does it cost?","Slow down the moment their fingers touch the paper.","What if the note was never meant for them?"]},
+ {p:"Everyone said it was only a game…",w:"only",d:["just for fun","not important","not real"],
+  o:["A video game that becomes real","A grand final the team loses","A board game that traps the players inside"],
+  r:["A chess match between a student and their grandfather in the park","A playground game whose rules decide who belongs","To the character it is the only thing that is not a game"],
+  n:["Only a game to whom?","Getting sucked into a game is banned.","What is really being decided while they play?","What does your character believe winning proves?","Winning costs someone else. Who?","Slow down the last move.","What if the other player lost on purpose?"]},
+ {p:"The door had never been locked before…",w:"locked",d:["shut with a key","closed to someone","not welcome anymore"],
+  o:["A locked door hides a monster","Parents lock a room with a secret inside","Someone is trapped inside a house"],
+  r:["A neighbour’s back gate the character always walked through","An older sister’s bedroom after she starts high school","The character is the one who turned the key"],
+  n:["Locked to keep something in, or someone out?","Monsters and strangers are banned.","Who used to walk straight in?","What did your character believe an open door meant?","Knocking gets an answer. What does it cost?","Slow down the hand on the handle.","What if the door was locked for them, not against them?"]},
+ {p:"By the time I noticed, it was too late…",w:"too late",d:["after the damage","after the chance passed","after someone changed"],
+  o:["A fire or accident nobody stopped in time","Missing the bus and missing something big","A friend was upset and nobody noticed"],
+  r:["The tide creeping over a sandcastle a little cousin spent all day on","A best friend quietly finding a new group","Someone else noticed the character changing, and said nothing"],
+  n:["Too late for what, exactly?","Disasters and accidents are banned.","What small sign did they walk past?","What did your character believe they would always have time for?","Admitting they missed it costs what?","Slow down the moment of noticing.","What if it is not too late, only too late for the old way?"]},
+ {p:"I kept the promise, mostly…",w:"mostly",d:["almost completely","in the way that mattered","except for one part"],
+  o:["A promise made to a dying relative","A promise to keep a friend’s secret","A promise to look after a pet"],
+  r:["A promise to water a neighbour’s tomatoes all summer","A promise to never turn out like an older brother","Breaking one part of the promise was the only way to keep the rest"],
+  n:["Which part did they not keep?","Deathbed promises are banned.","Who would notice the missing part?","What does your character believe a promise is worth?","Keeping all of it would cost what?","Slow down the moment they decide to bend it.","What if the other person knew all along?"]},
+ {p:"The quiet was the loudest part…",w:"quiet",d:["no sound","nobody speaking","something missing"],
+  o:["A creepy silent house at night","The silence after a crash","An exam room waiting for results"],
+  r:["A dinner table where the radio has always been on","A choir that loses its loudest voice","The character is the quiet one, and everyone is finally listening"],
+  n:["Whose voice is missing?","Haunted houses are banned.","What noise normally fills that space?","What does your character believe silence means?","Breaking the quiet helps. What does it cost?","Slow down the moment nobody answers.","What if the quiet was a gift?"]},
+ {p:"Nobody else could see it…",w:"see",d:["notice with your eyes","understand","believe in"],
+  o:["An imaginary friend or a ghost","A superpower only the character has","A hidden monster"],
+  r:["A crack spreading across the classroom ceiling","How good a quiet student’s drawings really are","Everyone else can see it, and the character is the only one who cannot"],
+  n:["See with eyes, or see as in understand?","Ghosts and imaginary friends are banned.","Why can they see it when nobody else does?","What does your character believe about being believed?","Speaking up costs what?","Slow down the moment someone else finally looks.","What if they were wrong about what they saw?"]},
+ {p:"I should have said no…",w:"no",d:["refuse","stop someone","tell the truth"],
+  o:["Peer pressure to break a school rule","A dare that goes wrong","Saying yes to a party"],
+  r:["Agreeing to mind a neighbour’s chickens for a week","Always being the one who fixes things at home","Someone else should have said no to the character"],
+  n:["No to whom? A friend, a parent, themselves?","Dares and parties are banned.","Why was yes easier?","What does your character believe saying no makes them?","Saying no now costs what?","Slow down the moment the yes comes out.","What if the no would have hurt more?"]},
+ {p:"It wasn’t mine to keep…",w:"keep",d:["hold onto","look after for someone","keep secret"],
+  o:["Finding money and giving it back","Returning a stolen object to its owner","A stray animal that has to go back"],
+  r:["A borrowed bike the character fixes up a little too well","A younger sibling’s trust","The character is the thing being kept, by someone who has to let go"],
+  n:["Keep an object, a secret or a person?","Found money is banned.","Who does it really belong to?","What does your character believe about earning things?","Giving it back costs what?","Slow down the handover.","What if the owner wants them to keep it?"]},
+ {p:"The view from the top was not what I expected…",w:"top",d:["the peak of a climb","first place","the end of a goal"],
+  o:["Climbing a mountain and the view is amazing","Winning a competition and feeling empty","A skyscraper or a roller coaster"],
+  r:["A lookout at the end of a family bushwalk","Making the top class and losing old friends","The person at the top finally looks down and sees the character"],
+  n:["Top of what?","Mountain summits are banned.","What did they think they would see?","What does your character believe being first will fix?","Staying at the top costs what?","Slow down the first look.","What if the view was of themselves?"]},
+ {p:"After the lights went out…",w:"lights",d:["a power cut","stage lights","someone’s spark"],
+  o:["A blackout and an intruder","A storm and a scary noise","Telling ghost stories in the dark"],
+  r:["A school concert when the stage lights fail halfway through a song","A grandmother who has stopped telling her stories","The character is the one who flicked the switch"],
+  n:["Which light, and who turned it off?","Intruders and storms are banned.","What can you only say in the dark?","What does your character believe they need to be seen?","Turning them back on costs what?","Slow down the first ten seconds of dark.","What if the dark is where it got better?"]},
+ {p:"We were never meant to win…",w:"meant",d:["expected","supposed to","allowed to"],
+  o:["The underdog team wins the grand final","A tiny school beats a huge school","A surprise win at the talent show"],
+  r:["A trivia team at a community night with the worst name in the hall","A family who were never meant to keep the old house","They win, and that is the problem"],
+  n:["Meant by whom?","Underdog sport wins are banned.","Who set them up to lose?","What does your character believe about winning?","Winning costs whom?","Slow down the moment it is announced.","What if losing was the idea all along?"]},
+ {p:"The map was wrong…",w:"map",d:["a drawn map","directions someone gave","how things were supposed to go"],
+  o:["Lost in a forest with a treasure map","A pirate map that leads to gold","The car navigation sends a family somewhere scary"],
+  r:["A hand drawn map of a holiday town from a grandfather","The way a family always said things would turn out","The map was right, and the character was the one who was wrong"],
+  n:["Who drew it, and when?","Treasure maps are banned.","Where were they really trying to go?","What does your character believe about following directions?","Trusting the map costs what?","Slow down the moment the road ends.","What if the map was wrong on purpose?"]},
+ {p:"It started with a single word…",w:"word",d:["one thing said","a name","a promise"],
+  o:["A magic word or spell","A rumour that spreads at school","An argument that ends a friendship"],
+  r:["The first English word a new neighbour learns","A nickname that stuck","The word was never said, and that silence started everything"],
+  n:["Whose word, and to whom?","Spells and rumours are banned.","What word changes everything for them?","What does your character believe words can do?","Taking it back costs what?","Slow down the moment it is said.","What if the word was misheard?"]}
+];
+
+/* WILD: wildcard deck */
+const WILD=[
+ ["Swap readings","Writer A and Writer B swap readings. Keep your character, change the angle."],
+ ["Behind the door","Your character must be the one behind the door, not the one knocking."],
+ ["No dialogue","No dialogue allowed. Show everything through actions and objects."],
+ ["Object’s eyes","Tell it from the point of view of an object in the room."],
+ ["Plant it early","Your twist must be planted in your first line."],
+ ["Start in the middle","Cut your setup. Your first line starts in the middle of the action."],
+ ["Ears first","Your stretch must open with a sound or a smell, not something seen."],
+ ["Five words","Shrink your belief to five words. Then show it with one action."],
+ ["The other side","Tell it from the point of view of the person your character is up against."],
+ ["Ticking clock","Add a deadline. The dilemma must be decided before something specific happens."],
+ ["Flip the belief","Your character must end believing the opposite of how they started. Show the exact moment it flips."],
+ ["Editor’s pitch","The editor pitches a third story in 20 seconds. If it beats both writers, the tutor awards a bonus."]
+];
+
+const PHASES=[
+ {k:"prompt",name:"Prompt",t:60,unit:"Reading the prompt"},
+ {k:"call",name:"Call It",t:60,unit:"4.4 Subversion"},
+ {k:"read",name:"Three Readings",t:90,unit:"4.4 Subversion"},
+ {k:"belief",name:"Belief",t:60,unit:"4.1 Character Arcs"},
+ {k:"dilemma",name:"Dilemma",t:90,unit:"4.2 Dilemmas"},
+ {k:"stretch",name:"Stretch",t:45,unit:"4.3 Pacing &amp; Tension"},
+ {k:"twist",name:"Twist",t:90,unit:"4.4 Subversion"},
+ {k:"verdict",name:"Verdict",t:60,unit:"All four units"}
+];
+const CRIT=[["Change Shown Not Told","The belief shifts through an action, never a statement"],["Real Dilemma","Two goods, and a skim reader cannot solve it"],["Earned Tension","The climax is slowed with new information"],["Earned Twist","Seeded early, rewards a reread, breaks no rules"]];
+const DEVICES=["Slowed action","Object close up","Memory flash","Sound or smell","Unanswered question","Interrupted speech"];
+
+/* TUTOR: per phase run line, listen for, trap */
+const TUTOR={
+ prompt:{run:"Read the prompt aloud twice. Ask the room which word could mean three different things, and get all three meanings before anyone pitches a story.",
+  listen:["Meanings beyond the literal one","Students who already have a plot: stop them, it is too early","The editor checking every meaning still fits the prompt"],
+  trap:"Jumping straight to a story. The first idea is the one the whole exam hall will have."},
+ call:{run:"Both writers name what everyone in the exam hall will write. The editor bans each one. If twenty students in this room would write it, it is off limits.",
+  listen:["Specific predictable stories (a spooky empty school) rather than vague ones (something sad)","At least two calls from each writer","The editor banning firmly, with no arguing"],
+  trap:"Calling ideas so vague they ban nothing. Push for the exact story, setting and ending."},
+ read:{run:"Literal is what the words say. Metaphorical is what they could stand for. Inverted flips who or what the prompt is about. Each writer picks one and pitches a single line: a character, a place and a problem.",
+  listen:["A pitch the marker has not read fifty times that still clearly answers the prompt","A named character and a real place","Writers choosing different readings, or the same reading done very differently"],
+  trap:"Inverted readings that lose the prompt completely. The prompt words must still be true in the story."},
+ belief:{run:"A belief is something the character thinks is true about the world, shown through what they do. The editor asks one question: could you film it?",
+  listen:["“She thinks… so she…” shape: belief, then behaviour","Behaviours that are small and repeated, not one dramatic act","The editor separating belief from mood and trait"],
+  trap:"Mood (“she is sad”) or trait (“she is brave”). Neither can change in a way a reader sees."},
+ dilemma:{run:"Two goods, never good against evil. The character wants something, and getting it costs something they also care about. Then the Lazy Reader Test: if a skim reader says “just tell the truth” or “just ask”, there is no dilemma.",
+  listen:["A goal and a cost the character cares about equally","The editor trying to solve it out loud in one sentence","Writers patching the hole the editor found, not defending it"],
+  trap:"A villain, a rule or a misunderstanding that one conversation would fix."},
+ stretch:{run:"The climax is the moment of choice. Slow it down so one second becomes a paragraph. Every sentence must add new information, not repeat the feeling. One delay device only. Forty five seconds each.",
+  listen:["Something new the reader learns inside the slowed moment","A delay device that builds pressure rather than decorates","Writers who stop before the choice is made"],
+  trap:"Repeated feelings: pounding heart, sweaty palms, time stood still. Nothing new, so no tension."},
+ twist:{run:"Writers give the seed line first, then the twist. The editor runs three checks. Seed: is it planted early in a line that looked ordinary? Reread: does the seed mean something new afterwards? Guardrail: does it fit everything else, with no dream and no new character?",
+  listen:["Seeds that read as setting or habit the first time","Twists that change the meaning of the belief, not just the plot","The editor quoting the seed back"],
+  trap:"Twists with no seed, or twists that cheat: it was all a dream, a twin, a stranger who appears in the last line."},
+ verdict:{run:"The editor scores each writer from 1 to 5 on the four criteria and must quote one line from each writer as evidence. Then one line of feedback each: one thing that worked, one fix. Add your bonus points, then bank and rotate.",
+  listen:["Scores backed by a quoted line","Feedback that names a fix, not just praise","Writers taking the fix without arguing"],
+  trap:"“It was good.” Every score needs a reason the writer can act on."}
+};
+
+/* EX: worked example on "The last one to leave…" */
+const EXT="Worked example · The last one to leave…";
+const EX={
+ belief:{w:[["Mood","Mira is sad that her friends quit the trio."],["Trait","Mira is loyal."]],s:["Belief shown as behaviour","Mira thinks quitting means you never really cared, so every Thursday she still sets out three stools."]},
+ dilemma:{goal:"Play at the end of year concert, the spot Mr Hale has offered her.",cost:"She can only enter as a solo, which takes the trio off the program for good.",lazy:"Just ask Tess to come back? Tess already said no. Either choice still costs Mira something she loves."},
+ stretch:{w:"My heart was pounding. I was so nervous. Time stood still. I wrote my name.",s:"The pen was the cheap blue kind that skips. Mira wrote the M and stopped. Under the line, in pencil, someone had already written Trio? in round letters she knew. The question mark had been gone over twice.",info:"Tess has been checking the sheet too.",dev:"Object close up"},
+ twist:{seed:"Every Thursday the stools were already stacked when Mira arrived, the wobbly one on top where she could reach it.",tw:"Tess had never stopped coming. She came at four, played alone for an hour, and stacked the stools so Mira would not see her leave.",checks:[["Seed","The stacked stools look like setting in line one."],["Reread","Now they show Tess was there every week."],["Guardrail","Fits the pencilled Trio? and breaks Mira’s belief that quitting means not caring."]]},
+ verdict:"Writer A, Real Dilemma 4: both choices cost Mira something, but I needed one concrete thing she loses. Earned Twist 5: the stacked stools in your first line made me go back and reread."
+};
+
+/* state */
+const blankW=()=>({reading:null,pitch:"",belief:"",bcheck:null,goal:"",cost:"",lazy:null,info:"",stretch:"",device:null,seed:"",twist:"",tc:[false,false,false],fb:""});
+const fresh=()=>({calls:[],usual:false,def:"",w:{a:blankW(),b:blankW()},scores:{a:[0,0,0,0],b:[0,0,0,0]},edBonus:false,bonus:[0,0,0],ex:{},nudge:null,turn:"a"});
+const S={names:["Student A","Student B","Student C"],pts:[0,0,0],round:0,phase:0,pi:null,used:[],tutor:false,R:fresh()};
+const KEY="writersRoom";
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||"null");if(d){S.names=Array.isArray(d.names)?d.names:S.names;S.pts=Array.isArray(d.pts)?d.pts:S.pts;S.round=d.round||0;S.used=d.used||[];S.tutor=!!d.tutor}}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({names:S.names,pts:S.pts,round:S.round,used:S.used,tutor:S.tutor}))}catch(e){}}
+load();
+const roles=()=>({a:S.round%3,b:(S.round+1)%3,e:(S.round+2)%3});
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+const nm=i=>esc(S.names[i]||("Student "+"ABC"[i]));
+const $=id=>document.getElementById(id);
+const P_=()=>S.pi==null?null:PROMPTS[S.pi];
+const PH=()=>PHASES[S.phase];
+
+function drawRoster(){
+  const r=roles(),lab={a:"Writer A",b:"Writer B",e:"Editor"};
+  $("roster").innerHTML=[0,1,2].map(i=>{const k=i===r.a?"a":i===r.b?"b":"e";const bn=S.R.bonus[i];
+    return `<div class="seat ${k}"><input id="name${i}" aria-label="Student ${i+1} name" value="${esc(S.names[i])}" maxlength="24"><span class="role">${lab[k]}</span><span class="pts" id="pts${i}">${S.pts[i]}${bn?`<small>+${bn}</small>`:""}</span></div>`}).join("");
+  [0,1,2].forEach(i=>$("name"+i).addEventListener("input",e=>{S.names[i]=e.target.value;save();document.querySelectorAll("[data-nm='"+i+"']").forEach(n=>n.textContent=e.target.value||("Student "+"ABC"[i]))}));
+  $("rnd").textContent="Round "+(S.round+1);
+}
+function drawRail(){
+  $("rail").innerHTML=PHASES.map((p,i)=>`<button type="button" data-i="${i}" class="${i===S.phase?"on":i<S.phase?"done":""}" ${i===S.phase?'aria-current="step"':""}><span class="n">${i+1}</span>${p.name}</button>`).join("");
+  $("rail").querySelectorAll("button").forEach(b=>b.onclick=()=>go(+b.dataset.i));
+  const on=$("rail").querySelector(".on");if(on&&on.scrollIntoView){try{on.scrollIntoView({block:"nearest",inline:"center"})}catch(e){}}
+}
+function pickPrompt(){
+  let pool=PROMPTS.map((_,i)=>i).filter(i=>!S.used.includes(i)&&i!==S.pi);
+  if(!pool.length){S.used=[];pool=PROMPTS.map((_,i)=>i).filter(i=>i!==S.pi)}
+  S.pi=pool[Math.floor(Math.random()*pool.length)];S.R=fresh();render();
+}
+const N=i=>`<span data-nm="${i}">${nm(i)}</span>`;
+const fld=(x,f,label,ph,area)=>`<div class="fld"><label for="f-${x}-${f}">${label}</label>${area?`<textarea id="f-${x}-${f}" data-w="${x}" data-f="${f}" placeholder="${esc(ph)}">${esc(S.R.w[x][f])}</textarea>`:`<input id="f-${x}-${f}" data-w="${x}" data-f="${f}" placeholder="${esc(ph)}" value="${esc(S.R.w[x][f])}">`}</div>`;
+const chips=(x,f,opts,good)=>opts.map((o,i)=>`<button type="button" class="chip ${good&&good.includes(i)?"good":""} ${S.R.w[x][f]===i?"on":""}" data-cw="${x}" data-cf="${f}" data-cv="${i}">${o}</button>`).join("");
+function wcard(x,inner,ed){const r=roles();return `<div class="wc ${x}"><h3>Writer ${x.toUpperCase()} ${N(r[x])}</h3>${inner}${ed?`<div class="ed"><span class="who">Editor</span>${ed}</div>`:""}</div>`}
+function offLimits(){const b=S.R.calls.filter(c=>c.ban);return b.length?`<div class="offl"><b>Off limits</b>${b.map(c=>`<span>${esc(c.t)}</span>`).join("")}</div>`:""}
+function promptLine(m){return `<p class="minip">${esc(m.p)}</p>`}
+
+function exBlock(k,m){
+  if(!S.R.ex[k])return "";
+  let b="",tag=EXT;
+  if(k==="prompt"){tag="This card";b=`<div class="pair">${m.d.map((x,i)=>`<div class="xc info"><span class="l">Meaning ${i+1}</span>${esc(x)}</div>`).join("")}</div>`}
+  else if(k==="call"){tag="This card";b=`<div class="pair">${m.o.map(x=>`<div class="xc note"><span class="l">What everyone writes</span>${esc(x)}</div>`).join("")}</div>`}
+  else if(k==="read"){tag="This card";b=`<div class="pair">${["Literal","Metaphorical","Inverted"].map((t,i)=>`<div class="xc ${i===1?"strong":"info"}"><span class="l">${t}${i===1?" · sweet spot":""}</span>${esc(m.r[i])}</div>`).join("")}</div>`}
+  else if(k==="belief"){const e=EX.belief;b=`<div class="pair">${e.w.map(w=>`<div class="xc weak"><span class="l">${w[0]}</span>${w[1]}</div>`).join("")}<div class="xc strong"><span class="l">${e.s[0]}</span>${e.s[1]}</div></div>`}
+  else if(k==="dilemma"){const e=EX.dilemma;b=`<div class="pair"><div class="xc info"><span class="l">Goal</span>${e.goal}</div><div class="xc info"><span class="l">Cost</span>${e.cost}</div></div><div class="xc note"><span class="l">Lazy Reader Test</span>${e.lazy}</div>`}
+  else if(k==="stretch"){const e=EX.stretch;b=`<div class="pair"><div class="xc weak"><span class="l">Weak</span>${e.w}</div><div class="xc strong"><span class="l">Strong</span>${e.s}</div></div><div class="pair"><div class="xc info"><span class="l">New information</span>${e.info}</div><div class="xc note"><span class="l">Delay device</span>${e.dev}</div></div>`}
+  else if(k==="twist"){const e=EX.twist;b=`<div class="pair"><div class="xc info"><span class="l">Seed · first line</span>${e.seed}</div><div class="xc strong"><span class="l">Twist · last paragraph</span>${e.tw}</div></div><div class="pair">${e.checks.map(c=>`<div class="xc note"><span class="l">${c[0]}</span>${c[1]}</div>`).join("")}</div>`}
+  else if(k==="verdict"){b=`<div class="xc strong"><span class="l">Strong editor feedback</span>${EX.verdict}</div>`}
+  return `<section class="ex" aria-label="Exemplar"><div class="hd"><span>Exemplar</span><span>${tag}</span></div><div class="bd">${b}</div></section>`;
+}
+function nudgeRow(){const m=P_();if(!m||S.phase>6)return "";return `<div class="nudge"><button class="btn sm" type="button" id="nudgeBtn">Nudge</button>${S.R.nudge===S.phase?`<p>${esc(m.n[S.phase])}</p>`:""}</div>`}
+
+function render(){
+  drawRoster();drawRail();
+  const P=PH().k,m=P_(),r=roles(),R=S.R;
+  let h="";
+  if(P==="prompt"){
+    h=`<p class="eyebrow">Phase 1 · Prompt</p>
+    ${m?`<p class="prompt">${esc(m.p)}</p>
+      <p class="say"><span class="ca">${N(r.a)}</span> and <span class="cb">${N(r.b)}</span> write. <span class="ce">${N(r.e)}</span> edits.</p>
+      <div class="fuzzy"><span class="lbl">Define</span><span class="word">${esc(m.w)}</span><input id="defIn" aria-label="Our meaning" placeholder="Our meaning" value="${esc(R.def)}"></div>`
+    :`<h2>Draw a prompt card</h2>`}
+    <div class="row"><button class="btn primary" type="button" id="drawBtn">${m?"Redraw":"Draw prompt"}</button>${m?`<button class="btn" type="button" id="nextBtn">Call It →</button>`:""}</div>`;
+  } else if(!m){h=`<div class="veil">No prompt yet.<br><br><button class="btn primary" type="button" id="toDraw">Draw a prompt</button></div>`}
+  else if(P==="call"){
+    const list=x=>`<ul class="calls">${R.calls.map((c,i)=>c.by!==x?"":`<li class="${c.ban?"ban":""}"><span>${esc(c.t)}</span><span class="row" style="gap:4px"><button type="button" class="chip ${c.ban?"on":""}" data-ban="${i}">${c.ban?"Banned":"Ban"}</button><button type="button" class="x" data-del="${i}" aria-label="Remove">×</button></span></li>`).join("")}</ul>
+      <div class="fld"><label for="call-${x}">What everyone writes</label><input id="call-${x}" data-call="${x}" placeholder="Type it, press Enter"></div>`;
+    h=`<p class="eyebrow">Phase 2 · Call It</p><h2>What would everyone write?</h2>${promptLine(m)}
+    <div class="duo">${wcard("a",list("a"))}${wcard("b",list("b"))}</div>
+    ${R.usual?`<div class="usual"><p class="eyebrow" style="color:var(--orange-ink)">What everyone writes</p><ul class="calls">${R.calls.map((c,i)=>c.by!=="u"?"":`<li class="ban"><span>${esc(c.t)}</span></li>`).join("")}</ul></div>`:""}`;
+  } else if(P==="read"){
+    const L=["Literal","Metaphorical","Inverted"];
+    h=`<p class="eyebrow">Phase 3 · Three Readings</p><h2>Pick a reading and pitch one line</h2>${promptLine(m)}${offLimits()}
+    <div class="reads">${L.map((t,i)=>`<div class="rd ${R.w.a.reading===i?"pa":""} ${R.w.b.reading===i?"pb":""}"><b>${t}</b><div class="pk"><button type="button" class="chip pickA ${R.w.a.reading===i?"on":""}" data-cw="a" data-cf="reading" data-cv="${i}">Writer A</button><button type="button" class="chip pickB ${R.w.b.reading===i?"on":""}" data-cw="b" data-cf="reading" data-cv="${i}">Writer B</button></div></div>`).join("")}</div>
+    <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"pitch","One line pitch"+(R.w[x].reading!=null?" · "+L[R.w[x].reading]:""),"Character, place, problem",true))).join("")}</div>`;
+  } else if(P==="belief"){
+    h=`<p class="eyebrow">Phase 4 · Belief</p><h2>Show a belief through behaviour</h2>${promptLine(m)}${offLimits()}
+    <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"belief","Belief shown as behaviour","She thinks… so she…",true),chips(x,"bcheck",["Belief","Mood","Trait"],[0]))).join("")}</div>`;
+  } else if(P==="dilemma"){
+    h=`<p class="eyebrow">Phase 5 · Dilemma</p><h2>Give your character two goods to choose between</h2>${promptLine(m)}${offLimits()}
+    <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"goal","Goal","What they want")+fld(x,"cost","Cost","What getting it costs them"),`<span class="who" style="margin-right:0">Lazy Reader Test</span>`+chips(x,"lazy",["Holds up","Skim reader solves it"],[0]))).join("")}</div>`;
+  } else if(P==="stretch"){
+    h=`<p class="eyebrow">Phase 6 · Stretch</p><h2>Slow down the climax</h2>${promptLine(m)}${offLimits()}
+    <div class="row" style="margin-bottom:14px"><button type="button" class="chip pickA ${R.turn==="a"?"on":""}" data-turn="a">Writer A on the clock</button><button type="button" class="chip pickB ${R.turn==="b"?"on":""}" data-turn="b">Writer B on the clock</button></div>
+    <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"stretch","The slowed moment","One second, stretched",true)+fld(x,"info","New information","What the reader learns")+`<div class="fld"><label>Delay device</label><div class="row" style="gap:6px">${DEVICES.map((d,i)=>`<button type="button" class="chip ${x==="a"?"pickA":"pickB"} ${R.w[x].device===i?"on":""}" data-cw="${x}" data-cf="device" data-cv="${i}">${d}</button>`).join("")}</div></div>`)).join("")}</div>`;
+  } else if(P==="twist"){
+    const tc=["Seed","Reread","Guardrail"];
+    h=`<p class="eyebrow">Phase 7 · Twist</p><h2>Plant the seed, then the twist</h2>${promptLine(m)}${offLimits()}
+    <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"seed","Seed line","Planted early, looks ordinary")+fld(x,"twist","Twist","What it really meant",true),tc.map((t,i)=>`<button type="button" class="chip good ${R.w[x].tc[i]?"on":""}" data-tc="${x}" data-ti="${i}" aria-pressed="${R.w[x].tc[i]}">${R.w[x].tc[i]?"✓ ":""}${t}</button>`).join(""))).join("")}</div>`;
+  } else if(P==="verdict"){
+    const t=x=>R.scores[x].reduce((a,b)=>a+b,0);
+    h=`<p class="eyebrow">Phase 8 · Verdict</p><h2><span class="ce">${N(r.e)}</span> scores the room</h2>
+    <div class="gridwrap"><table class="score"><thead><tr><th style="color:var(--navy)">Criterion</th><th class="ca">${N(r.a)}</th><th class="cb">${N(r.b)}</th></tr></thead><tbody>
+    ${CRIT.map((c,ci)=>`<tr><td><b>${c[0]}</b><small>${c[1]}</small></td>${["a","b"].map(x=>`<td data-l="${esc(S.names[r[x]]||"")}"><div class="pick ${x}">${[1,2,3,4,5].map(v=>`<button type="button" class="${R.scores[x][ci]===v?"on":""}" data-s="${x}" data-c="${ci}" data-v="${v}" aria-label="${c[0]} ${v}">${v}</button>`).join("")}</div></td>`).join("")}</tr>`).join("")}
+    <tr><td><b>Total</b></td><td class="tot" id="totA" data-l="${esc(S.names[r.a]||"")}">${t("a")}/20</td><td class="tot" id="totB" data-l="${esc(S.names[r.b]||"")}">${t("b")}/20</td></tr></tbody></table></div>
+    <div class="fbs">${["a","b"].map(x=>wcard(x,fld(x,"fb","Editor feedback","One thing that worked, one fix"))).join("")}</div>
+    <div class="edbox"><label><input type="checkbox" id="edb" ${R.edBonus?"checked":""}> Every score backed by a quoted line (+2 editor)</label><button class="btn primary" type="button" id="bankBtn">Bank scores and rotate</button></div>`;
+  }
+  if(m&&P!=="prompt")h+=nudgeRow();
+  if(m)h+=exBlock(P,m);
+  $("phase").innerHTML=h;
+  $("unit").innerHTML=`<b>Revises</b><span>${PH().unit}</span>`;
+  wire(P);setPresetButtons();drawTutor();
+}
+
+function wire(P){
+  const ph=$("phase");
+  const d=$("drawBtn");if(d)d.onclick=pickPrompt;
+  const nx=$("nextBtn");if(nx)nx.onclick=()=>go(1);
+  const td=$("toDraw");if(td)td.onclick=()=>go(0);
+  const di=$("defIn");if(di)di.oninput=e=>{S.R.def=e.target.value};
+  const nb=$("nudgeBtn");if(nb)nb.onclick=()=>{S.R.nudge=S.R.nudge===S.phase?null:S.phase;render()};
+  ph.querySelectorAll("[data-f]").forEach(el=>el.addEventListener("input",e=>{S.R.w[el.dataset.w][el.dataset.f]=e.target.value}));
+  ph.querySelectorAll("[data-cw]").forEach(b=>b.onclick=()=>{const w=S.R.w[b.dataset.cw],f=b.dataset.cf,v=+b.dataset.cv;w[f]=w[f]===v?null:v;render()});
+  ph.querySelectorAll("[data-call]").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter"&&i.value.trim()){S.R.calls.push({t:i.value.trim(),by:i.dataset.call,ban:false});const id=i.id;render();$(id).focus()}}));
+  ph.querySelectorAll("[data-ban]").forEach(b=>b.onclick=()=>{const c=S.R.calls[+b.dataset.ban];c.ban=!c.ban;render()});
+  ph.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{S.R.calls.splice(+b.dataset.del,1);render()});
+  ph.querySelectorAll("[data-turn]").forEach(b=>b.onclick=()=>{S.R.turn=b.dataset.turn;resetTimer();render()});
+  ph.querySelectorAll("[data-tc]").forEach(b=>b.onclick=()=>{const a=S.R.w[b.dataset.tc].tc,i=+b.dataset.ti;a[i]=!a[i];render()});
+  if(P==="verdict"){
+    ph.querySelectorAll(".pick button").forEach(b=>b.onclick=()=>{S.R.scores[b.dataset.s][+b.dataset.c]=+b.dataset.v;render()});
+    $("edb").onchange=e=>{S.R.edBonus=e.target.checked};
+    $("bankBtn").onclick=bank;
+  }
+}
+
+function drawTutor(){
+  const el=$("tutor");el.hidden=!S.tutor;
+  $("tutBtn").classList.toggle("navy",S.tutor);$("tutBtn").classList.toggle("ghost-navy",!S.tutor);
+  $("tutBtn").setAttribute("aria-pressed",S.tutor);
+  if(!S.tutor){el.innerHTML="";return}
+  const P=PH().k,t=TUTOR[P],m=P_(),r=roles();
+  const shown=!!S.R.ex[P];
+  const usualBtn=P==="call"&&m?`<button type="button" class="btn sm ${S.R.usual?"on":""}" id="usualBtn">${S.R.usual?"Hide the usual":"Show the usual"}</button>`:"";
+  el.innerHTML=`<div class="th"><b>Tutor · ${PH().name}</b><div class="row">${usualBtn}<button type="button" class="btn sm ${shown?"on":""}" id="exBtn" ${m?"":"disabled"}>${shown?"Hide exemplar":"Reveal exemplar"}</button></div></div>
+  <div class="tgrid">
+    <div class="tcol"><h4>Run it</h4><p>${t.run}</p><div class="trap"><b>Trap:</b> ${t.trap}</div>${m&&S.phase<7?`<div class="cardn"><b>Card nudge:</b> ${esc(m.n[S.phase])}</div>`:""}</div>
+    <div class="tcol"><h4>Listen for</h4><ul>${t.listen.map(x=>`<li>${x}</li>`).join("")}</ul>${m&&P==="call"?`<h4>What everyone writes</h4><ul>${m.o.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div>
+    <div class="tcol"><h4>Bonus points</h4><div class="bon">${[0,1,2].map(i=>`<div><span>${N(i)}</span><span class="v">+${S.R.bonus[i]}</span><button type="button" class="btn sm" data-bon="${i}" data-d="1" aria-label="Add a bonus point">+1</button><button type="button" class="btn sm" data-bon="${i}" data-d="-1" aria-label="Take back a bonus point">Undo</button></div>`).join("")}</div>
+      <h4>Keys</h4><div class="keys"><span><kbd>Space</kbd> timer</span><span><kbd>←</kbd> <kbd>→</kbd> phase</span><span><kbd>W</kbd> wildcard</span><span><kbd>T</kbd> tutor</span><span><kbd>Esc</kbd> close</span></div></div>
+  </div>`;
+  $("exBtn").onclick=()=>{S.R.ex[P]=!S.R.ex[P];render()};
+  const ub=$("usualBtn");if(ub)ub.onclick=()=>{S.R.usual=!S.R.usual;
+    if(S.R.usual){m.o.forEach(o=>S.R.calls.push({t:o,by:"u",ban:true}))}else{S.R.calls=S.R.calls.filter(c=>c.by!=="u")}render()};
+  el.querySelectorAll("[data-bon]").forEach(b=>b.onclick=()=>{const i=+b.dataset.bon;S.R.bonus[i]=Math.max(0,S.R.bonus[i]+ +b.dataset.d);render()});
+}
+function toggleTutor(){S.tutor=!S.tutor;save();drawTutor()}
+
+function bank(){
+  const r=roles(),R=S.R,sum=a=>a.reduce((x,y)=>x+y,0);
+  S.pts[r.a]+=sum(R.scores.a);S.pts[r.b]+=sum(R.scores.b);
+  if(R.edBonus)S.pts[r.e]+=2;
+  [0,1,2].forEach(i=>S.pts[i]+=R.bonus[i]);
+  if(S.pi!=null&&!S.used.includes(S.pi))S.used.push(S.pi);
+  S.round++;S.pi=null;S.R=fresh();save();go(0);
+}
+function go(i){S.phase=Math.max(0,Math.min(PHASES.length-1,i));T.total=PH().t||60;resetTimer();render()}
+
+/* timer */
+const T={total:60,left:60,run:false,id:null,last:0};
+const C=2*Math.PI*74;
+let actx=null;
+function beep(f,d){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.2,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+d);o.start();o.stop(actx.currentTime+d)}catch(e){}}
+function fmt(s){const n=Math.abs(Math.ceil(s));return (s<0?"+":"")+Math.floor(n/60)+":"+String(n%60).padStart(2,"0")}
+function paint(){
+  $("tText").textContent=fmt(T.left);
+  const frac=Math.max(0,T.left)/T.total;
+  $("arc").setAttribute("stroke-dasharray",C);$("arc").setAttribute("stroke-dashoffset",C*(1-frac));
+  const c=$("clock");c.classList.toggle("warn",T.left<=10&&T.left>0);c.classList.toggle("over",T.left<=0);
+  $("tLab").textContent=T.left<=0?"time":T.run?PH().name:"ready";
+  $("goBtn").textContent=T.run?"Pause":"Start";
+}
+function tick(now){if(!T.run)return;const dt=(now-T.last)/1000;T.last=now;const before=T.left;T.left-=dt;
+  if(before>10&&T.left<=10)beep(660,.15);
+  if(before>0&&T.left<=0){beep(880,.5);setTimeout(()=>beep(880,.5),600)}
+  paint();T.id=requestAnimationFrame(tick)}
+function toggle(){T.run=!T.run;if(T.run){T.last=performance.now();T.id=requestAnimationFrame(tick)}else cancelAnimationFrame(T.id);paint()}
+function resetTimer(){T.run=false;cancelAnimationFrame(T.id);T.left=T.total;paint()}
+function setPresetButtons(){$("presets").innerHTML=[30,45,60,90,120].map(s=>`<button type="button" class="${T.total===s?"on":""}" data-s="${s}">${s<60?s+"s":(s/60)+"m"}</button>`).join("");
+  $("presets").querySelectorAll("button").forEach(b=>b.onclick=()=>{T.total=+b.dataset.s;resetTimer();setPresetButtons()})}
+$("goBtn").onclick=toggle;$("rsBtn").onclick=resetTimer;
+
+/* wildcard */
+let lastW=-1;
+function wild(){let i;do{i=Math.floor(Math.random()*WILD.length)}while(i===lastW&&WILD.length>1);lastW=i;const w=WILD[i];$("wTitle").textContent=w[0];$("wBody").textContent=w[1];$("wild").hidden=false;$("wClose").focus();beep(520,.12)}
+$("wildBtn").onclick=wild;$("wAgain").onclick=wild;$("wClose").onclick=()=>{$("wild").hidden=true};
+$("wild").onclick=e=>{if(e.target.id==="wild")$("wild").hidden=true};
+$("tutBtn").onclick=toggleTutor;
+$("resetBtn").onclick=function(){if(this.dataset.arm){S.pts=[0,0,0];S.round=0;S.used=[];S.pi=null;S.R=fresh();save();delete this.dataset.arm;this.textContent="Reset scores";go(0)}else{this.dataset.arm="1";this.textContent="Tap again to reset";setTimeout(()=>{delete this.dataset.arm;this.textContent="Reset scores"},3000)}};
+
+document.addEventListener("keydown",e=>{
+  const tg=e.target.tagName;
+  if(tg==="INPUT"||tg==="TEXTAREA"){if(e.key==="Escape")e.target.blur();return}
+  if(e.key==="Escape"){$("wild").hidden=true;return}
+  if(!$("wild").hidden&&e.code==="Space")return;
+  if(e.code==="Space"){e.preventDefault();toggle()}
+  else if(e.key==="ArrowRight")go(S.phase+1);
+  else if(e.key==="ArrowLeft")go(S.phase-1);
+  else if(e.key.toLowerCase()==="w")wild();
+  else if(e.key.toLowerCase()==="t")toggleTutor();
+});
+
+S.names=S.names.map((n,i)=>n||["Student A","Student B","Student C"][i]);
+S.pi=Math.floor(Math.random()*PROMPTS.length);
+go(0);
+</script>
+</body>
+</html>

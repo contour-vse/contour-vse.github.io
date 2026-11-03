@@ -467,40 +467,40 @@ window.QUESTIONS = {
   "warmup": [
    {
     "id": "w1",
-    "text": "The school library opens at 8:15 am on weekdays. On Fridays, though, it opens half an hour later, so the librarians can sort the new books that arrive each week. Students may borrow up to four books at a time.",
+    "text": "The school library opens at 8:30 am on weekdays. On Fridays, though, it opens half an hour earlier, so students can return their books before the weekly assembly. The front desk does not take returns before 8:15 am on any day.",
     "img": null,
     "ask": "When does the library open on Fridays?",
     "options": [
-     "8:45 am",
+     "7:30 am",
+     "8:00 am",
      "8:15 am",
-     "7:45 am",
-     "9:15 am"
+     "8:30 am"
     ],
     "topic": "Proving a Detail"
    },
    {
     "id": "w2",
-    "text": "Wren pulled her hood up and frowned at the sky. She had left her umbrella on the bus that morning, and the walk home from the station was a long one. Big grey clouds were rolling in over the hills, and the first fat drops were already darkening the footpath.",
+    "text": "Wren pulled her hood up and frowned at the sky. She had left her umbrella on the bus that morning, and the walk home from the station was a long one. Big grey clouds were rolling in over the hills, and the first big drops were already darkening the footpath.",
     "img": null,
     "ask": "Why is Wren most likely frowning?",
     "options": [
-     "She is cross with the driver of the bus.",
-     "She is too hot in her warm hoodie.",
      "She is going to get wet walking home.",
-     "She cannot find her way to the station."
+     "She is cross that the bus left without her.",
+     "She is worried she left her umbrella at school.",
+     "She is annoyed that the walk home is such a long one."
     ],
     "topic": "Linking Lines"
    },
    {
     "id": "w3",
-    "text": "The old footbridge over the creek was so narrow that two bikes could not fit side by side, so riders had to take turns. Hugo waited patiently at one end while an older man wheeled his bike slowly across, nodding his thanks as he went by.",
+    "text": "The old footbridge over the creek was so narrow that riders had to climb off and walk. Hugo was already late for training, but he waited at one end while an older man wheeled his bike slowly across. The man gave Hugo a grateful nod as he passed.",
     "img": null,
-    "ask": "In the text, the word 'narrow' means",
+    "ask": "In the text, the word 'passed' means",
     "options": [
-     "long",
-     "not wide",
-     "old and shaky",
-     "high above the water"
+     "threw a ball to someone",
+     "did well in a test",
+     "handed something over",
+     "went by him"
     ],
     "topic": "Words in Context"
    },
@@ -508,12 +508,12 @@ window.QUESTIONS = {
     "id": "w4",
     "text": "Emus cannot fly, but they are strong runners and can reach about 50 kilometres an hour. The father emu sits on the eggs for around eight weeks, and in that time he hardly eats or drinks. After the chicks hatch, he looks after them for many months.",
     "img": null,
-    "ask": "According to the text, who sits on the eggs?",
+    "ask": "According to the text, how long does the father emu sit on the eggs?",
     "options": [
-     "the mother emu",
-     "both parents, taking turns",
-     "the oldest chick",
-     "the father emu"
+     "about eight weeks",
+     "about ten weeks",
+     "about three months",
+     "many months"
     ],
     "topic": "Proving a Detail"
    },
@@ -524,37 +524,37 @@ window.QUESTIONS = {
     "ask": "What is Esme most likely doing?",
     "options": [
      "cleaning up after a party",
-     "baking for a school fair",
-     "getting ready for her gran's visit",
-     "waiting for a pizza delivery to arrive"
+     "baking a cake to take to her gran's house",
+     "getting ready for her gran's birthday",
+     "hosting a dinner for her school friends"
     ],
     "topic": "Linking Lines"
    },
    {
     "id": "w6",
-    "text": "After the long hike up the hill and back, Kip was ravenous. He finished two sandwiches, an apple and a whole bowl of pasta before anyone else had even sat down at the table, then asked if there was any dessert.",
+    "text": "After the long hike up the hill and back, Kip was spent. He flopped onto the couch, kicked off his muddy boots and fell asleep before anyone had even started cooking dinner. His little sister had to pull a blanket over him.",
     "img": null,
-    "ask": "In the text, the word 'ravenous' means",
+    "ask": "In the text, the word 'spent' means",
     "options": [
+     "out of money",
      "very hungry",
-     "very tired",
-     "very cold",
-     "very cross"
+     "a bit bored",
+     "worn out"
     ],
     "topic": "Words in Context"
    },
    {
     "id": "w7",
-    "text": "The community garden has twelve plots. Ten are rented by local families, and the last two are kept for the primary school next door, whose students grow herbs and beans there each spring. Anyone is welcome to visit on Saturday mornings.",
+    "text": "Ten plots in the community garden are rented by local families, and two more are kept for the primary school next door, whose students grow herbs and beans there each spring. Four of the family plots grow only flowers. Anyone is welcome to visit on Saturday mornings.",
     "img": null,
-    "ask": "How many plots are kept for the school?",
+    "ask": "How many plots does the garden have altogether?",
     "options": [
-     "ten",
-     "twelve",
-     "three",
-     "two"
+     "4",
+     "10",
+     "12",
+     "14"
     ],
-    "topic": "Proving a Detail"
+    "topic": "Linking Lines"
    },
    {
     "id": "w8",
@@ -562,9 +562,9 @@ window.QUESTIONS = {
     "img": null,
     "ask": "How is Yusuf most likely feeling?",
     "options": [
-     "bored",
+     "embarrassed",
      "nervous",
-     "angry",
+     "proud",
      "relaxed"
     ],
     "topic": "Linking Lines"
@@ -573,79 +573,79 @@ window.QUESTIONS = {
   "challenge": [
    {
     "id": "c1",
-    "text": "Gaps on Purpose\n\nWalk across almost any long bridge and you will feel it before you see it: a soft bump under your shoes, or a clunk under the wheels of the car. Look down and you will find a metal joint that looks like two combs pushed together. The joint is not a repair, and it is not a fault. Engineers put it there on purpose.\n\nMost materials grow slightly when they warm up and shrink when they cool down. A steel beam 100 metres long can stretch by about five centimetres between a frosty winter dawn and a hot summer afternoon. Concrete moves too, though usually by a little less than steel. Five centimetres sounds tiny, but if both ends of a bridge were fixed solid, the growing deck would have nowhere to go. It would push against the land at each end with enormous force.\n\nRailway builders learnt this the hard way. Some early lines were laid with the rails pressed tightly end to end, and on very hot days the track could buckle sideways into a curve. Workers began leaving small gaps between the rails, and every wheel that crossed a gap made a sound. That is where the famous clickety clack of older trains came from.\n\nToday the gaps are hidden in clever places. In a comb joint, the metal teeth slide past each other as the bridge grows and shrinks, so there is never an open hole for a wheel to drop into. Some bridges rest on rollers or thick rubber pads, which let the deck creep back and forth over the seasons. Even footpaths have a version. The straight lines cut into the concrete every metre or two give the slab a weak spot, so that if it cracks, it cracks along a neat line instead of anywhere at all.\n\nThe joints need looking after. Leaves, grit and rubbish can jam the teeth, and a jammed joint behaves as if there were no joint at all. In many cities, road crews clean the joints out each spring, before the summer heat makes the deck grow into the space.\n\nIt is a surprising lesson. A structure that is allowed to move a little will usually last far longer than one built to stand perfectly still.",
+    "text": "The Fourth Control\n\nIn Year 7, my school spent one day each autumn orienteering in a state forest an hour north of the city. Each pair was given a map, a compass that neither person knew how to use, and a card with twelve numbered squares. Somewhere in the bush were twelve controls. You had to find them in order and be back at the car park before the bus left at three. I was twelve, I had studied the map twice on the bus, and I was certain I would be brilliant at it.\n\nMy partner was Imogen, who sat at the back of our maths class and had said perhaps ten words to me all year. When the maps were handed out, I took ours without asking. Imogen didn’t argue. She zipped the compass into her jacket pocket and followed me to the start, where our PE teacher was reading out the rules from a clipboard.\n\nAt each control, a metal clipper hung on a string. You pressed it into the right square on your card, and its teeth left a pattern of tiny holes that no other clipper could make, so nobody could pretend to have been somewhere they hadn’t. Most controls, the teacher said, were tied at about head height to a tree or a post, though a few were tucked low behind logs or rocks, “where only the patient will find them.” She called those ones sleepers. Pairs who couldn’t find one were allowed to move on to the next, but an empty square would cost them.\n\nThe first three went perfectly. I found them so quickly that I began to look at the map less and run more. Imogen kept up without complaint. Now and then she glanced at the map over my shoulder, and once she seemed about to say something, but she only pushed her hair behind her ear and kept walking. I decided she was bored. She had the look, I thought, of someone counting the minutes until the bus.\n\nThe fourth control was meant to be where a creek met a walking track. When the track split in two, I chose the wider side because it looked more like the line on the map, and for a while I was sure of it. Then the track began to climb, though the map showed the creek in a gully below us. I told myself the map was probably out of date. Soon the track narrowed to a path, the path to a strip of flattened grass, and then it stopped altogether at a wire fence. Beyond it was a paddock, where three cows watched us with mild interest. That was when I finally admitted that we were lost.\n\nImogen took the map from me gently, the way you might take scissors off a small child. She turned it until the creek on the paper ran the same way as the gully below us, put her thumb on a spot beside the fence and said, “We’re here.” Then she walked us back down. Her thumb never left the map; she slid it along as we went, like someone keeping their place in a book. Within fifteen minutes we were standing beside the creek, and there, tucked under a fallen log, was the fourth control.\n\nShe held the map for the rest of the day. We found every control after that, but we were the last pair back, and the bus had been waiting for twenty minutes. The PE teacher looked at her watch, then at our card, and wrote something on her clipboard that I couldn’t read. I spent the ride home sure that we were in trouble.\n\nWe weren’t. The next week our card was pinned to the noticeboard outside the staffroom: the only one in Year 7 with all twelve squares punched. Most pairs had skipped at least one of the hidden controls so they could make the bus. It was years before I learnt the rest. At a friend’s birthday dinner, long after we had all left school, Imogen’s mother told me that Imogen had been orienteering with her family most weekends since she was seven, and that she had come home that day saying the girl she had been partnered with was “fast, but in the wrong direction.”\n\nI have thought about that day more often than I would have expected. I had taken her silence for boredom, when it was something much closer to patience. She had let me be wrong until it mattered, and then she had fixed it without once making me feel small. I still read maps too quickly. But I have learnt to watch for the person glancing over my shoulder.",
     "img": null,
-    "ask": "The passage is mainly about",
+    "ask": "What was the first sign that the pair had taken the wrong track?",
     "options": [
-     "why long bridges need metal comb joints.",
-     "how the clickety clack of older trains began.",
-     "why structures are built with room to grow and shrink.",
-     "how railway builders learnt to stop tracks buckling in the heat."
+     "The track started to climb instead of dropping to the creek.",
+     "The track narrowed to a path and then to flattened grass.",
+     "The pair came to a fence at the edge of a paddock.",
+     "The narrator told herself that the map was probably out of date."
     ],
     "topic": "Question Targets"
    },
    {
     "id": "c2",
-    "text": "Gaps on Purpose\n\nWalk across almost any long bridge and you will feel it before you see it: a soft bump under your shoes, or a clunk under the wheels of the car. Look down and you will find a metal joint that looks like two combs pushed together. The joint is not a repair, and it is not a fault. Engineers put it there on purpose.\n\nMost materials grow slightly when they warm up and shrink when they cool down. A steel beam 100 metres long can stretch by about five centimetres between a frosty winter dawn and a hot summer afternoon. Concrete moves too, though usually by a little less than steel. Five centimetres sounds tiny, but if both ends of a bridge were fixed solid, the growing deck would have nowhere to go. It would push against the land at each end with enormous force.\n\nRailway builders learnt this the hard way. Some early lines were laid with the rails pressed tightly end to end, and on very hot days the track could buckle sideways into a curve. Workers began leaving small gaps between the rails, and every wheel that crossed a gap made a sound. That is where the famous clickety clack of older trains came from.\n\nToday the gaps are hidden in clever places. In a comb joint, the metal teeth slide past each other as the bridge grows and shrinks, so there is never an open hole for a wheel to drop into. Some bridges rest on rollers or thick rubber pads, which let the deck creep back and forth over the seasons. Even footpaths have a version. The straight lines cut into the concrete every metre or two give the slab a weak spot, so that if it cracks, it cracks along a neat line instead of anywhere at all.\n\nThe joints need looking after. Leaves, grit and rubbish can jam the teeth, and a jammed joint behaves as if there were no joint at all. In many cities, road crews clean the joints out each spring, before the summer heat makes the deck grow into the space.\n\nIt is a surprising lesson. A structure that is allowed to move a little will usually last far longer than one built to stand perfectly still.",
+    "text": "The Fourth Control\n\nIn Year 7, my school spent one day each autumn orienteering in a state forest an hour north of the city. Each pair was given a map, a compass that neither person knew how to use, and a card with twelve numbered squares. Somewhere in the bush were twelve controls. You had to find them in order and be back at the car park before the bus left at three. I was twelve, I had studied the map twice on the bus, and I was certain I would be brilliant at it.\n\nMy partner was Imogen, who sat at the back of our maths class and had said perhaps ten words to me all year. When the maps were handed out, I took ours without asking. Imogen didn’t argue. She zipped the compass into her jacket pocket and followed me to the start, where our PE teacher was reading out the rules from a clipboard.\n\nAt each control, a metal clipper hung on a string. You pressed it into the right square on your card, and its teeth left a pattern of tiny holes that no other clipper could make, so nobody could pretend to have been somewhere they hadn’t. Most controls, the teacher said, were tied at about head height to a tree or a post, though a few were tucked low behind logs or rocks, “where only the patient will find them.” She called those ones sleepers. Pairs who couldn’t find one were allowed to move on to the next, but an empty square would cost them.\n\nThe first three went perfectly. I found them so quickly that I began to look at the map less and run more. Imogen kept up without complaint. Now and then she glanced at the map over my shoulder, and once she seemed about to say something, but she only pushed her hair behind her ear and kept walking. I decided she was bored. She had the look, I thought, of someone counting the minutes until the bus.\n\nThe fourth control was meant to be where a creek met a walking track. When the track split in two, I chose the wider side because it looked more like the line on the map, and for a while I was sure of it. Then the track began to climb, though the map showed the creek in a gully below us. I told myself the map was probably out of date. Soon the track narrowed to a path, the path to a strip of flattened grass, and then it stopped altogether at a wire fence. Beyond it was a paddock, where three cows watched us with mild interest. That was when I finally admitted that we were lost.\n\nImogen took the map from me gently, the way you might take scissors off a small child. She turned it until the creek on the paper ran the same way as the gully below us, put her thumb on a spot beside the fence and said, “We’re here.” Then she walked us back down. Her thumb never left the map; she slid it along as we went, like someone keeping their place in a book. Within fifteen minutes we were standing beside the creek, and there, tucked under a fallen log, was the fourth control.\n\nShe held the map for the rest of the day. We found every control after that, but we were the last pair back, and the bus had been waiting for twenty minutes. The PE teacher looked at her watch, then at our card, and wrote something on her clipboard that I couldn’t read. I spent the ride home sure that we were in trouble.\n\nWe weren’t. The next week our card was pinned to the noticeboard outside the staffroom: the only one in Year 7 with all twelve squares punched. Most pairs had skipped at least one of the hidden controls so they could make the bus. It was years before I learnt the rest. At a friend’s birthday dinner, long after we had all left school, Imogen’s mother told me that Imogen had been orienteering with her family most weekends since she was seven, and that she had come home that day saying the girl she had been partnered with was “fast, but in the wrong direction.”\n\nI have thought about that day more often than I would have expected. I had taken her silence for boredom, when it was something much closer to patience. She had let me be wrong until it mattered, and then she had fixed it without once making me feel small. I still read maps too quickly. But I have learnt to watch for the person glancing over my shoulder.",
     "img": null,
-    "ask": "According to the passage, why does a long bridge need a joint?",
+    "ask": "According to the passage, why did the narrator choose the wider track?",
     "options": [
-     "A fixed deck would push hard against the land as it grows.",
-     "The joint stops car wheels from dropping into an open gap.",
-     "Steel can stretch by five centimetres in one afternoon.",
-     "Leaves, grit and rubbish can jam the teeth."
+     "She had studied the map twice on the bus.",
+     "Imogen had pointed to it when the track split in two.",
+     "The first three had gone perfectly for the pair.",
+     "It seemed a closer match to the map."
     ],
     "topic": "True but Not the Answer"
    },
    {
     "id": "c3",
-    "text": "Gaps on Purpose\n\nWalk across almost any long bridge and you will feel it before you see it: a soft bump under your shoes, or a clunk under the wheels of the car. Look down and you will find a metal joint that looks like two combs pushed together. The joint is not a repair, and it is not a fault. Engineers put it there on purpose.\n\nMost materials grow slightly when they warm up and shrink when they cool down. A steel beam 100 metres long can stretch by about five centimetres between a frosty winter dawn and a hot summer afternoon. Concrete moves too, though usually by a little less than steel. Five centimetres sounds tiny, but if both ends of a bridge were fixed solid, the growing deck would have nowhere to go. It would push against the land at each end with enormous force.\n\nRailway builders learnt this the hard way. Some early lines were laid with the rails pressed tightly end to end, and on very hot days the track could buckle sideways into a curve. Workers began leaving small gaps between the rails, and every wheel that crossed a gap made a sound. That is where the famous clickety clack of older trains came from.\n\nToday the gaps are hidden in clever places. In a comb joint, the metal teeth slide past each other as the bridge grows and shrinks, so there is never an open hole for a wheel to drop into. Some bridges rest on rollers or thick rubber pads, which let the deck creep back and forth over the seasons. Even footpaths have a version. The straight lines cut into the concrete every metre or two give the slab a weak spot, so that if it cracks, it cracks along a neat line instead of anywhere at all.\n\nThe joints need looking after. Leaves, grit and rubbish can jam the teeth, and a jammed joint behaves as if there were no joint at all. In many cities, road crews clean the joints out each spring, before the summer heat makes the deck grow into the space.\n\nIt is a surprising lesson. A structure that is allowed to move a little will usually last far longer than one built to stand perfectly still.",
+    "text": "The Fourth Control\n\nIn Year 7, my school spent one day each autumn orienteering in a state forest an hour north of the city. Each pair was given a map, a compass that neither person knew how to use, and a card with twelve numbered squares. Somewhere in the bush were twelve controls. You had to find them in order and be back at the car park before the bus left at three. I was twelve, I had studied the map twice on the bus, and I was certain I would be brilliant at it.\n\nMy partner was Imogen, who sat at the back of our maths class and had said perhaps ten words to me all year. When the maps were handed out, I took ours without asking. Imogen didn’t argue. She zipped the compass into her jacket pocket and followed me to the start, where our PE teacher was reading out the rules from a clipboard.\n\nAt each control, a metal clipper hung on a string. You pressed it into the right square on your card, and its teeth left a pattern of tiny holes that no other clipper could make, so nobody could pretend to have been somewhere they hadn’t. Most controls, the teacher said, were tied at about head height to a tree or a post, though a few were tucked low behind logs or rocks, “where only the patient will find them.” She called those ones sleepers. Pairs who couldn’t find one were allowed to move on to the next, but an empty square would cost them.\n\nThe first three went perfectly. I found them so quickly that I began to look at the map less and run more. Imogen kept up without complaint. Now and then she glanced at the map over my shoulder, and once she seemed about to say something, but she only pushed her hair behind her ear and kept walking. I decided she was bored. She had the look, I thought, of someone counting the minutes until the bus.\n\nThe fourth control was meant to be where a creek met a walking track. When the track split in two, I chose the wider side because it looked more like the line on the map, and for a while I was sure of it. Then the track began to climb, though the map showed the creek in a gully below us. I told myself the map was probably out of date. Soon the track narrowed to a path, the path to a strip of flattened grass, and then it stopped altogether at a wire fence. Beyond it was a paddock, where three cows watched us with mild interest. That was when I finally admitted that we were lost.\n\nImogen took the map from me gently, the way you might take scissors off a small child. She turned it until the creek on the paper ran the same way as the gully below us, put her thumb on a spot beside the fence and said, “We’re here.” Then she walked us back down. Her thumb never left the map; she slid it along as we went, like someone keeping their place in a book. Within fifteen minutes we were standing beside the creek, and there, tucked under a fallen log, was the fourth control.\n\nShe held the map for the rest of the day. We found every control after that, but we were the last pair back, and the bus had been waiting for twenty minutes. The PE teacher looked at her watch, then at our card, and wrote something on her clipboard that I couldn’t read. I spent the ride home sure that we were in trouble.\n\nWe weren’t. The next week our card was pinned to the noticeboard outside the staffroom: the only one in Year 7 with all twelve squares punched. Most pairs had skipped at least one of the hidden controls so they could make the bus. It was years before I learnt the rest. At a friend’s birthday dinner, long after we had all left school, Imogen’s mother told me that Imogen had been orienteering with her family most weekends since she was seven, and that she had come home that day saying the girl she had been partnered with was “fast, but in the wrong direction.”\n\nI have thought about that day more often than I would have expected. I had taken her silence for boredom, when it was something much closer to patience. She had let me be wrong until it mattered, and then she had fixed it without once making me feel small. I still read maps too quickly. But I have learnt to watch for the person glancing over my shoulder.",
     "img": null,
-    "ask": "Which statement about concrete is supported by the passage?",
+    "ask": "Which statement about the controls is supported by the passage?",
     "options": [
-     "It grows more quickly than steel on hot days.",
-     "It never moves as much as steel does.",
-     "It needs a cut every metre or two so that it has room to grow.",
-     "It tends to change length a little less than steel."
+     "Most were tied low behind a log or a rock.",
+     "Most were marked with bright tape so pairs could spot them.",
+     "Most were hung at about the height of a head.",
+     "A few were hidden so well that no pair found them."
     ],
     "topic": "Proving a Detail"
    },
    {
     "id": "c4",
-    "text": "The Solo\n\nThe band room smelt of valve oil and old carpet. I sat in the second row with my trumpet across my knees, pressing the valves without blowing, the way you check your pocket for keys you know are there. In twenty minutes the whole school would be in the hall, and eight bars of the second song belonged to me alone.\n\nFreya, our band captain, was moving along the rows with her clipboard, ticking off names. When she reached me, she tapped the clipboard twice with her pen and moved on without a word. Arjun leaned across from the trombones. “She did that to me before my solo last term,” he whispered. “It means she reckons you’ll be fine.” I wasn’t so sure.\n\nThe walk to the hall took four minutes. I know because I counted the fence posts along the quad and lost track twice. My lips felt as if they belonged to somebody else, and I kept wiping my palms on my trousers.\n\nOn stage, the lights turned the audience into one dark shape that rustled and coughed. Freya sat in the back row with the drums, where I couldn’t see her. The first song went by in a blur. Then the second song began, and I watched the conductor’s hand rise toward me, and I lifted the trumpet.\n\nThe first note cracked. It came out thin and sour, and somewhere in the dark a few people laughed. I felt the heat climb up my neck. But the second note was clean, and so was the third, and by the sixth bar I couldn’t hear anything except the tune in front of me.\n\nAfterwards, while I was packing up, Freya walked past and dropped a folded note onto my case. Inside, in her neat handwriting, she had written: “Told you. Tap, tap.” Later, Arjun admitted that Freya had asked him that morning whether I’d been practising. He had told her I practised every lunchtime, which was true. What he didn’t tell her was that I practised alone because I was too nervous to play in front of anyone.",
+    "text": "The Fourth Control\n\nIn Year 7, my school spent one day each autumn orienteering in a state forest an hour north of the city. Each pair was given a map, a compass that neither person knew how to use, and a card with twelve numbered squares. Somewhere in the bush were twelve controls. You had to find them in order and be back at the car park before the bus left at three. I was twelve, I had studied the map twice on the bus, and I was certain I would be brilliant at it.\n\nMy partner was Imogen, who sat at the back of our maths class and had said perhaps ten words to me all year. When the maps were handed out, I took ours without asking. Imogen didn’t argue. She zipped the compass into her jacket pocket and followed me to the start, where our PE teacher was reading out the rules from a clipboard.\n\nAt each control, a metal clipper hung on a string. You pressed it into the right square on your card, and its teeth left a pattern of tiny holes that no other clipper could make, so nobody could pretend to have been somewhere they hadn’t. Most controls, the teacher said, were tied at about head height to a tree or a post, though a few were tucked low behind logs or rocks, “where only the patient will find them.” She called those ones sleepers. Pairs who couldn’t find one were allowed to move on to the next, but an empty square would cost them.\n\nThe first three went perfectly. I found them so quickly that I began to look at the map less and run more. Imogen kept up without complaint. Now and then she glanced at the map over my shoulder, and once she seemed about to say something, but she only pushed her hair behind her ear and kept walking. I decided she was bored. She had the look, I thought, of someone counting the minutes until the bus.\n\nThe fourth control was meant to be where a creek met a walking track. When the track split in two, I chose the wider side because it looked more like the line on the map, and for a while I was sure of it. Then the track began to climb, though the map showed the creek in a gully below us. I told myself the map was probably out of date. Soon the track narrowed to a path, the path to a strip of flattened grass, and then it stopped altogether at a wire fence. Beyond it was a paddock, where three cows watched us with mild interest. That was when I finally admitted that we were lost.\n\nImogen took the map from me gently, the way you might take scissors off a small child. She turned it until the creek on the paper ran the same way as the gully below us, put her thumb on a spot beside the fence and said, “We’re here.” Then she walked us back down. Her thumb never left the map; she slid it along as we went, like someone keeping their place in a book. Within fifteen minutes we were standing beside the creek, and there, tucked under a fallen log, was the fourth control.\n\nShe held the map for the rest of the day. We found every control after that, but we were the last pair back, and the bus had been waiting for twenty minutes. The PE teacher looked at her watch, then at our card, and wrote something on her clipboard that I couldn’t read. I spent the ride home sure that we were in trouble.\n\nWe weren’t. The next week our card was pinned to the noticeboard outside the staffroom: the only one in Year 7 with all twelve squares punched. Most pairs had skipped at least one of the hidden controls so they could make the bus. It was years before I learnt the rest. At a friend’s birthday dinner, long after we had all left school, Imogen’s mother told me that Imogen had been orienteering with her family most weekends since she was seven, and that she had come home that day saying the girl she had been partnered with was “fast, but in the wrong direction.”\n\nI have thought about that day more often than I would have expected. I had taken her silence for boredom, when it was something much closer to patience. She had let me be wrong until it mattered, and then she had fixed it without once making me feel small. I still read maps too quickly. But I have learnt to watch for the person glancing over my shoulder.",
     "img": null,
-    "ask": "Freya’s note suggests that she",
+    "ask": "The passage suggests that the pair’s card was the only one with all twelve squares punched because",
     "options": [
-     "was surprised that the solo had gone well.",
-     "had expected the narrator to do well all along.",
-     "wanted to make up for the people who laughed in the hall.",
-     "knew that the narrator practised alone."
+     "they kept searching for a hidden one that most pairs skipped.",
+     "they ran faster than the other pairs for most of the day.",
+     "each clipper left a pattern of holes no other could make.",
+     "Imogen knew the quickest route around the whole course."
     ],
     "topic": "Linking Lines"
    },
    {
     "id": "c5",
-    "text": "The Solo\n\nThe band room smelt of valve oil and old carpet. I sat in the second row with my trumpet across my knees, pressing the valves without blowing, the way you check your pocket for keys you know are there. In twenty minutes the whole school would be in the hall, and eight bars of the second song belonged to me alone.\n\nFreya, our band captain, was moving along the rows with her clipboard, ticking off names. When she reached me, she tapped the clipboard twice with her pen and moved on without a word. Arjun leaned across from the trombones. “She did that to me before my solo last term,” he whispered. “It means she reckons you’ll be fine.” I wasn’t so sure.\n\nThe walk to the hall took four minutes. I know because I counted the fence posts along the quad and lost track twice. My lips felt as if they belonged to somebody else, and I kept wiping my palms on my trousers.\n\nOn stage, the lights turned the audience into one dark shape that rustled and coughed. Freya sat in the back row with the drums, where I couldn’t see her. The first song went by in a blur. Then the second song began, and I watched the conductor’s hand rise toward me, and I lifted the trumpet.\n\nThe first note cracked. It came out thin and sour, and somewhere in the dark a few people laughed. I felt the heat climb up my neck. But the second note was clean, and so was the third, and by the sixth bar I couldn’t hear anything except the tune in front of me.\n\nAfterwards, while I was packing up, Freya walked past and dropped a folded note onto my case. Inside, in her neat handwriting, she had written: “Told you. Tap, tap.” Later, Arjun admitted that Freya had asked him that morning whether I’d been practising. He had told her I practised every lunchtime, which was true. What he didn’t tell her was that I practised alone because I was too nervous to play in front of anyone.",
+    "text": "The Fourth Control\n\nIn Year 7, my school spent one day each autumn orienteering in a state forest an hour north of the city. Each pair was given a map, a compass that neither person knew how to use, and a card with twelve numbered squares. Somewhere in the bush were twelve controls. You had to find them in order and be back at the car park before the bus left at three. I was twelve, I had studied the map twice on the bus, and I was certain I would be brilliant at it.\n\nMy partner was Imogen, who sat at the back of our maths class and had said perhaps ten words to me all year. When the maps were handed out, I took ours without asking. Imogen didn’t argue. She zipped the compass into her jacket pocket and followed me to the start, where our PE teacher was reading out the rules from a clipboard.\n\nAt each control, a metal clipper hung on a string. You pressed it into the right square on your card, and its teeth left a pattern of tiny holes that no other clipper could make, so nobody could pretend to have been somewhere they hadn’t. Most controls, the teacher said, were tied at about head height to a tree or a post, though a few were tucked low behind logs or rocks, “where only the patient will find them.” She called those ones sleepers. Pairs who couldn’t find one were allowed to move on to the next, but an empty square would cost them.\n\nThe first three went perfectly. I found them so quickly that I began to look at the map less and run more. Imogen kept up without complaint. Now and then she glanced at the map over my shoulder, and once she seemed about to say something, but she only pushed her hair behind her ear and kept walking. I decided she was bored. She had the look, I thought, of someone counting the minutes until the bus.\n\nThe fourth control was meant to be where a creek met a walking track. When the track split in two, I chose the wider side because it looked more like the line on the map, and for a while I was sure of it. Then the track began to climb, though the map showed the creek in a gully below us. I told myself the map was probably out of date. Soon the track narrowed to a path, the path to a strip of flattened grass, and then it stopped altogether at a wire fence. Beyond it was a paddock, where three cows watched us with mild interest. That was when I finally admitted that we were lost.\n\nImogen took the map from me gently, the way you might take scissors off a small child. She turned it until the creek on the paper ran the same way as the gully below us, put her thumb on a spot beside the fence and said, “We’re here.” Then she walked us back down. Her thumb never left the map; she slid it along as we went, like someone keeping their place in a book. Within fifteen minutes we were standing beside the creek, and there, tucked under a fallen log, was the fourth control.\n\nShe held the map for the rest of the day. We found every control after that, but we were the last pair back, and the bus had been waiting for twenty minutes. The PE teacher looked at her watch, then at our card, and wrote something on her clipboard that I couldn’t read. I spent the ride home sure that we were in trouble.\n\nWe weren’t. The next week our card was pinned to the noticeboard outside the staffroom: the only one in Year 7 with all twelve squares punched. Most pairs had skipped at least one of the hidden controls so they could make the bus. It was years before I learnt the rest. At a friend’s birthday dinner, long after we had all left school, Imogen’s mother told me that Imogen had been orienteering with her family most weekends since she was seven, and that she had come home that day saying the girl she had been partnered with was “fast, but in the wrong direction.”\n\nI have thought about that day more often than I would have expected. I had taken her silence for boredom, when it was something much closer to patience. She had let me be wrong until it mattered, and then she had fixed it without once making me feel small. I still read maps too quickly. But I have learnt to watch for the person glancing over my shoulder.",
     "img": null,
-    "ask": "“My lips felt as if they belonged to somebody else” suggests that the narrator’s lips",
+    "ask": "In the passage, a “sleeper” is",
     "options": [
-     "were sore from practising every lunchtime.",
-     "were cold from the walk across the quad.",
-     "were hard to control because of nerves.",
-     "had stopped working after the first note cracked."
+     "a log lying across the walking track.",
+     "a control tucked low where it is hard to see.",
+     "a pair who has stopped to rest in the bush.",
+     "a pair who misses the bus home at three."
     ],
     "topic": "Words in Context"
    },
    {
     "id": "c6",
-    "text": "The Solo\n\nThe band room smelt of valve oil and old carpet. I sat in the second row with my trumpet across my knees, pressing the valves without blowing, the way you check your pocket for keys you know are there. In twenty minutes the whole school would be in the hall, and eight bars of the second song belonged to me alone.\n\nFreya, our band captain, was moving along the rows with her clipboard, ticking off names. When she reached me, she tapped the clipboard twice with her pen and moved on without a word. Arjun leaned across from the trombones. “She did that to me before my solo last term,” he whispered. “It means she reckons you’ll be fine.” I wasn’t so sure.\n\nThe walk to the hall took four minutes. I know because I counted the fence posts along the quad and lost track twice. My lips felt as if they belonged to somebody else, and I kept wiping my palms on my trousers.\n\nOn stage, the lights turned the audience into one dark shape that rustled and coughed. Freya sat in the back row with the drums, where I couldn’t see her. The first song went by in a blur. Then the second song began, and I watched the conductor’s hand rise toward me, and I lifted the trumpet.\n\nThe first note cracked. It came out thin and sour, and somewhere in the dark a few people laughed. I felt the heat climb up my neck. But the second note was clean, and so was the third, and by the sixth bar I couldn’t hear anything except the tune in front of me.\n\nAfterwards, while I was packing up, Freya walked past and dropped a folded note onto my case. Inside, in her neat handwriting, she had written: “Told you. Tap, tap.” Later, Arjun admitted that Freya had asked him that morning whether I’d been practising. He had told her I practised every lunchtime, which was true. What he didn’t tell her was that I practised alone because I was too nervous to play in front of anyone.",
+    "text": "The Fourth Control\n\nIn Year 7, my school spent one day each autumn orienteering in a state forest an hour north of the city. Each pair was given a map, a compass that neither person knew how to use, and a card with twelve numbered squares. Somewhere in the bush were twelve controls. You had to find them in order and be back at the car park before the bus left at three. I was twelve, I had studied the map twice on the bus, and I was certain I would be brilliant at it.\n\nMy partner was Imogen, who sat at the back of our maths class and had said perhaps ten words to me all year. When the maps were handed out, I took ours without asking. Imogen didn’t argue. She zipped the compass into her jacket pocket and followed me to the start, where our PE teacher was reading out the rules from a clipboard.\n\nAt each control, a metal clipper hung on a string. You pressed it into the right square on your card, and its teeth left a pattern of tiny holes that no other clipper could make, so nobody could pretend to have been somewhere they hadn’t. Most controls, the teacher said, were tied at about head height to a tree or a post, though a few were tucked low behind logs or rocks, “where only the patient will find them.” She called those ones sleepers. Pairs who couldn’t find one were allowed to move on to the next, but an empty square would cost them.\n\nThe first three went perfectly. I found them so quickly that I began to look at the map less and run more. Imogen kept up without complaint. Now and then she glanced at the map over my shoulder, and once she seemed about to say something, but she only pushed her hair behind her ear and kept walking. I decided she was bored. She had the look, I thought, of someone counting the minutes until the bus.\n\nThe fourth control was meant to be where a creek met a walking track. When the track split in two, I chose the wider side because it looked more like the line on the map, and for a while I was sure of it. Then the track began to climb, though the map showed the creek in a gully below us. I told myself the map was probably out of date. Soon the track narrowed to a path, the path to a strip of flattened grass, and then it stopped altogether at a wire fence. Beyond it was a paddock, where three cows watched us with mild interest. That was when I finally admitted that we were lost.\n\nImogen took the map from me gently, the way you might take scissors off a small child. She turned it until the creek on the paper ran the same way as the gully below us, put her thumb on a spot beside the fence and said, “We’re here.” Then she walked us back down. Her thumb never left the map; she slid it along as we went, like someone keeping their place in a book. Within fifteen minutes we were standing beside the creek, and there, tucked under a fallen log, was the fourth control.\n\nShe held the map for the rest of the day. We found every control after that, but we were the last pair back, and the bus had been waiting for twenty minutes. The PE teacher looked at her watch, then at our card, and wrote something on her clipboard that I couldn’t read. I spent the ride home sure that we were in trouble.\n\nWe weren’t. The next week our card was pinned to the noticeboard outside the staffroom: the only one in Year 7 with all twelve squares punched. Most pairs had skipped at least one of the hidden controls so they could make the bus. It was years before I learnt the rest. At a friend’s birthday dinner, long after we had all left school, Imogen’s mother told me that Imogen had been orienteering with her family most weekends since she was seven, and that she had come home that day saying the girl she had been partnered with was “fast, but in the wrong direction.”\n\nI have thought about that day more often than I would have expected. I had taken her silence for boredom, when it was something much closer to patience. She had let me be wrong until it mattered, and then she had fixed it without once making me feel small. I still read maps too quickly. But I have learnt to watch for the person glancing over my shoulder.",
     "img": null,
-    "ask": "Which of these could the narrator {b}NOT{/b} know?",
+    "ask": "At the time of the orienteering day, the narrator believed that Imogen",
     "options": [
-     "how Freya reacted when the first note cracked",
-     "what Freya asked Arjun about the narrator that morning",
-     "how long the walk to the hall took",
-     "that some people in the audience laughed"
+     "was bored and wanted the day to be over.",
+     "had done a great deal of orienteering before.",
+     "was annoyed that the narrator had taken the map.",
+     "was counting each control as they found it."
     ],
     "topic": "Narrator Knowledge"
    }
@@ -653,131 +653,131 @@ window.QUESTIONS = {
   "sprint": [
    {
     "id": "s1",
-    "text": "The Moon on the Horizon\n\nAnyone who has watched a full moon rise over the sea or a line of hills has seen it: a huge orange disc that looks close enough to touch. A few hours later, high in the sky, the same moon looks small and silvery white. Most people assume the rising moon must be closer to them. It isn’t.\n\nThe moon’s distance from Earth does change over the course of a month, but only slowly, and never enough in one night to explain what we see. Photographs settle the question. Take a picture of the rising moon, then another at midnight with the same camera and zoom, and the two discs come out almost exactly the same size. In fact, the moon is very slightly closer to you when it is high overhead, because you are then on the side of the Earth that faces it.\n\nThe colour, on the other hand, is real. When the moon is low, its light travels through far more air on the way to your eyes. The air scatters away much of the blue light and lets more of the red and orange through, which is the same reason a sunset glows.\n\nSo why does the low moon look so big? People have argued about this “moon illusion” for more than two thousand years, and scientists still do not fully agree. One popular explanation is that the brain judges size by comparison. Near the horizon, the moon sits beside trees, roofs and distant hills, and it looks enormous next to them. High in the sky, it floats alone with nothing to compare it with.\n\nAnother explanation is that the brain pictures the sky as a flattened bowl, with the horizon much further away than the point straight overhead. Because the brain believes the horizon moon is further off, it decides the moon must be larger to look the size it does.\n\nYou can test the illusion yourself. Next time the moon is low, roll a sheet of paper into a tube and look at the moon through it, so that only the moon shows. For many people, it shrinks at once. Nothing about the moon has changed, only what the brain has to work with.",
+    "text": "Inside the Grid\n\nEvery morning, thousands of Australians fold the newspaper back to the puzzle page, or open it on a phone, and start filling in squares. Few of them stop to think that someone made that puzzle, usually weeks before, and that it may have taken that person far longer to build than any solver will spend on it. Crossword makers are known as setters, and most of them work alone.\n\nThe crossword is younger than many people think. The first one was printed in a New York newspaper in December 1913, in a holiday puzzle section, and it was shaped like a diamond rather than a square. Its setter was a journalist named Arthur Wynne. Within about ten years the puzzles had become a craze in America, and by the 1930s they were appearing in newspapers across Britain.\n\nMost setters begin with the grid, not the clues. The black squares are usually arranged so that the pattern looks exactly the same when the grid is turned upside down. Nothing about solving the puzzle needs this, and a few setters ignore it, but most keep it because solvers expect a tidy grid, and a lopsided one looks careless.\n\nNext comes a choice that decides how hard the puzzle will feel. In most American style grids, every letter is checked: each white square sits in an across answer and a down answer at the same time, so a solver who is stuck on one clue can borrow letters from the other. The cryptic crosswords printed in Britain and Australia usually check only about half of the letters in each answer. A solver who cannot crack a clue there may get no help at all with some of its squares.\n\nThen the setter fills the grid with words, which can take an hour or a whole afternoon, and only then writes the clues. In a cryptic crossword, each clue is a small trick in two parts. One part is a plain definition of the answer, and it usually sits at the very start or the very end of the clue. The rest is wordplay: a second route to the same answer, built from hidden words, sounds or letters rearranged. Setters also borrow words that can mean something unexpected. In a cryptic clue, a “flower” is often not a rose or a daisy at all, but the Thames or the Nile, because a river is something that flows.\n\nBefore a puzzle reaches the paper, at least one test solver works through it. Their job is to check for mistakes, but also for clues that are unfair: a clue with two possible answers, or one that only makes sense inside the setter’s head. A setter can be sure that a clue is clever and still discover that the test solver read it a completely different way. Many setters say that the most useful thing a test solver can write is a single question mark beside a clue.\n\nWhat makes a clue fair? Setters often answer with one rule: the solver must be able to reach the answer from the words in the clue alone, without having to read the setter’s mind. A good clue can be hard, and it can mislead on purpose, but once the answer arrives, every word in the clue should make sense.\n\nThat is why many setters say the best reaction to a clue is not a cheer but a groan. A groan means the solver was fooled fairly. The answer was there all along, in plain sight, and the solver walked straight past it. It is a strange job, spending days on something that is meant to be finished over breakfast and then thrown away. But for a setter, there is no better compliment than that groan.",
     "img": null,
-    "ask": "According to the passage, why does the moon look orange near the horizon?",
+    "ask": "According to the passage, the first crossword",
     "options": [
-     "It reflects the glow of the setting sun.",
-     "Air takes away much of its blue light.",
-     "It is closer to Earth when it rises.",
-     "It sits beside trees, roofs and hills."
+     "appeared in a newspaper in Britain.",
+     "was a different shape from today’s grids.",
+     "had clues with more than one answer.",
+     "used clues with a definition and wordplay."
     ],
     "topic": "Exam Sprint"
    },
    {
     "id": "s2",
-    "text": "The Moon on the Horizon\n\nAnyone who has watched a full moon rise over the sea or a line of hills has seen it: a huge orange disc that looks close enough to touch. A few hours later, high in the sky, the same moon looks small and silvery white. Most people assume the rising moon must be closer to them. It isn’t.\n\nThe moon’s distance from Earth does change over the course of a month, but only slowly, and never enough in one night to explain what we see. Photographs settle the question. Take a picture of the rising moon, then another at midnight with the same camera and zoom, and the two discs come out almost exactly the same size. In fact, the moon is very slightly closer to you when it is high overhead, because you are then on the side of the Earth that faces it.\n\nThe colour, on the other hand, is real. When the moon is low, its light travels through far more air on the way to your eyes. The air scatters away much of the blue light and lets more of the red and orange through, which is the same reason a sunset glows.\n\nSo why does the low moon look so big? People have argued about this “moon illusion” for more than two thousand years, and scientists still do not fully agree. One popular explanation is that the brain judges size by comparison. Near the horizon, the moon sits beside trees, roofs and distant hills, and it looks enormous next to them. High in the sky, it floats alone with nothing to compare it with.\n\nAnother explanation is that the brain pictures the sky as a flattened bowl, with the horizon much further away than the point straight overhead. Because the brain believes the horizon moon is further off, it decides the moon must be larger to look the size it does.\n\nYou can test the illusion yourself. Next time the moon is low, roll a sheet of paper into a tube and look at the moon through it, so that only the moon shows. For many people, it shrinks at once. Nothing about the moon has changed, only what the brain has to work with.",
+    "text": "Inside the Grid\n\nEvery morning, thousands of Australians fold the newspaper back to the puzzle page, or open it on a phone, and start filling in squares. Few of them stop to think that someone made that puzzle, usually weeks before, and that it may have taken that person far longer to build than any solver will spend on it. Crossword makers are known as setters, and most of them work alone.\n\nThe crossword is younger than many people think. The first one was printed in a New York newspaper in December 1913, in a holiday puzzle section, and it was shaped like a diamond rather than a square. Its setter was a journalist named Arthur Wynne. Within about ten years the puzzles had become a craze in America, and by the 1930s they were appearing in newspapers across Britain.\n\nMost setters begin with the grid, not the clues. The black squares are usually arranged so that the pattern looks exactly the same when the grid is turned upside down. Nothing about solving the puzzle needs this, and a few setters ignore it, but most keep it because solvers expect a tidy grid, and a lopsided one looks careless.\n\nNext comes a choice that decides how hard the puzzle will feel. In most American style grids, every letter is checked: each white square sits in an across answer and a down answer at the same time, so a solver who is stuck on one clue can borrow letters from the other. The cryptic crosswords printed in Britain and Australia usually check only about half of the letters in each answer. A solver who cannot crack a clue there may get no help at all with some of its squares.\n\nThen the setter fills the grid with words, which can take an hour or a whole afternoon, and only then writes the clues. In a cryptic crossword, each clue is a small trick in two parts. One part is a plain definition of the answer, and it usually sits at the very start or the very end of the clue. The rest is wordplay: a second route to the same answer, built from hidden words, sounds or letters rearranged. Setters also borrow words that can mean something unexpected. In a cryptic clue, a “flower” is often not a rose or a daisy at all, but the Thames or the Nile, because a river is something that flows.\n\nBefore a puzzle reaches the paper, at least one test solver works through it. Their job is to check for mistakes, but also for clues that are unfair: a clue with two possible answers, or one that only makes sense inside the setter’s head. A setter can be sure that a clue is clever and still discover that the test solver read it a completely different way. Many setters say that the most useful thing a test solver can write is a single question mark beside a clue.\n\nWhat makes a clue fair? Setters often answer with one rule: the solver must be able to reach the answer from the words in the clue alone, without having to read the setter’s mind. A good clue can be hard, and it can mislead on purpose, but once the answer arrives, every word in the clue should make sense.\n\nThat is why many setters say the best reaction to a clue is not a cheer but a groan. A groan means the solver was fooled fairly. The answer was there all along, in plain sight, and the solver walked straight past it. It is a strange job, spending days on something that is meant to be finished over breakfast and then thrown away. But for a setter, there is no better compliment than that groan.",
     "img": null,
-    "ask": "According to the passage, what do the two photographs show?",
+    "ask": "The writer mentions the Thames and the Nile mainly to",
     "options": [
-     "The rising moon is more orange.",
-     "The moon is much closer at midnight.",
-     "The rising moon is a little larger.",
-     "The moon is about the same size in both."
+     "name two rivers that setters often use as answers.",
+     "show that cryptic crosswords began in Britain.",
+     "explain where the definition sits in a clue.",
+     "show that a clue word may hide another meaning."
     ],
     "topic": "Exam Sprint"
    },
    {
     "id": "s3",
-    "text": "The Moon on the Horizon\n\nAnyone who has watched a full moon rise over the sea or a line of hills has seen it: a huge orange disc that looks close enough to touch. A few hours later, high in the sky, the same moon looks small and silvery white. Most people assume the rising moon must be closer to them. It isn’t.\n\nThe moon’s distance from Earth does change over the course of a month, but only slowly, and never enough in one night to explain what we see. Photographs settle the question. Take a picture of the rising moon, then another at midnight with the same camera and zoom, and the two discs come out almost exactly the same size. In fact, the moon is very slightly closer to you when it is high overhead, because you are then on the side of the Earth that faces it.\n\nThe colour, on the other hand, is real. When the moon is low, its light travels through far more air on the way to your eyes. The air scatters away much of the blue light and lets more of the red and orange through, which is the same reason a sunset glows.\n\nSo why does the low moon look so big? People have argued about this “moon illusion” for more than two thousand years, and scientists still do not fully agree. One popular explanation is that the brain judges size by comparison. Near the horizon, the moon sits beside trees, roofs and distant hills, and it looks enormous next to them. High in the sky, it floats alone with nothing to compare it with.\n\nAnother explanation is that the brain pictures the sky as a flattened bowl, with the horizon much further away than the point straight overhead. Because the brain believes the horizon moon is further off, it decides the moon must be larger to look the size it does.\n\nYou can test the illusion yourself. Next time the moon is low, roll a sheet of paper into a tube and look at the moon through it, so that only the moon shows. For many people, it shrinks at once. Nothing about the moon has changed, only what the brain has to work with.",
+    "text": "Inside the Grid\n\nEvery morning, thousands of Australians fold the newspaper back to the puzzle page, or open it on a phone, and start filling in squares. Few of them stop to think that someone made that puzzle, usually weeks before, and that it may have taken that person far longer to build than any solver will spend on it. Crossword makers are known as setters, and most of them work alone.\n\nThe crossword is younger than many people think. The first one was printed in a New York newspaper in December 1913, in a holiday puzzle section, and it was shaped like a diamond rather than a square. Its setter was a journalist named Arthur Wynne. Within about ten years the puzzles had become a craze in America, and by the 1930s they were appearing in newspapers across Britain.\n\nMost setters begin with the grid, not the clues. The black squares are usually arranged so that the pattern looks exactly the same when the grid is turned upside down. Nothing about solving the puzzle needs this, and a few setters ignore it, but most keep it because solvers expect a tidy grid, and a lopsided one looks careless.\n\nNext comes a choice that decides how hard the puzzle will feel. In most American style grids, every letter is checked: each white square sits in an across answer and a down answer at the same time, so a solver who is stuck on one clue can borrow letters from the other. The cryptic crosswords printed in Britain and Australia usually check only about half of the letters in each answer. A solver who cannot crack a clue there may get no help at all with some of its squares.\n\nThen the setter fills the grid with words, which can take an hour or a whole afternoon, and only then writes the clues. In a cryptic crossword, each clue is a small trick in two parts. One part is a plain definition of the answer, and it usually sits at the very start or the very end of the clue. The rest is wordplay: a second route to the same answer, built from hidden words, sounds or letters rearranged. Setters also borrow words that can mean something unexpected. In a cryptic clue, a “flower” is often not a rose or a daisy at all, but the Thames or the Nile, because a river is something that flows.\n\nBefore a puzzle reaches the paper, at least one test solver works through it. Their job is to check for mistakes, but also for clues that are unfair: a clue with two possible answers, or one that only makes sense inside the setter’s head. A setter can be sure that a clue is clever and still discover that the test solver read it a completely different way. Many setters say that the most useful thing a test solver can write is a single question mark beside a clue.\n\nWhat makes a clue fair? Setters often answer with one rule: the solver must be able to reach the answer from the words in the clue alone, without having to read the setter’s mind. A good clue can be hard, and it can mislead on purpose, but once the answer arrives, every word in the clue should make sense.\n\nThat is why many setters say the best reaction to a clue is not a cheer but a groan. A groan means the solver was fooled fairly. The answer was there all along, in plain sight, and the solver walked straight past it. It is a strange job, spending days on something that is meant to be finished over breakfast and then thrown away. But for a setter, there is no better compliment than that groan.",
     "img": null,
-    "ask": "The writer mentions trees, roofs and distant hills mainly to",
+    "ask": "In the passage, a “fair” clue is one that",
     "options": [
-     "show what the low moon can be compared with.",
-     "show that the moon rises behind objects on the horizon.",
-     "explain why the low moon looks orange.",
-     "suggest the best places to watch a moonrise."
+     "is easy enough for most solvers to finish.",
+     "has been checked by a test solver.",
+     "uses no words that could mislead.",
+     "can be solved from its words alone."
     ],
     "topic": "Exam Sprint"
    },
    {
     "id": "s4",
-    "text": "The Moon on the Horizon\n\nAnyone who has watched a full moon rise over the sea or a line of hills has seen it: a huge orange disc that looks close enough to touch. A few hours later, high in the sky, the same moon looks small and silvery white. Most people assume the rising moon must be closer to them. It isn’t.\n\nThe moon’s distance from Earth does change over the course of a month, but only slowly, and never enough in one night to explain what we see. Photographs settle the question. Take a picture of the rising moon, then another at midnight with the same camera and zoom, and the two discs come out almost exactly the same size. In fact, the moon is very slightly closer to you when it is high overhead, because you are then on the side of the Earth that faces it.\n\nThe colour, on the other hand, is real. When the moon is low, its light travels through far more air on the way to your eyes. The air scatters away much of the blue light and lets more of the red and orange through, which is the same reason a sunset glows.\n\nSo why does the low moon look so big? People have argued about this “moon illusion” for more than two thousand years, and scientists still do not fully agree. One popular explanation is that the brain judges size by comparison. Near the horizon, the moon sits beside trees, roofs and distant hills, and it looks enormous next to them. High in the sky, it floats alone with nothing to compare it with.\n\nAnother explanation is that the brain pictures the sky as a flattened bowl, with the horizon much further away than the point straight overhead. Because the brain believes the horizon moon is further off, it decides the moon must be larger to look the size it does.\n\nYou can test the illusion yourself. Next time the moon is low, roll a sheet of paper into a tube and look at the moon through it, so that only the moon shows. For many people, it shrinks at once. Nothing about the moon has changed, only what the brain has to work with.",
+    "text": "Inside the Grid\n\nEvery morning, thousands of Australians fold the newspaper back to the puzzle page, or open it on a phone, and start filling in squares. Few of them stop to think that someone made that puzzle, usually weeks before, and that it may have taken that person far longer to build than any solver will spend on it. Crossword makers are known as setters, and most of them work alone.\n\nThe crossword is younger than many people think. The first one was printed in a New York newspaper in December 1913, in a holiday puzzle section, and it was shaped like a diamond rather than a square. Its setter was a journalist named Arthur Wynne. Within about ten years the puzzles had become a craze in America, and by the 1930s they were appearing in newspapers across Britain.\n\nMost setters begin with the grid, not the clues. The black squares are usually arranged so that the pattern looks exactly the same when the grid is turned upside down. Nothing about solving the puzzle needs this, and a few setters ignore it, but most keep it because solvers expect a tidy grid, and a lopsided one looks careless.\n\nNext comes a choice that decides how hard the puzzle will feel. In most American style grids, every letter is checked: each white square sits in an across answer and a down answer at the same time, so a solver who is stuck on one clue can borrow letters from the other. The cryptic crosswords printed in Britain and Australia usually check only about half of the letters in each answer. A solver who cannot crack a clue there may get no help at all with some of its squares.\n\nThen the setter fills the grid with words, which can take an hour or a whole afternoon, and only then writes the clues. In a cryptic crossword, each clue is a small trick in two parts. One part is a plain definition of the answer, and it usually sits at the very start or the very end of the clue. The rest is wordplay: a second route to the same answer, built from hidden words, sounds or letters rearranged. Setters also borrow words that can mean something unexpected. In a cryptic clue, a “flower” is often not a rose or a daisy at all, but the Thames or the Nile, because a river is something that flows.\n\nBefore a puzzle reaches the paper, at least one test solver works through it. Their job is to check for mistakes, but also for clues that are unfair: a clue with two possible answers, or one that only makes sense inside the setter’s head. A setter can be sure that a clue is clever and still discover that the test solver read it a completely different way. Many setters say that the most useful thing a test solver can write is a single question mark beside a clue.\n\nWhat makes a clue fair? Setters often answer with one rule: the solver must be able to reach the answer from the words in the clue alone, without having to read the setter’s mind. A good clue can be hard, and it can mislead on purpose, but once the answer arrives, every word in the clue should make sense.\n\nThat is why many setters say the best reaction to a clue is not a cheer but a groan. A groan means the solver was fooled fairly. The answer was there all along, in plain sight, and the solver walked straight past it. It is a strange job, spending days on something that is meant to be finished over breakfast and then thrown away. But for a setter, there is no better compliment than that groan.",
     "img": null,
-    "ask": "Which statement is supported by the passage?",
+    "ask": "According to the passage, why do most setters keep their grids the same when turned upside down?",
     "options": [
-     "The moon’s distance from Earth never changes.",
-     "The flattened bowl idea has been proved correct.",
-     "Scientists have not settled on one explanation.",
-     "A paper tube makes the moon shrink for everyone."
+     "An uneven pattern would look sloppy to solvers.",
+     "It makes the clues easier for the setter to write.",
+     "It decides how hard the puzzle will feel.",
+     "Test solvers would mark it as a mistake."
     ],
     "topic": "Exam Sprint"
    },
    {
     "id": "s5",
-    "text": "The Moon on the Horizon\n\nAnyone who has watched a full moon rise over the sea or a line of hills has seen it: a huge orange disc that looks close enough to touch. A few hours later, high in the sky, the same moon looks small and silvery white. Most people assume the rising moon must be closer to them. It isn’t.\n\nThe moon’s distance from Earth does change over the course of a month, but only slowly, and never enough in one night to explain what we see. Photographs settle the question. Take a picture of the rising moon, then another at midnight with the same camera and zoom, and the two discs come out almost exactly the same size. In fact, the moon is very slightly closer to you when it is high overhead, because you are then on the side of the Earth that faces it.\n\nThe colour, on the other hand, is real. When the moon is low, its light travels through far more air on the way to your eyes. The air scatters away much of the blue light and lets more of the red and orange through, which is the same reason a sunset glows.\n\nSo why does the low moon look so big? People have argued about this “moon illusion” for more than two thousand years, and scientists still do not fully agree. One popular explanation is that the brain judges size by comparison. Near the horizon, the moon sits beside trees, roofs and distant hills, and it looks enormous next to them. High in the sky, it floats alone with nothing to compare it with.\n\nAnother explanation is that the brain pictures the sky as a flattened bowl, with the horizon much further away than the point straight overhead. Because the brain believes the horizon moon is further off, it decides the moon must be larger to look the size it does.\n\nYou can test the illusion yourself. Next time the moon is low, roll a sheet of paper into a tube and look at the moon through it, so that only the moon shows. For many people, it shrinks at once. Nothing about the moon has changed, only what the brain has to work with.",
+    "text": "Inside the Grid\n\nEvery morning, thousands of Australians fold the newspaper back to the puzzle page, or open it on a phone, and start filling in squares. Few of them stop to think that someone made that puzzle, usually weeks before, and that it may have taken that person far longer to build than any solver will spend on it. Crossword makers are known as setters, and most of them work alone.\n\nThe crossword is younger than many people think. The first one was printed in a New York newspaper in December 1913, in a holiday puzzle section, and it was shaped like a diamond rather than a square. Its setter was a journalist named Arthur Wynne. Within about ten years the puzzles had become a craze in America, and by the 1930s they were appearing in newspapers across Britain.\n\nMost setters begin with the grid, not the clues. The black squares are usually arranged so that the pattern looks exactly the same when the grid is turned upside down. Nothing about solving the puzzle needs this, and a few setters ignore it, but most keep it because solvers expect a tidy grid, and a lopsided one looks careless.\n\nNext comes a choice that decides how hard the puzzle will feel. In most American style grids, every letter is checked: each white square sits in an across answer and a down answer at the same time, so a solver who is stuck on one clue can borrow letters from the other. The cryptic crosswords printed in Britain and Australia usually check only about half of the letters in each answer. A solver who cannot crack a clue there may get no help at all with some of its squares.\n\nThen the setter fills the grid with words, which can take an hour or a whole afternoon, and only then writes the clues. In a cryptic crossword, each clue is a small trick in two parts. One part is a plain definition of the answer, and it usually sits at the very start or the very end of the clue. The rest is wordplay: a second route to the same answer, built from hidden words, sounds or letters rearranged. Setters also borrow words that can mean something unexpected. In a cryptic clue, a “flower” is often not a rose or a daisy at all, but the Thames or the Nile, because a river is something that flows.\n\nBefore a puzzle reaches the paper, at least one test solver works through it. Their job is to check for mistakes, but also for clues that are unfair: a clue with two possible answers, or one that only makes sense inside the setter’s head. A setter can be sure that a clue is clever and still discover that the test solver read it a completely different way. Many setters say that the most useful thing a test solver can write is a single question mark beside a clue.\n\nWhat makes a clue fair? Setters often answer with one rule: the solver must be able to reach the answer from the words in the clue alone, without having to read the setter’s mind. A good clue can be hard, and it can mislead on purpose, but once the answer arrives, every word in the clue should make sense.\n\nThat is why many setters say the best reaction to a clue is not a cheer but a groan. A groan means the solver was fooled fairly. The answer was there all along, in plain sight, and the solver walked straight past it. It is a strange job, spending days on something that is meant to be finished over breakfast and then thrown away. But for a setter, there is no better compliment than that groan.",
     "img": null,
-    "ask": "The passage suggests that the moon illusion happens",
+    "ask": "According to the passage, setters are pleased when a solver groans because the groan shows the solver",
     "options": [
-     "only when the moon is full.",
-     "because the low moon’s light travels through more air.",
-     "only to people who live near hills or the sea.",
-     "in the viewer’s mind rather than in the sky."
+     "thought the joke in the clue was funny.",
+     "had been tricked fairly by the clue.",
+     "had found the clue far too hard.",
+     "had spotted a mistake in the clue."
     ],
     "topic": "Exam Sprint"
    },
    {
     "id": "s6",
-    "text": "Clancy of the Overflow\n\nI had written him a letter which I had, for want of better\nKnowledge, sent to where I met him down the Lachlan, years ago,\nHe was shearing when I knew him, so I sent the letter to him,\nJust “on spec”, addressed as follows: “Clancy, of The Overflow”.\n\nAnd an answer came directed in a writing unexpected,\n(And I think the same was written with a thumbnail dipped in tar)\n’Twas his shearing mate who wrote it, and verbatim I will quote it:\n“Clancy’s gone to Queensland droving, and we don’t know where he are.”\n\nIn my wild erratic fancy visions come to me of Clancy\nGone a-droving “down the Cooper” where the western drovers go;\nAs the stock are slowly stringing, Clancy rides behind them singing,\nFor the drover’s life has pleasures that the townsfolk never know.\n\nAnd the bush hath friends to meet him, and their kindly voices greet him\nIn the murmur of the breezes and the river on its bars,\nAnd he sees the vision splendid of the sunlit plains extended,\nAnd at night the wondrous glory of the everlasting stars.\n\nI am sitting in my dingy little office, where a stingy\nRay of sunlight struggles feebly down between the houses tall,\nAnd the foetid air and gritty of the dusty, dirty city\nThrough the open window floating, spreads its foulness over all.\n\nAnd I somehow rather fancy that I’d like to change with Clancy,\nLike to take a turn at droving where the seasons come and go,\nWhile he faced the round eternal of the cash-book and the journal,\nBut I doubt he’d suit the office, Clancy, of The Overflow.",
+    "text": "Andy’s Gone With Cattle\n\nOur Andy's gone to battle now\n'Gainst Drought, the red marauder;\nOur Andy's gone with cattle now\nAcross the Queensland border.\n\nHe's left us in dejection now;\nOur hearts with him are roving.\nIt's dull on this selection now,\nSince Andy went a-droving.\n\nWho now shall wear the cheerful face\nIn times when things are slackest?\nAnd who shall whistle round the place\nWhen Fortune frowns her blackest?\n\nOh, who shall cheek the squatter now\nWhen he comes round us snarling?\nHis tongue is growing hotter now\nSince Andy cross'd the Darling.\n\nThe gates are out of order now,\nIn storms the 'riders' rattle;\nFor far across the border now\nOur Andy's gone with cattle.\n\nPoor Aunty's looking thin and white;\nAnd Uncle's cross with worry;\nAnd poor old Blucher howls all night\nSince Andy left Macquarie.\n\nOh, may the showers in torrents fall,\nAnd all the tanks run over;\nAnd may the grass grow green and tall\nIn pathways of the drover;\n\nAnd may good angels send the rain\nOn desert stretches sandy;\nAnd when the summer comes again\nGod grant 'twill bring us Andy.",
     "img": null,
-    "ask": "In stanza 5, the word “stingy” suggests the ray of sunlight is",
+    "ask": "According to the poem, which of these has happened since Andy left?",
     "options": [
-     "harsh and unkind.",
-     "giving very little light.",
-     "sharp and painful to look at.",
-     "warm and welcome."
+     "The squatter has stopped coming round.",
+     "Rain has finally come after the drought.",
+     "The gates have stopped working properly.",
+     "Blucher has run off across the border."
     ],
     "topic": "Exam Sprint"
    },
    {
     "id": "s7",
-    "text": "Clancy of the Overflow\n\nI had written him a letter which I had, for want of better\nKnowledge, sent to where I met him down the Lachlan, years ago,\nHe was shearing when I knew him, so I sent the letter to him,\nJust “on spec”, addressed as follows: “Clancy, of The Overflow”.\n\nAnd an answer came directed in a writing unexpected,\n(And I think the same was written with a thumbnail dipped in tar)\n’Twas his shearing mate who wrote it, and verbatim I will quote it:\n“Clancy’s gone to Queensland droving, and we don’t know where he are.”\n\nIn my wild erratic fancy visions come to me of Clancy\nGone a-droving “down the Cooper” where the western drovers go;\nAs the stock are slowly stringing, Clancy rides behind them singing,\nFor the drover’s life has pleasures that the townsfolk never know.\n\nAnd the bush hath friends to meet him, and their kindly voices greet him\nIn the murmur of the breezes and the river on its bars,\nAnd he sees the vision splendid of the sunlit plains extended,\nAnd at night the wondrous glory of the everlasting stars.\n\nI am sitting in my dingy little office, where a stingy\nRay of sunlight struggles feebly down between the houses tall,\nAnd the foetid air and gritty of the dusty, dirty city\nThrough the open window floating, spreads its foulness over all.\n\nAnd I somehow rather fancy that I’d like to change with Clancy,\nLike to take a turn at droving where the seasons come and go,\nWhile he faced the round eternal of the cash-book and the journal,\nBut I doubt he’d suit the office, Clancy, of The Overflow.",
+    "text": "Andy’s Gone With Cattle\n\nOur Andy's gone to battle now\n'Gainst Drought, the red marauder;\nOur Andy's gone with cattle now\nAcross the Queensland border.\n\nHe's left us in dejection now;\nOur hearts with him are roving.\nIt's dull on this selection now,\nSince Andy went a-droving.\n\nWho now shall wear the cheerful face\nIn times when things are slackest?\nAnd who shall whistle round the place\nWhen Fortune frowns her blackest?\n\nOh, who shall cheek the squatter now\nWhen he comes round us snarling?\nHis tongue is growing hotter now\nSince Andy cross'd the Darling.\n\nThe gates are out of order now,\nIn storms the 'riders' rattle;\nFor far across the border now\nOur Andy's gone with cattle.\n\nPoor Aunty's looking thin and white;\nAnd Uncle's cross with worry;\nAnd poor old Blucher howls all night\nSince Andy left Macquarie.\n\nOh, may the showers in torrents fall,\nAnd all the tanks run over;\nAnd may the grass grow green and tall\nIn pathways of the drover;\n\nAnd may good angels send the rain\nOn desert stretches sandy;\nAnd when the summer comes again\nGod grant 'twill bring us Andy.",
     "img": null,
-    "ask": "According to the poem, who wrote the reply to the speaker’s letter?",
+    "ask": "According to the poem, how are Aunty and Uncle since Andy left?",
     "options": [
-     "a man who worked with Clancy",
-     "Clancy, writing back himself",
-     "a drover on the Cooper",
-     "a stranger who found the letter"
+     "Aunty is cross, and Uncle looks pale and thin.",
+     "Aunty looks unwell, and Uncle is worried.",
+     "Aunty is worried, and Uncle has fallen ill.",
+     "Aunty is writing to Andy, and Uncle runs the farm."
     ],
     "topic": "Exam Sprint"
    },
    {
     "id": "s8",
-    "text": "Clancy of the Overflow\n\nI had written him a letter which I had, for want of better\nKnowledge, sent to where I met him down the Lachlan, years ago,\nHe was shearing when I knew him, so I sent the letter to him,\nJust “on spec”, addressed as follows: “Clancy, of The Overflow”.\n\nAnd an answer came directed in a writing unexpected,\n(And I think the same was written with a thumbnail dipped in tar)\n’Twas his shearing mate who wrote it, and verbatim I will quote it:\n“Clancy’s gone to Queensland droving, and we don’t know where he are.”\n\nIn my wild erratic fancy visions come to me of Clancy\nGone a-droving “down the Cooper” where the western drovers go;\nAs the stock are slowly stringing, Clancy rides behind them singing,\nFor the drover’s life has pleasures that the townsfolk never know.\n\nAnd the bush hath friends to meet him, and their kindly voices greet him\nIn the murmur of the breezes and the river on its bars,\nAnd he sees the vision splendid of the sunlit plains extended,\nAnd at night the wondrous glory of the everlasting stars.\n\nI am sitting in my dingy little office, where a stingy\nRay of sunlight struggles feebly down between the houses tall,\nAnd the foetid air and gritty of the dusty, dirty city\nThrough the open window floating, spreads its foulness over all.\n\nAnd I somehow rather fancy that I’d like to change with Clancy,\nLike to take a turn at droving where the seasons come and go,\nWhile he faced the round eternal of the cash-book and the journal,\nBut I doubt he’d suit the office, Clancy, of The Overflow.",
+    "text": "Andy’s Gone With Cattle\n\nOur Andy's gone to battle now\n'Gainst Drought, the red marauder;\nOur Andy's gone with cattle now\nAcross the Queensland border.\n\nHe's left us in dejection now;\nOur hearts with him are roving.\nIt's dull on this selection now,\nSince Andy went a-droving.\n\nWho now shall wear the cheerful face\nIn times when things are slackest?\nAnd who shall whistle round the place\nWhen Fortune frowns her blackest?\n\nOh, who shall cheek the squatter now\nWhen he comes round us snarling?\nHis tongue is growing hotter now\nSince Andy cross'd the Darling.\n\nThe gates are out of order now,\nIn storms the 'riders' rattle;\nFor far across the border now\nOur Andy's gone with cattle.\n\nPoor Aunty's looking thin and white;\nAnd Uncle's cross with worry;\nAnd poor old Blucher howls all night\nSince Andy left Macquarie.\n\nOh, may the showers in torrents fall,\nAnd all the tanks run over;\nAnd may the grass grow green and tall\nIn pathways of the drover;\n\nAnd may good angels send the rain\nOn desert stretches sandy;\nAnd when the summer comes again\nGod grant 'twill bring us Andy.",
     "img": null,
-    "ask": "Which of these can the speaker know for certain?",
+    "ask": "The lines “Who now shall wear the cheerful face” and “who shall cheek the squatter now” suggest that Andy",
     "options": [
-     "Clancy sings as he rides behind the cattle.",
-     "Clancy is somewhere down the Cooper.",
-     "Clancy was shearing when the speaker knew him.",
-     "The bush has friends who greet Clancy."
+     "lifted the family’s spirits and paid their debts to the squatter.",
+     "kept the farm running and stood up to the squatter.",
+     "cheered the family and kept the squatter from visiting.",
+     "lifted the family’s spirits and stood up for them."
     ],
     "topic": "Exam Sprint"
    },
    {
     "id": "s9",
-    "text": "Clancy of the Overflow\n\nI had written him a letter which I had, for want of better\nKnowledge, sent to where I met him down the Lachlan, years ago,\nHe was shearing when I knew him, so I sent the letter to him,\nJust “on spec”, addressed as follows: “Clancy, of The Overflow”.\n\nAnd an answer came directed in a writing unexpected,\n(And I think the same was written with a thumbnail dipped in tar)\n’Twas his shearing mate who wrote it, and verbatim I will quote it:\n“Clancy’s gone to Queensland droving, and we don’t know where he are.”\n\nIn my wild erratic fancy visions come to me of Clancy\nGone a-droving “down the Cooper” where the western drovers go;\nAs the stock are slowly stringing, Clancy rides behind them singing,\nFor the drover’s life has pleasures that the townsfolk never know.\n\nAnd the bush hath friends to meet him, and their kindly voices greet him\nIn the murmur of the breezes and the river on its bars,\nAnd he sees the vision splendid of the sunlit plains extended,\nAnd at night the wondrous glory of the everlasting stars.\n\nI am sitting in my dingy little office, where a stingy\nRay of sunlight struggles feebly down between the houses tall,\nAnd the foetid air and gritty of the dusty, dirty city\nThrough the open window floating, spreads its foulness over all.\n\nAnd I somehow rather fancy that I’d like to change with Clancy,\nLike to take a turn at droving where the seasons come and go,\nWhile he faced the round eternal of the cash-book and the journal,\nBut I doubt he’d suit the office, Clancy, of The Overflow.",
+    "text": "Andy’s Gone With Cattle\n\nOur Andy's gone to battle now\n'Gainst Drought, the red marauder;\nOur Andy's gone with cattle now\nAcross the Queensland border.\n\nHe's left us in dejection now;\nOur hearts with him are roving.\nIt's dull on this selection now,\nSince Andy went a-droving.\n\nWho now shall wear the cheerful face\nIn times when things are slackest?\nAnd who shall whistle round the place\nWhen Fortune frowns her blackest?\n\nOh, who shall cheek the squatter now\nWhen he comes round us snarling?\nHis tongue is growing hotter now\nSince Andy cross'd the Darling.\n\nThe gates are out of order now,\nIn storms the 'riders' rattle;\nFor far across the border now\nOur Andy's gone with cattle.\n\nPoor Aunty's looking thin and white;\nAnd Uncle's cross with worry;\nAnd poor old Blucher howls all night\nSince Andy left Macquarie.\n\nOh, may the showers in torrents fall,\nAnd all the tanks run over;\nAnd may the grass grow green and tall\nIn pathways of the drover;\n\nAnd may good angels send the rain\nOn desert stretches sandy;\nAnd when the summer comes again\nGod grant 'twill bring us Andy.",
     "img": null,
-    "ask": "The speaker’s attitude to city life is best described as",
+    "ask": "Which of these can the speaker know for certain?",
     "options": [
-     "proud but restless.",
-     "calm and accepting.",
-     "jealous and resentful of Clancy.",
-     "weary and longing to escape."
+     "Blucher has been howling at night.",
+     "Andy is safe and well on the road.",
+     "The grass is growing green where Andy rides.",
+     "Andy will be home when summer comes."
     ],
     "topic": "Exam Sprint"
    },
    {
     "id": "s10",
-    "text": "Clancy of the Overflow\n\nI had written him a letter which I had, for want of better\nKnowledge, sent to where I met him down the Lachlan, years ago,\nHe was shearing when I knew him, so I sent the letter to him,\nJust “on spec”, addressed as follows: “Clancy, of The Overflow”.\n\nAnd an answer came directed in a writing unexpected,\n(And I think the same was written with a thumbnail dipped in tar)\n’Twas his shearing mate who wrote it, and verbatim I will quote it:\n“Clancy’s gone to Queensland droving, and we don’t know where he are.”\n\nIn my wild erratic fancy visions come to me of Clancy\nGone a-droving “down the Cooper” where the western drovers go;\nAs the stock are slowly stringing, Clancy rides behind them singing,\nFor the drover’s life has pleasures that the townsfolk never know.\n\nAnd the bush hath friends to meet him, and their kindly voices greet him\nIn the murmur of the breezes and the river on its bars,\nAnd he sees the vision splendid of the sunlit plains extended,\nAnd at night the wondrous glory of the everlasting stars.\n\nI am sitting in my dingy little office, where a stingy\nRay of sunlight struggles feebly down between the houses tall,\nAnd the foetid air and gritty of the dusty, dirty city\nThrough the open window floating, spreads its foulness over all.\n\nAnd I somehow rather fancy that I’d like to change with Clancy,\nLike to take a turn at droving where the seasons come and go,\nWhile he faced the round eternal of the cash-book and the journal,\nBut I doubt he’d suit the office, Clancy, of The Overflow.",
+    "text": "Andy’s Gone With Cattle\n\nOur Andy's gone to battle now\n'Gainst Drought, the red marauder;\nOur Andy's gone with cattle now\nAcross the Queensland border.\n\nHe's left us in dejection now;\nOur hearts with him are roving.\nIt's dull on this selection now,\nSince Andy went a-droving.\n\nWho now shall wear the cheerful face\nIn times when things are slackest?\nAnd who shall whistle round the place\nWhen Fortune frowns her blackest?\n\nOh, who shall cheek the squatter now\nWhen he comes round us snarling?\nHis tongue is growing hotter now\nSince Andy cross'd the Darling.\n\nThe gates are out of order now,\nIn storms the 'riders' rattle;\nFor far across the border now\nOur Andy's gone with cattle.\n\nPoor Aunty's looking thin and white;\nAnd Uncle's cross with worry;\nAnd poor old Blucher howls all night\nSince Andy left Macquarie.\n\nOh, may the showers in torrents fall,\nAnd all the tanks run over;\nAnd may the grass grow green and tall\nIn pathways of the drover;\n\nAnd may good angels send the rain\nOn desert stretches sandy;\nAnd when the summer comes again\nGod grant 'twill bring us Andy.",
     "img": null,
-    "ask": "In the last line, “But I doubt he’d suit the office” suggests that the speaker",
+    "ask": "The poem is mainly about",
     "options": [
-     "thinks Clancy isn’t clever enough for office work.",
-     "suspects the swap he dreams of would never work.",
-     "has decided to leave the office and go droving.",
-     "is joking that the office would be lucky to have Clancy."
+     "a family hoping Andy makes his fortune droving.",
+     "a family struggling through a long drought.",
+     "a family missing Andy while he is away.",
+     "a family worrying about money while Andy is away."
     ],
     "topic": "Exam Sprint"
    }
@@ -789,10 +789,10 @@ window.QUESTIONS = {
     "img": null,
     "ask": "According to the text, if a loaf has no cut, the steam will usually",
     "options": [
-     "keep the loaf flat because it cannot escape.",
-     "split the loaf along a line the baker chose.",
+     "lift the top crust away from the soft middle.",
      "burst the loaf open wherever it is weakest.",
-     "harden the crust before the inside is cooked."
+     "make the loaf rise higher and more evenly.",
+     "escape through tiny holes without much change."
     ],
     "topic": "Proving a Detail"
    },
@@ -802,10 +802,10 @@ window.QUESTIONS = {
     "img": null,
     "ask": "In the text, the word 'signature' is closest in meaning to",
     "options": [
-     "a mark that shows who it belongs to.",
      "a name signed by hand.",
      "a decoration that makes it look better.",
-     "a rule every baker has to follow."
+     "a mark that shows who it belongs to.",
+     "a pattern bakers are taught to use."
     ],
     "topic": "Words in Context"
    },
@@ -816,9 +816,9 @@ window.QUESTIONS = {
     "ask": "Which of these is the narrator only assuming?",
     "options": [
      "The key was not under the pot plant.",
+     "Saoirse had been watching the pot.",
      "Mum would not be home before six.",
-     "Mum had left a key with Saoirse.",
-     "Saoirse had been watching the pot."
+     "The narrator had lifted the pot twice."
     ],
     "topic": "Narrator Knowledge"
    },
@@ -828,8 +828,8 @@ window.QUESTIONS = {
     "img": null,
     "ask": "What does the tag on the ribbon most likely suggest?",
     "options": [
-     "Mum was angry that the key had gone missing.",
      "The narrator had been locked out before.",
+     "Mum was angry that the key had gone missing.",
      "Saoirse often looked after the house for the family.",
      "Mum wanted Saoirse to keep the key safe."
     ],
@@ -839,25 +839,25 @@ window.QUESTIONS = {
     "id": "lq5",
     "text": "The spare key was not under the pot plant. I lifted the pot twice, as if the key might be hiding, then sat on the step with my school bag on my knees.\n\nMum had texted at lunch. She was taking Rosa to swimming and would not be home before six. Across the road, Saoirse was pretending to water her garden. She had watched me lift that pot, I was sure of it.\n\nWhen she finally came over, she did not ask what was wrong. She just held out a key on a green ribbon. \"Your mum dropped this off at lunch,\" she said. \"She said you'd be along.\"\n\nI took it without a word. On the ribbon, in Mum's neat writing, was a tag: \"For when you forget again.\"",
     "img": null,
-    "ask": "Why did Saoirse not ask what was wrong?",
+    "ask": "Why did Saoirse most likely hand over the key without asking any questions?",
     "options": [
-     "She already expected the narrator to need the key.",
      "She had been busy watering her garden.",
-     "She did not want to embarrass the narrator.",
-     "The narrator was sitting on the step with a bag."
+     "She was too shy to start a conversation.",
+     "She knew the narrator would turn up for a key.",
+     "Rosa had told her about the missing spare key."
     ],
-    "topic": "True but Not the Answer"
+    "topic": "Assumptions"
    },
    {
     "id": "lq6",
     "text": "A platypus hunting on the bottom of a creek cannot see, hear or smell its food. As it dives, folds of skin close over its eyes and ears, and its nostrils seal shut. For most animals that would mean hunting blind. The platypus has another way.\n\nIts soft, rubbery bill is covered in tens of thousands of tiny sensors. Some respond to touch, while others pick up the faint electric signals given off by the muscles of moving prey, such as shrimps and insect larvae. By sweeping its bill from side to side, a platypus can usually work out where a meal is hiding under the stones.\n\nIt does not eat straight away. Food is stored in pouches in its cheeks until the platypus returns to the surface. There it floats and chews with rough pads, since adult platypuses have no teeth.",
     "img": null,
-    "ask": "According to the text, a platypus uses each of these while feeding EXCEPT",
+    "ask": "According to the text, where do the faint electric signals come from?",
     "options": [
-     "sensors in its bill that respond to touch.",
-     "sweeping its bill from side to side.",
-     "its sense of smell under the water.",
-     "pouches in its cheeks to store food."
+     "small animals hiding perfectly still",
+     "the nerves of animals under the stones",
+     "the gills of fish breathing nearby",
+     "prey whose muscles are moving"
     ],
     "topic": "Question Targets"
    },
@@ -867,9 +867,9 @@ window.QUESTIONS = {
     "img": null,
     "ask": "Which statement is proven by the text?",
     "options": [
-     "All of the sensors on the bill pick up electric signals.",
      "A platypus waits until it is at the surface to chew.",
-     "A platypus always finds the food hidden under stones.",
+     "Most of the sensors on the bill respond to touch.",
+     "A platypus usually surfaces to find new prey.",
      "Young platypuses have no teeth for chewing."
     ],
     "topic": "Proving a Detail"
@@ -882,7 +882,7 @@ window.QUESTIONS = {
     "options": [
      "at night, when it is too dark to see.",
      "without knowing what kind of prey is near.",
-     "in muddy water full of stirred up silt.",
+     "in deep water, far below the surface.",
      "without the senses most animals rely on."
     ],
     "topic": "Words in Context"

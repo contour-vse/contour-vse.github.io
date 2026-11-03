@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Contour Live: team challenge and exam sprint.">
+<meta name="robots" content="noindex">
+<title>Contour Live</title>
+<link rel="stylesheet" href="live.css">
+<style>
+.wrap{max-width:640px;margin:0 auto;padding:14px 16px 120px;display:flex;flex-direction:column;gap:14px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.me{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+
+/* join */
+.join h2{font-size:30px;font-weight:850;letter-spacing:-.025em;color:var(--navy);margin:4px 0 14px;line-height:1.1}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.field input{border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:20px;background:#fff;min-width:0;width:100%}
+.field input.code{font-family:var(--mono);font-size:32px;font-weight:800;letter-spacing:.25em;text-transform:uppercase;text-align:center;color:var(--navy)}
+.teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.teams button{border:2px solid var(--line);background:#fff;border-radius:12px;padding:12px 10px;font-weight:800;font-size:17px;color:var(--navy)}
+.teams button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.err{color:var(--orange-ink);font-weight:700;min-height:1.4em;margin:0 0 8px}
+
+/* status strip */
+.strip{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;background:var(--navy);color:#fff;border-radius:16px;padding:12px 16px}
+.strip .tn{font-weight:850;font-size:20px;letter-spacing:-.01em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strip .stat{text-align:center;line-height:1.05}
+.strip .stat b{display:block;font-family:var(--mono);font-size:26px;font-variant-numeric:tabular-nums}
+.strip .stat span{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.8}
+
+.wait{text-align:center;padding:34px 20px}
+.wait .big{font-size:28px;font-weight:850;color:var(--navy);letter-spacing:-.02em;margin:0 0 6px;line-height:1.15}
+.wait p{margin:0;color:var(--muted);font-size:18px}
+.pulse{width:14px;height:14px;border-radius:50%;background:var(--blue);margin:0 auto 16px;animation:p 1.4s ease-in-out infinite}
+@keyframes p{0%,100%{transform:scale(.7);opacity:.5}50%{transform:scale(1.15);opacity:1}}
+
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.agree{display:flex;align-items:center;gap:8px;background:var(--orange-soft);color:var(--orange-ink);border-radius:12px;padding:9px 12px;font-weight:800;margin-top:14px;font-size:16px}
+.lockbar{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to top,var(--bg) 70%,rgba(242,246,252,0));padding:18px 16px calc(14px + env(safe-area-inset-bottom))}
+.lockbar .in{max-width:640px;margin:0 auto;display:flex;gap:10px}
+.lockbar .btn{flex:1}
+.result{border-radius:14px;padding:14px 16px;font-weight:850;font-size:22px;text-align:center;margin-top:14px}
+.result.good{background:var(--green-soft);color:var(--green-ink)}
+.result.bad{background:var(--orange-soft);color:var(--orange-ink)}
+.result.info{background:var(--navy-soft);color:var(--navy)}
+.result small{display:block;font-size:15px;font-weight:700;margin-top:2px}
+
+/* sprint */
+.timer{font-family:var(--mono);font-weight:800;font-size:26px;font-variant-numeric:tabular-nums}
+.timer.low{color:#FFD08A}
+.nav{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px}
+.nav button{border:2px solid var(--line);background:#fff;border-radius:9px;height:38px;font-family:var(--mono);font-weight:800;font-size:15px;color:var(--navy);padding:0}
+.nav button.cur{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue) inset}
+.nav button.done{background:var(--navy);border-color:var(--navy);color:#fff}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--muted);font-weight:700;margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:5px;border:2px solid var(--line);background:#fff}
+.legend i.d{background:var(--navy);border-color:var(--navy)}
+.score{font-size:64px;font-weight:850;color:var(--navy);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.review{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.review li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:#fff;border:2px solid var(--line);border-radius:12px;padding:8px 12px;font-weight:700}
+.review li.ok{border-color:var(--green);background:var(--green-soft)}
+.review li.no{border-color:#F3C78E;background:var(--orange-soft)}
+.review .n{font-family:var(--mono);color:var(--navy)}
+.review .ans{font-family:var(--mono);font-size:15px}
+.classbox{background:var(--navy-soft);border-radius:12px;padding:10px 14px;margin:-4px 0 16px;font-weight:800;color:var(--navy);font-size:17px}
+.classbox small{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.prizebox{display:grid;gap:8px}
+.prizebox div{display:flex;gap:10px;align-items:center;border-radius:12px;padding:10px 12px;font-weight:800;font-size:16px}
+.prizebox .h{background:var(--navy);color:#fff}
+.prizebox .t{background:var(--orange-soft);color:var(--orange-ink)}
+.prizebox svg{flex:none}
+.hoflink{display:flex;justify-content:center;align-items:center;gap:8px;font-weight:800;color:var(--blue-ink);text-decoration:none;border:2px solid var(--blue);border-radius:12px;padding:12px 14px;background:#fff;font-size:17px}
+.wteam{font-size:30px;font-weight:850;color:var(--navy);letter-spacing:-.02em;line-height:1.1}
+.wnames{color:var(--muted);font-weight:700;margin-top:4px}
+.linkbtn{background:none;border:0;color:var(--blue-ink);font-weight:750;text-decoration:underline;padding:4px}
+@media (max-width:380px){.nav button{height:34px;font-size:13px}.strip .stat b{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M13.5 2 4 14h7l-1.5 8L19 10h-7z"/></svg></div>
+      <h1>Contour Live</h1>
+    </div>
+    <div class="me" id="meChip"></div>
+  </header>
+  <main id="app"></main>
+</div>
+<div class="lockbar" id="bar" hidden><div class="in" id="barIn"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="../config.js"></script>
+<script src="questions.js"></script>
+<script src="engine.js"></script>
+<script>if (!String(window.CONTOUR_ENDPOINT || "").trim()) document.write('<script src="keys.js"><\/script>');</script>
+<script src="api.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = Live.esc, L = Live.LETTERS;
+  var params = new URLSearchParams(location.search);
+  var S = {
+    room: (params.get("room") || Live.mine("cl-room") || "").toUpperCase(),
+    pid: Live.mine("cl-pid") || Live.uid(),
+    name: Live.mine("cl-name") || "",
+    team: Live.mine("cl-team") == null ? -1 : +Live.mine("cl-team"),
+    joined: false, view: null, offset: 0,
+    pick: null, pickQ: null, sending: false,
+    sq: 0, spick: null, review: false, lastKey: ""
+  };
+  Live.mine("cl-pid", S.pid);
+  if (params.get("room") && params.get("room").toUpperCase() !== Live.mine("cl-room")) S.joined = false;
+  else if (S.room && S.name && S.team >= 0 && Live.mine("cl-joined") === S.room) S.joined = true;
+
+  function toast(msg) { var t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
+  function bar(html) { $("bar").hidden = !html; $("barIn").innerHTML = html || ""; }
+  function now() { return Date.now() + S.offset; }
+  function ordinal(n) { var s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+
+  /* ---------- join ---------- */
+  function renderJoin(teams, msg) {
+    bar("");
+    $("meChip").innerHTML = Live.demo ? '<span class="chip orange">Demo</span>' : "";
+    var t = "";
+    if (teams) t = teams.map(function (x, i) { return '<button type="button" data-t="' + i + '" class="' + (i === S.team ? "on" : "") + '">' + esc(x.n) + "</button>"; }).join("");
+    $("app").innerHTML =
+      '<section class="card join">' +
+      '<h2>' + (teams ? "Pick your team" : "Join the game") + "</h2>" +
+      (teams && S.view && S.view.cls ? '<div class="classbox" id="classbox"><small>You are joining</small>' + esc(S.view.cls) + " · " + esc(S.view.campus) + "</div>" : "") +
+      '<div class="field"><label for="code">Room code</label><input id="code" class="code" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' + esc(S.room) + '"></div>' +
+      (teams ? '<div class="field"><label for="nm">First name</label><input id="nm" maxlength="20" autocomplete="given-name" value="' + esc(S.name) + '"></div>' +
+        '<div class="field"><label>Team</label><div class="teams" id="teams">' + t + "</div></div>" : "") +
+      '<p class="err" id="err">' + esc(msg || "") + "</p>" +
+      '<button class="btn primary big block" id="go" type="button">' + (teams ? "Join" : "Next") + "</button></section>";
+    $("code").addEventListener("input", function (e) { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); });
+    if (teams) {
+      $("teams").addEventListener("click", function (e) {
+        var b = e.target.closest("button"); if (!b) return;
+        S.team = +b.dataset.t; Array.prototype.forEach.call(this.children, function (c) { c.classList.toggle("on", c === b); });
+      });
+    }
+    $("go").onclick = function () {
+      var code = $("code").value.trim().toUpperCase();
+      if (code.length !== 6) { $("err").textContent = "The room code has 6 characters"; return; }
+      if (!teams || code !== S.room) {
+        S.room = code;
+        Live.state(code, { pid: S.pid }).then(function (v) {
+          if (!v.ok) { renderJoin(null, "No room with that code. Check the board."); return; }
+          S.view = v; renderJoin(v.teams);
+        });
+        return;
+      }
+      var name = $("nm").value.trim();
+      if (!name) { $("err").textContent = "Type your first name"; return; }
+      if (S.team < 0 || S.team >= teams.length) { $("err").textContent = "Tap your team"; return; }
+      this.disabled = true;
+      Live.call("join", { room: S.room, pid: S.pid, name: name, team: S.team }).then(function (r) {
+        if (!r.ok) { renderJoin(teams, r.message || "Try again"); return; }
+        S.name = name; S.joined = true;
+        Live.mine("cl-room", S.room); Live.mine("cl-name", name); Live.mine("cl-team", String(S.team)); Live.mine("cl-joined", S.room);
+        if (history.replaceState) history.replaceState(null, "", "?room=" + S.room);
+        S.lastKey = ""; poller.now();
+      });
+    };
+  }
+
+  var TROPHY = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 21h8M9 18h6"/></svg>';
+  function prizeBox(v) {
+    return '<section class="card prizebox"><p class="eyebrow" style="margin:0">Up for grabs</p><div class="h">' + TROPHY + esc(v.hof) + "</div>" +
+      (v.prize.tutor ? '<div class="t">' + TROPHY + "<span>Tutor's prize: " + esc(v.prize.tutor) + "</span></div>" : "") + "</section>";
+  }
+  function hofLink(v) { return '<a class="hoflink" href="../hall-of-fame/?week=' + encodeURIComponent(v.weekId) + '">' + TROPHY + "See the Hall of Fame</a>"; }
+
+  /* ---------- main ---------- */
+  function strip(v) {
+    var me = v.me, t = v.teams[me.t];
+    return '<div class="strip"><div class="tn">' + esc(t ? t.n : "") + '<div style="font-size:14px;font-weight:700;opacity:.8">' + esc(me.n) + "</div></div>" +
+      '<div class="stat"><b>' + (t ? t.s : 0) + "</b><span>Points</span></div>" +
+      '<div class="stat"><b>' + ordinal(me.rank) + "</b><span>Place</span></div></div>";
+  }
+
+  function render(v) {
+    if (!S.joined) return;
+    if (!v.ok) { if (v.error === "room") { S.joined = false; Live.mine("cl-joined", null); renderJoin(null, "That room has closed. Ask for the new code."); } return; }
+    if (!v.me) { S.joined = false; Live.mine("cl-joined", null); Live.state(S.room, { pid: S.pid }).then(function (x) { renderJoin(x.teams); }); return; }
+    S.view = v; S.offset = v.now - Date.now();
+    $("meChip").innerHTML = (Live.demo ? '<span class="chip orange">Demo</span>' : "") + '<span class="chip">' + esc(S.room) + "</span>";
+    if (v.mode === "sprint") return renderSprint(v);
+    var key = [v.v, v.mode, v.qid, v.revealed, JSON.stringify(v.me.lock || null), JSON.stringify(v.teams), S.pick].join("|");
+    if (key === S.lastKey) return; S.lastKey = key;
+    if (v.mode === "team" && v.qid) return renderTeamQ(v);
+    bar("");
+    if (v.mode === "teamDone") {
+      var w = v.winners || [], mine = false;
+      w.forEach(function (t) { if (t.n === v.teams[v.me.t].n) mine = true; });
+      $("app").innerHTML = strip(v) +
+        '<section class="card" style="text-align:center"><p class="eyebrow">Team Challenge results</p>' +
+        (mine ? '<p class="wteam" style="color:var(--green-ink)">Your team won!</p><p class="wnames">Your names go up in the Hall of Fame this week.</p>' : "") +
+        (w.length ? w.map(function (t) { return '<p class="wteam" style="margin-top:14px">' + esc(t.n) + '</p><p class="wnames">' + esc(t.names.join(", ")) + " · " + t.s + " points</p>"; }).join("") : '<p class="wnames">No points this time</p>') +
+        (mine ? "" : '<p style="margin:14px 0 0;font-weight:700">Your team came ' + ordinal(v.me.rank) + ". The Exam Sprint is next: anyone can win it.</p>") +
+        "</section>" + prizeBox(v) + hofLink(v);
+      return;
+    }
+    $("app").innerHTML = strip(v) +
+      '<section class="card wait"><div class="pulse"></div><p class="big">You\'re in, ' + esc(v.me.n) + "</p><p>" + esc(v.cls) + " · " + esc(v.campus) + "</p><p>Eyes on the board. The first question is coming.</p></section>" + prizeBox(v) +
+      '<p style="text-align:center;margin:0"><button class="linkbtn" id="sw" type="button">Wrong team? Switch</button></p>';
+    $("sw").onclick = function () { S.joined = false; Live.mine("cl-joined", null); renderJoin(v.teams); };
+  }
+
+  function renderTeamQ(v) {
+    var q = Live.byId(v.qid), round = v.round === "warmup" ? "Round 1 · Warm Up" : "Round 2 · Challenge";
+    var total = (window.QUESTIONS[v.round] || []).length, pts = v.round === "warmup" ? 1 : 3;
+    if (S.pickQ !== v.qid) { S.pick = null; S.pickQ = v.qid; }
+    var lock = v.me.lock, chosen = lock ? lock.c : S.pick;
+    var opts = q.options.map(function (o, i) {
+      var l = L[i], cls = "opt";
+      if (v.revealed) { if (l === v.key) cls += " right"; else if (lock && lock.c === l) cls += " wrong"; else cls += " dim"; }
+      else if (chosen === l) cls += " sel";
+      else if (lock) cls += " dim";
+      return '<button type="button" class="' + cls + '" data-l="' + l + '"' + (lock || v.revealed ? " disabled" : "") + '><span class="l">' + l + "</span><span>" + esc(o) + "</span></button>";
+    }).join("");
+    var foot = "";
+    if (v.revealed) {
+      if (lock && lock.c === v.key) foot = '<div class="result good">+' + pts + (pts === 1 ? " point" : " points") + "<small>Nice work, team</small></div>";
+      else if (lock) foot = '<div class="result bad">Not this time<small>The answer was ' + v.key + "</small></div>";
+      else foot = '<div class="result bad">No answer locked in<small>The answer was ' + v.key + "</small></div>";
+    } else if (lock) foot = '<div class="result info">Locked in: ' + lock.c + "<small>by " + esc(lock.by) + ". Wait for the reveal.</small></div>";
+    else foot = '<div class="agree"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.5c3 0 6 2 6 5.5"/></svg>Agree as a team, then lock it in</div>';
+    $("app").innerHTML = strip(v) +
+      '<section class="card"><div class="qhead"><span class="eyebrow" style="margin:0">' + round + "</span>" +
+      '<span class="chip">Q' + (v.qi + 1) + " of " + total + " · " + pts + (pts === 1 ? " pt" : " pts") + "</span></div>" +
+      '<p class="qtext">' + esc(q.text) + "</p>" + Live.imgs(q, "") + '<p class="qask">' + esc(q.ask) + "</p>" +
+      '<div class="opts" id="opts">' + opts + "</div>" + foot + "</section>";
+    $("opts").onclick = function (e) {
+      var b = e.target.closest(".opt"); if (!b || b.disabled) return;
+      S.pick = b.dataset.l; S.lastKey = ""; render(S.view);
+    };
+    if (!lock && !v.revealed) {
+      bar('<button class="btn primary big" id="lock" type="button"' + (S.pick ? "" : " disabled") + ">" + (S.pick ? "Lock in " + S.pick + " for the team" : "Tap an answer") + "</button>");
+      $("lock").onclick = function () {
+        if (!S.pick || S.sending) return; S.sending = true; this.disabled = true; this.textContent = "Locking...";
+        Live.call("team.answer", { room: S.room, pid: S.pid, qid: v.qid, choice: S.pick }).then(function (r) {
+          S.sending = false;
+          if (!r.ok && r.error === "locked") toast("A teammate locked in " + r.locked.c + " first");
+          else if (!r.ok) toast(r.message || "Try again");
+          S.lastKey = ""; poller.now();
+        });
+      };
+    } else bar("");
+  }
+
+  /* ---------- sprint ---------- */
+  var tickTimer = null;
+  function renderSprint(v) {
+    var sp = v.sprint, ids = window.QUESTIONS.sprint.map(function (q) { return q.id; });
+    var mine = v.me.sprint || {};
+    if (sp.status === "running" && !v.me.fin) {
+      var key = ["run", v.v, S.sq, S.spick, JSON.stringify(mine)].join("|");
+      if (key !== S.lastKey) { S.lastKey = key; drawSprintQ(v, ids, mine); }
+      if (!tickTimer) tickTimer = setInterval(updateTimer, 250);
+      updateTimer();
+      return;
+    }
+    clearInterval(tickTimer); tickTimer = null;
+    var key2 = ["sp", sp.status, v.me.fin, v.me.score, v.me.place, S.review].join("|");
+    if (key2 === S.lastKey) return; S.lastKey = key2;
+    bar("");
+    if (sp.status === "ended") {
+      var list = ids.map(function (id, i) {
+        var a = mine[id], k = sp.keys[id];
+        return '<li class="' + (a === k ? "ok" : "no") + '"><span class="n">Q' + (i + 34) + '</span><span>' + (a ? "You: " + a : "Blank") + '</span><span class="ans">Answer ' + k + "</span></li>";
+      }).join("");
+      var sc = v.me.score || 0;
+      $("app").innerHTML =
+        '<section class="card" style="text-align:center"><p class="eyebrow">Exam Sprint results</p><div class="score">' + sc + "<span style=\"font-size:30px;color:var(--muted)\"> / " + ids.length + "</span></div>" +
+        (v.me.place ? '<p style="font-size:20px;font-weight:800;color:var(--navy);margin:10px 0 0">' + ordinal(v.me.place) + " of " + v.me.of + (v.me.place === 1 ? ". Sprint champion!" : "") + "</p>" : '<p style="margin:10px 0 0;color:var(--muted)">No answers this time</p>') +
+        '</section><section class="card"><p class="eyebrow">Your answers</p><ul class="review">' + list + "</ul>" +
+        '<p style="margin:12px 0 0;color:var(--muted);font-size:15px">Find each one in Section H of your workbook and redo the ones you missed.</p></section>' +
+        (v.me.place === 1 ? prizeBox(v) : "") + hofLink(v);
+      return;
+    }
+    if (v.me.fin) {
+      var n = Object.keys(mine).length;
+      $("app").innerHTML = '<section class="card wait"><div class="pulse"></div><p class="big">Finished!</p><p>' + n + " of " + ids.length + " answered. Results show when the tutor ends the sprint.</p></section>";
+      return;
+    }
+    $("app").innerHTML = strip(v) +
+      '<section class="card wait"><p class="eyebrow">Exam Sprint</p><p class="big">10 questions · 12 minutes</p>' +
+      '<p style="margin-top:12px">Just you, no team.</p></section>' +
+      '<section class="card"><ul style="margin:0;padding-left:20px;display:grid;gap:6px;font-size:17px">' +
+      "<li><b>Each answer locks.</b> No changing it.</li><li><b>Skip</b> a slow one and come back to it later.</li>" +
+      "<li>1 point for each right answer. Ties go to whoever finishes first.</li><li>No score until the tutor ends the sprint.</li></ul></section>" +
+      '<section class="card wait" style="padding:20px"><div class="pulse"></div><p>Waiting for the tutor to start the timer</p></section>';
+  }
+
+  function nextOpen(ids, mine, from) {
+    for (var k = 1; k <= ids.length; k++) { var j = (from + k) % ids.length; if (!mine[ids[j]]) return j; }
+    return -1;
+  }
+
+  function drawSprintQ(v, ids, mine) {
+    if (mine[ids[S.sq]]) { var nx = nextOpen(ids, mine, S.sq); if (nx >= 0) { S.sq = nx; S.spick = null; } }
+    var q = window.QUESTIONS.sprint[S.sq], left = ids.filter(function (id) { return !mine[id]; }).length;
+    var nav = ids.map(function (id, i) {
+      var c = mine[id] ? "done" : (i === S.sq ? "cur" : "");
+      return '<button type="button" class="' + c + '" data-i="' + i + '"' + (mine[id] ? " disabled aria-label=\"Q" + (i + 34) + ' locked"' : "") + ">" + (i + 1) + "</button>";
+    }).join("");
+    var opts = q.options.map(function (o, i) {
+      var l = L[i];
+      return '<button type="button" class="opt' + (S.spick === l ? " sel" : "") + '" data-l="' + l + '"><span class="l">' + l + "</span><span>" + esc(o) + "</span></button>";
+    }).join("");
+    $("app").innerHTML =
+      '<div class="strip"><div class="tn">Exam Sprint<div style="font-size:14px;font-weight:700;opacity:.8">' + left + " left · each answer locks</div></div>" +
+      '<div class="stat"><b class="timer" id="tm">12:00</b><span>Time</span></div><div></div></div>' +
+      '<div><div class="nav" id="nav">' + nav + '</div><div class="legend"><span><i class="d"></i>Locked</span><span><i></i>Still open</span></div></div>' +
+      '<section class="card"><div class="qhead"><span class="eyebrow" style="margin:0">Question ' + (S.sq + 1) + " of " + ids.length + '</span><span class="chip">Workbook Q' + (S.sq + 34) + "</span></div>" +
+      '<p class="qtext">' + esc(q.text) + "</p>" + Live.imgs(q, "") + '<p class="qask">' + esc(q.ask) + "</p>" +
+      '<div class="opts" id="opts">' + opts + "</div>" +
+      '<p style="text-align:center;margin:16px 0 0"><button class="linkbtn" id="fin" type="button">I\'m finished</button></p></section>';
+    $("nav").onclick = function (e) { var b = e.target.closest("button"); if (!b || b.disabled) return; S.sq = +b.dataset.i; S.spick = null; S.lastKey = ""; render(S.view); window.scrollTo(0, 0); };
+    $("opts").onclick = function (e) { var b = e.target.closest(".opt"); if (!b) return; S.spick = b.dataset.l; S.lastKey = ""; render(S.view); };
+    $("fin").onclick = function () {
+      var blanks = ids.filter(function (id) { return !mine[id]; }).length;
+      if (blanks && !confirm(blanks + " still blank. A blank scores 0 but a guess has a 1 in 4 chance. Finish anyway?")) return;
+      Live.call("sprint.finish", { room: S.room, pid: S.pid }).then(function () { S.lastKey = ""; poller.now(); });
+    };
+    bar('<button class="btn big" id="skip" type="button"' + (left > 1 ? "" : " disabled") + '>Skip</button>' +
+      '<button class="btn primary big" id="lockS" type="button" style="flex:2"' + (S.spick ? "" : " disabled") + ">" + (S.spick ? "Lock in " + S.spick : "Tap an answer") + "</button>");
+    $("skip").onclick = function () { var nx = nextOpen(ids, mine, S.sq); if (nx >= 0) { S.sq = nx; S.spick = null; S.lastKey = ""; render(S.view); window.scrollTo(0, 0); } };
+    $("lockS").onclick = function () {
+      if (!S.spick || S.sending) return; S.sending = true; this.disabled = true;
+      var qid = ids[S.sq];
+      Live.call("sprint.answer", { room: S.room, pid: S.pid, qid: qid, choice: S.spick }).then(function (r) {
+        S.sending = false;
+        if (!r.ok && r.error !== "locked") { toast(r.message || "Try again"); return; }
+        mine = r.mine || mine; mine[qid] = mine[qid] || S.spick;
+        S.view.me.sprint = mine;
+        if (S.sq === ids.indexOf(qid)) { S.spick = null; var nx = nextOpen(ids, mine, S.sq); if (nx >= 0) S.sq = nx; }
+        S.lastKey = ""; render(S.view); window.scrollTo(0, 0); poller.now();
+      });
+    };
+  }
+
+  function updateTimer() {
+    var v = S.view, el = $("tm"); if (!v || !el) return;
+    var ms = v.sprint.endAt - now(); el.textContent = Live.clock(ms); el.classList.toggle("low", ms < 60000);
+    if (ms <= 0) { S.lastKey = ""; poller.now(); }
+  }
+
+  var poller = Live.poll(function () { return S.joined ? { room: S.room, extra: { pid: S.pid } } : null; }, render);
+  if (!S.joined) {
+    if (S.room) Live.state(S.room, { pid: S.pid }).then(function (v) {
+      if (v.ok && v.me) { S.joined = true; S.team = v.me.t; Live.mine("cl-joined", S.room); Live.mine("cl-room", S.room); render(v); }
+      else { if (v.ok) S.view = v; renderJoin(v.ok ? v.teams : null, v.ok ? "" : (params.get("room") ? "No room with that code. Check the board." : "")); }
+    });
+    else renderJoin(null);
+  }
+})();
+</script>
+</body>
+</html>

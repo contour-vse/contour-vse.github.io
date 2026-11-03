@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Contour Live tutor board: live scoreboard for the team challenge and exam sprint.">
+<meta name="robots" content="noindex">
+<title>Contour Live Board</title>
+<link rel="stylesheet" href="../live.css">
+<style>
+body{font-size:18px}
+.wrap{max-width:1600px;margin:0 auto;padding:16px 22px 110px;display:flex;flex-direction:column;gap:16px;min-height:100vh}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.top .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.codechip{font-family:var(--mono);font-weight:800;font-size:22px;letter-spacing:.16em;background:var(--navy);color:#fff;border-radius:12px;padding:6px 14px}
+.modes{display:flex;gap:6px;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:4px}
+.modes button{border:0;background:none;border-radius:10px;padding:8px 14px;font-weight:800;font-size:16px;color:var(--muted)}
+.modes button.on{background:var(--navy);color:#fff}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(340px,1fr);gap:18px;flex:1}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:22px;padding:24px 26px;min-width:0}
+.panel h2{font-weight:850;font-size:clamp(26px,2.6vw,38px);letter-spacing:-.025em;color:var(--navy);margin:0 0 14px;line-height:1.08}
+
+/* lobby */
+.lobby{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:center}
+.qr{width:min(24vw,340px);aspect-ratio:1;border-radius:16px;overflow:hidden;border:2px solid var(--line);background:#fff}
+.qr svg{display:block;width:100%;height:100%}
+.bigcode{font-family:var(--mono);font-weight:850;font-size:clamp(48px,5.6vw,120px);letter-spacing:.08em;color:var(--navy);line-height:1}
+.url{font-family:var(--mono);font-size:17px;color:var(--muted);word-break:break-all;margin:10px 0 0}
+.steps{margin:18px 0 0;padding:0;list-style:none;display:grid;gap:8px;font-size:21px;font-weight:700}
+.steps li{display:flex;gap:12px;align-items:center}
+.steps b{flex:none;width:34px;height:34px;border-radius:50%;background:var(--blue-soft);color:var(--blue-ink);display:grid;place-items:center;font-family:var(--mono)}
+
+/* question */
+.qtop{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.panel .qtext{font-size:clamp(20px,1.9vw,28px);line-height:1.35}
+.panel .qask{font-size:clamp(21px,2vw,30px)}
+.panel .qimg{max-height:min(27vh,330px)}
+.bopts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.bopt{position:relative;overflow:hidden;border:2px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:14px;font-size:clamp(19px,1.8vw,26px);font-weight:700;background:#fff;min-height:68px}
+.bopt .l{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--navy-soft);color:var(--navy);font-family:var(--mono);font-weight:850;font-size:22px;position:relative;z-index:1}
+.bopt .t{position:relative;z-index:1;min-width:0}
+.bopt .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--navy-soft);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.bopt .cnt{margin-left:auto;font-family:var(--mono);font-weight:850;color:var(--navy);position:relative;z-index:1}
+.bopt.right{border-color:var(--green);background:var(--green-soft)}
+.bopt.right .l{background:var(--green-ink);color:#fff}
+.bopt.right .fill{background:#C4ECD3}
+.locks{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;align-items:center}
+.lk{border-radius:999px;padding:6px 12px;font-weight:800;font-size:16px;border:2px solid var(--line);color:var(--muted);background:#fff}
+.lk.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.lk.on::before{content:"\2713  "}
+.lk.ok{background:var(--green-ink);border-color:var(--green-ink);color:#fff}
+.lk.no{background:var(--orange-soft);border-color:#F3C78E;color:var(--orange-ink)}
+
+/* scoreboard */
+.board{position:relative}
+.row{position:absolute;left:0;right:0;height:62px;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.row{display:grid;grid-template-columns:36px minmax(0,30%) minmax(0,1fr) 54px;gap:10px;align-items:center}
+.row .rk{font-family:var(--mono);font-weight:850;font-size:22px;color:var(--muted);text-align:center}
+.row .nm{font-weight:850;font-size:23px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .track{height:40px;border-radius:12px;background:var(--wash);border:2px solid var(--line);overflow:hidden;position:relative}
+.row .bar{position:absolute;left:0;top:0;bottom:0;background:var(--blue);border-radius:10px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.row .sc{font-family:var(--mono);font-weight:850;font-size:28px;color:var(--navy);text-align:right;font-variant-numeric:tabular-nums}
+.row.lead .bar{background:var(--orange)}
+.row.lead .rk,.row.lead .sc{color:var(--orange-ink)}
+.prize{display:flex;gap:12px;align-items:center;background:var(--orange-soft);color:var(--orange-ink);border-radius:14px;padding:12px 14px;font-weight:800;font-size:18px;margin-top:16px}
+.prize svg{flex:none}
+.prize input{flex:1;border:0;background:transparent;font-weight:800;font-size:18px;color:var(--orange-ink);min-width:0;padding:2px 0}
+
+/* team setup */
+.tset{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tset label{display:flex;align-items:center;gap:8px;border:2px solid var(--line);border-radius:12px;padding:6px 10px;background:#fff}
+.tset input{border:0;font-weight:800;font-size:18px;color:var(--navy);min-width:0;flex:1;padding:4px 0}
+.tset small{font-family:var(--mono);color:var(--muted);font-weight:700;white-space:nowrap}
+
+/* sprint */
+.huge{font-family:var(--mono);font-weight:850;font-size:clamp(90px,13vw,200px);line-height:1;color:var(--navy);letter-spacing:-.02em;text-align:center;font-variant-numeric:tabular-nums}
+.huge.low{color:var(--orange)}
+.meter{height:26px;border-radius:999px;background:var(--wash);border:2px solid var(--line);overflow:hidden;margin:18px 0 8px}
+.meter i{display:block;height:100%;background:var(--green);border-radius:999px;transition:width .8s}
+.stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;text-align:center}
+.stats b{display:block;font-family:var(--mono);font-size:44px;color:var(--navy);line-height:1.1}
+.stats span{font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.podium{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.podium li{display:grid;grid-template-columns:56px 1fr auto auto;gap:14px;align-items:center;border:2px solid var(--line);border-radius:16px;padding:10px 16px;background:#fff;opacity:0;transform:translateY(16px);animation:up .5s forwards}
+.podium li:first-child{border-color:var(--orange);background:var(--orange-soft)}
+.podium .pos{font-family:var(--mono);font-weight:850;font-size:30px;color:var(--navy)}
+.podium li:first-child .pos{color:var(--orange-ink)}
+.podium .who{font-weight:850;font-size:26px;color:var(--navy);line-height:1.1}
+.podium .who small{display:block;font-size:15px;color:var(--muted);font-weight:700}
+.podium .pts{font-family:var(--mono);font-weight:850;font-size:30px;color:var(--navy)}
+.podium .tm{font-family:var(--mono);font-size:17px;color:var(--muted);font-weight:700}
+@keyframes up{to{opacity:1;transform:none}}
+
+/* controls */
+.controls{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:2px solid var(--line);padding:12px 22px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;z-index:10}
+.controls .sep{width:2px;height:30px;background:var(--line)}
+.empty{max-width:640px;margin:10vh auto;text-align:center}
+.empty h2{font-size:44px;font-weight:850;color:var(--navy);letter-spacing:-.03em;margin:0 0 10px;line-height:1.1}
+.empty p{color:var(--muted);font-size:20px;margin:0 0 24px}
+.small{font-size:15px;color:var(--muted)}
+.setup{max-width:620px;margin:6vh auto;text-align:left}
+.setup h2{text-align:center}
+.setup p.lead{text-align:center}
+.f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.f label{font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.f input,.f select{border:2px solid var(--line);border-radius:12px;padding:11px 14px;font:inherit;font-size:19px;background:#fff;color:var(--ink);min-width:0;width:100%}
+.f input:focus,.f select:focus{border-color:var(--blue);outline:none}
+.err{color:var(--orange-ink);font-weight:700;min-height:1.4em;margin:0 0 8px}
+.classchip{font-weight:800;font-size:15px;color:var(--navy);background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.hofline{display:flex;gap:12px;align-items:center;background:var(--navy);color:#fff;border-radius:14px;padding:12px 14px;font-weight:800;font-size:18px;margin-top:16px}
+.prize label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.win{border:3px solid var(--orange);background:var(--orange-soft);border-radius:20px;padding:18px 22px;margin-top:12px;animation:up .6s forwards;opacity:0;transform:translateY(16px)}
+.win .tn{font-weight:850;font-size:clamp(40px,4.4vw,64px);color:var(--navy);letter-spacing:-.03em;line-height:1}
+.win .names{font-size:24px;font-weight:700;color:var(--ink);margin-top:8px}
+.win .pts{font-family:var(--mono);font-weight:850;font-size:28px;color:var(--orange-ink);margin-top:6px}
+.rankline{font-size:24px;font-weight:850;color:var(--navy);margin:18px 0 0}
+.hoflink{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-weight:800;font-size:18px;color:var(--blue-ink);text-decoration:none;border:2px solid var(--blue);border-radius:12px;padding:9px 14px;background:#fff}
+.hoflink:hover{background:var(--blue-soft)}
+@media (max-width:1000px){.grid{grid-template-columns:1fr}.lobby{grid-template-columns:1fr}.qr{width:260px}.bopts{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M13.5 2 4 14h7l-1.5 8L19 10h-7z"/></svg></div>
+      <h1>Contour Live</h1>
+      <span class="chip orange" id="demoChip" hidden>Demo mode</span>
+    </div>
+    <div class="right" id="topRight"></div>
+  </header>
+  <main id="main"></main>
+</div>
+<div class="controls" id="controls" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="../../config.js"></script>
+<script src="../questions.js"></script>
+<script src="../engine.js"></script>
+<script>if (!String(window.CONTOUR_ENDPOINT || "").trim()) document.write('<script src="../keys.js"><\/script>');</script>
+<script src="../../feedback/resources.js"></script>
+<script src="../api.js"></script>
+<script src="../qr.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = Live.esc, L = Live.LETTERS, Q = window.QUESTIONS;
+  var params = new URLSearchParams(location.search);
+  var B = { room: (params.get("room") || Live.ls("cl-board-room") || "").toUpperCase(), tk: null, view: null, offset: 0, lastMain: "", tab: null, busy: false };
+  B.tk = B.room ? Live.ls("cl-tk-" + B.room) : null;
+  $("demoChip").hidden = !Live.demo;
+
+  function toast(m) { var t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
+  function now() { return Date.now() + B.offset; }
+  function studentUrl() { var u = new URL("../", location.href); u.search = "?room=" + B.room; return u.href; }
+  function ordinal(n) { var s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+  function trophy(c) { return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="' + (c || "currentColor") + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 21h8M9 18h6"/></svg>'; }
+
+  function act(op, extra) {
+    if (B.busy) return Promise.resolve();
+    B.busy = true;
+    return Live.call("room.setPhase", Object.assign({ room: B.room, tk: B.tk, op: op }, extra || {})).then(function (r) {
+      B.busy = false;
+      if (!r.ok) toast(r.message || "Try again");
+      B.lastMain = ""; poller.now(); return r;
+    });
+  }
+
+  /* ---------- no room: set up the class ---------- */
+  function renderEmpty(msg) {
+    $("controls").hidden = true; $("topRight").innerHTML = "";
+    var camps = window.CAMPUSES || Engine.CAMPUSES, R = window.FEEDBACK_RESOURCES || {};
+    var lastCampus = Live.ls("cl-campus") || "";
+    $("main").innerHTML = '<section class="panel setup"><h2>Start a class game</h2>' +
+      '<p class="small lead" style="font-size:18px;margin:0 0 18px">' + esc(msg || "Students join with the code. Winners go up in the weekly Hall of Fame.") + "</p>" +
+      '<div class="f"><label for="campus">Campus</label><select id="campus"><option value="">Pick a campus</option>' +
+      camps.map(function (c) { return "<option" + (c === lastCampus ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("") + "</select></div>" +
+      '<div class="f"><label for="cls">Class</label><input id="cls" maxlength="40" placeholder="e.g. Sat 10am Y8 QR" value="' + esc(Live.ls("cl-class") || "") + '"></div>' +
+      '<div class="f"><label for="res">Resource</label><input id="res" maxlength="40" list="resList" value="' + esc(Live.ls("cl-res") || "y8-qr-1-1-wb") + '"><datalist id="resList">' +
+      Object.keys(R).map(function (k) { return '<option value="' + esc(k) + '">' + esc(R[k].title) + "</option>"; }).join("") + "</datalist></div>" +
+      '<div class="f"><label for="prz">Tutor\'s prize</label><input id="prz" maxlength="90" placeholder="e.g. first pick of the prize jar" value="' + esc(Live.ls("cl-prize") || "") + '"></div>' +
+      '<p class="err" id="err"></p><button class="btn primary big block" id="mk" type="button">Create room</button></section>';
+    $("mk").onclick = function () {
+      var body = { campus: $("campus").value, cls: $("cls").value.trim(), resource: $("res").value.trim() || "y8-qr-1-1-wb", prize: $("prz").value.trim() };
+      if (!body.campus) { $("err").textContent = "Pick the campus"; return; }
+      if (!body.cls) { $("err").textContent = "Type the class, e.g. Sat 10am Y8 QR"; return; }
+      if (!body.prize) { $("err").textContent = "Type the tutor's prize"; $("prz").focus(); return; }
+      this.disabled = true;
+      Live.call("room.create", body).then(function (r) {
+        if (!r.ok) { renderEmpty(r.message || "Could not create a room"); return; }
+        Live.ls("cl-campus", body.campus); Live.ls("cl-class", body.cls); Live.ls("cl-res", body.resource); Live.ls("cl-prize", body.prize);
+        B.room = r.code; B.tk = r.tk;
+        Live.ls("cl-tk-" + r.code, r.tk); Live.ls("cl-board-room", r.code);
+        history.replaceState(null, "", "?room=" + r.code);
+        B.lastMain = ""; poller.now();
+      });
+    };
+  }
+  function lc(t) { t = String(t || ""); return /^[A-Z][a-z]/.test(t) ? t.charAt(0).toLowerCase() + t.slice(1) : t; }
+  function hofUrl(v) { return "../../hall-of-fame/?week=" + encodeURIComponent(v.weekId); }
+  function hofLink(v) { return '<a class="hoflink" href="' + hofUrl(v) + '" target="_blank" rel="noopener">' + trophy() + "Open the Hall of Fame</a>"; }
+
+  /* ---------- scoreboard ---------- */
+  function stage(html, v) {
+    if (!$("stage")) {
+      $("main").innerHTML = '<div class="grid"><section class="panel" id="stage"></section><section class="panel" id="side">' +
+        '<p class="eyebrow">Team scores</p><div class="board" id="sb"></div>' +
+        '<div class="hofline">' + trophy() + '<span id="hofLine"></span></div>' +
+        '<div class="prize" style="margin-top:10px"><label for="prizeTutor">Tutor\'s prize</label><input id="prizeTutor" maxlength="90" placeholder="e.g. first pick of the prize jar"></div></section></div>';
+      wirePrize();
+    }
+    $("stage").innerHTML = html;
+    $("hofLine").textContent = v.hof;
+    var pe = $("prizeTutor"); if (document.activeElement !== pe) pe.value = v.prize.tutor || "";
+    updateScoreboard(v);
+  }
+  function updateScoreboard(v) {
+    var sb = $("sb"); if (!sb) return;
+    sb.style.height = (v.teams.length * 66) + "px";
+    var list = v.teams.map(function (t, i) { return { i: i, n: t.n, s: t.s, p: t.p }; });
+    var sorted = list.slice().sort(function (a, b) { return (b.s - a.s) || (a.i - b.i); });
+    var max = Math.max(1, sorted[0].s);
+    if (sb.children.length !== list.length) {
+      sb.innerHTML = list.map(function (t) { return '<div class="row" data-i="' + t.i + '"><div class="rk"></div><div class="nm"></div><div class="track"><div class="bar"></div></div><div class="sc"></div></div>'; }).join("");
+    }
+    sorted.forEach(function (t, pos) {
+      var el = sb.querySelector('.row[data-i="' + t.i + '"]');
+      var rank = 1; list.forEach(function (o) { if (o.s > t.s) rank++; });
+      el.style.transform = "translateY(" + (pos * 66) + "px)";
+      el.classList.toggle("lead", t.s > 0 && rank === 1);
+      el.querySelector(".rk").textContent = rank;
+      el.querySelector(".nm").textContent = t.n;
+      el.querySelector(".sc").textContent = t.s;
+      el.querySelector(".bar").style.width = (t.s / max * 100) + "%";
+    });
+  }
+  function wirePrize() {
+    var el = $("prizeTutor"); if (!el) return;
+    el.onchange = function () {
+      if (!el.value.trim()) { toast("The tutor's prize can't be empty"); el.value = B.view.prize.tutor; return; }
+      Live.ls("cl-prize", el.value.trim());
+      Live.call("room.setTeams", { room: B.room, tk: B.tk, prize: { tutor: el.value } }).then(function (r) { toast(r.ok ? "Prize saved" : (r.message || "Try again")); B.lastMain = ""; poller.now(); });
+    };
+  }
+
+  /* ---------- views ---------- */
+  function renderLobby(v) {
+    var url = studentUrl();
+    var teams = v.teams.map(function (t, i) {
+      return '<label><input data-i="' + i + '" value="' + esc(t.n) + '" maxlength="24" aria-label="Team ' + (i + 1) + ' name"><small>' + t.p + " in</small></label>";
+    }).join("");
+    stage('<div class="lobby"><div class="qr" id="qr"></div><div>' +
+      '<p class="eyebrow">Join on your phone</p><div class="bigcode">' + esc(B.room) + '</div><p class="url">' + esc(url.replace(/^https?:\/\//, "")) + "</p>" +
+      '<ol class="steps"><li><b>1</b>Scan the code</li><li><b>2</b>Type your first name</li><li><b>3</b>Tap your team</li></ol></div></div>' +
+      '<div style="margin-top:22px"><p class="eyebrow">Teams <span class="small" style="text-transform:none;letter-spacing:0;font-family:var(--sans)">(4 to 8, tap a name to edit)</span></p><div class="tset" id="tset">' + teams + "</div>" +
+      '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" id="addT" type="button"' + (v.teams.length >= 8 ? " disabled" : "") + '>Add team</button><button class="btn" id="rmT" type="button"' + (v.teams.length <= 4 ? " disabled" : "") + '>Remove last</button><button class="btn navy" id="saveT" type="button">Save names</button></div></div>' +
+      "", v);
+    $("qr").innerHTML = QR.svg(url, { dark: "#0B3D91" });
+    function names() { return Array.prototype.map.call($("tset").querySelectorAll("input"), function (i) { return i.value.trim(); }); }
+    function save(list) {
+      Live.call("room.setTeams", { room: B.room, tk: B.tk, teams: list }).then(function (r) { toast(r.ok ? "Teams saved" : (r.message || "Try again")); B.lastMain = ""; poller.now(); });
+    }
+    $("saveT").onclick = function () { save(names()); };
+    $("addT").onclick = function () { var n = names(); var pool = ["Comets", "Falcons", "Rockets", "Sharks", "Tigers", "Wolves", "Eagles", "Dragons"]; n.push(pool.filter(function (p) { return n.indexOf(p) < 0; })[0] || "Team " + (n.length + 1)); save(n); };
+    $("rmT").onclick = function () { var n = names(); n.pop(); save(n); };
+  }
+
+  function renderTeamQ(v) {
+    var q = Live.byId(v.qid), total = Q[v.round].length, pts = v.round === "warmup" ? 1 : 3;
+    var opts = q.options.map(function (o, i) {
+      var l = L[i], right = v.revealed && l === v.key;
+      var c = v.revealed ? v.counts[l] : null, n = v.teams.length;
+      return '<div class="bopt' + (right ? " right" : "") + '"><div class="fill" data-w="' + (v.revealed ? (c / n * 100) : 0) + '"></div><span class="l">' + l + '</span><span class="t">' + esc(o) + "</span>" +
+        (v.revealed ? '<span class="cnt">' + c + "</span>" : "") + "</div>";
+    }).join("");
+    var locks = v.teams.map(function (t, i) {
+      var on = v.locked.indexOf(i) >= 0, cls = "lk";
+      if (v.revealed) cls += !on ? "" : (v.picks[i] === v.key ? " ok" : " no");
+      else if (on) cls += " on";
+      return '<span class="' + cls + '">' + esc(t.n) + (v.revealed && on ? " · " + v.picks[i] : "") + "</span>";
+    }).join("");
+    stage('<div class="qtop"><span class="eyebrow" style="margin:0">' + (v.round === "warmup" ? "Round 1 · Warm Up" : "Round 2 · Challenge") + "</span>" +
+      '<span class="chip">Q' + (v.qi + 1) + " of " + total + " · " + pts + (pts === 1 ? " point" : " points") + "</span></div>" +
+      '<div class="locks"><span class="small" style="font-weight:800">' + (v.revealed ? "Answers:" : v.locked.length + " of " + v.teams.length + " locked in") + "</span>" + locks + "</div>" +
+      '<p class="qtext">' + esc(q.text) + "</p>" + Live.imgs(q, "../") + '<p class="qask">' + esc(q.ask) + "</p>" +
+      '<div class="bopts">' + opts + "</div>", v);
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      Array.prototype.forEach.call(document.querySelectorAll(".bopt .fill"), function (f) { f.style.width = f.dataset.w + "%"; });
+    }); });
+  }
+
+  function renderTeamDone(v) {
+    var w = v.winners || [];
+    var cards = w.map(function (t, i) {
+      return '<div class="win" style="animation-delay:' + (0.2 + i * 0.3) + 's"><div class="tn">' + esc(t.n) + '</div><div class="names">' + esc(t.names.join(", ") || "No names yet") + '</div><div class="pts">' + t.s + " points</div></div>";
+    }).join("");
+    stage('<p class="eyebrow">Team Challenge results · ' + esc(v.cls) + " · " + esc(v.campus) + "</p><h2>" + (w.length > 1 ? "Joint winners" : w.length ? "Winning team" : "No points this time") + "</h2>" + cards +
+      '<p class="rankline" id="rankLine"></p>' +
+      '<p style="font-size:20px;font-weight:700;margin:12px 0 0">' + esc(v.hof) + (v.prize.tutor ? ", plus " + esc(lc(v.prize.tutor)) : "") + ".</p>" + hofLink(v), v);
+    Live.hallOfFame(v.weekId).then(function (h) {
+      var el = $("rankLine"); if (!el || !h.ok) return;
+      var r = Engine.rankClasses(h.rows), me = null;
+      r.classes.forEach(function (c) { if (c.room === B.room) me = c; });
+      if (!me) return;
+      el.textContent = r.classes.length > 1 ? "Your class is #" + me.rank + " of " + r.classes.length + " classes this week" : "First class on the board this week";
+    });
+  }
+
+  function renderSprint(v) {
+    var sp = v.sprint, panel;
+    if (sp.status === "ended") {
+      var top = (sp.top || []).map(function (r, i) {
+        return '<li style="animation-delay:' + ((4 - i) * 0.35) + 's"><span class="pos">' + ordinal(i + 1) + '</span><span class="who">' + esc(r.n) + "<small>" + esc(r.team) + '</small></span><span class="tm">' + Live.clock(r.ms) + '</span><span class="pts">' + r.score + "/" + sp.n + "</span></li>";
+      }).join("");
+      var others = Math.max(0, (sp.people || 0) - (sp.top || []).length);
+      panel = '<p class="eyebrow">Exam Sprint results</p><h2>Top 5</h2>' +
+        (top ? '<ol class="podium">' + top + "</ol>" : '<p class="small">Nobody answered this time.</p>') +
+        '<p class="small" style="margin-top:14px;font-size:18px;font-weight:700">' + sp.finished + " students finished" + (others ? " · " + others + " more took part" : "") + ". Ties go to the faster finish.</p>" +
+        (sp.top && sp.top.length ? '<p style="font-size:20px;font-weight:700;margin:12px 0 0">' + esc(sp.top[0].n) + " is the Sprint champion: " + esc(v.hof.charAt(0).toLowerCase() + v.hof.slice(1)) + (v.prize.tutor ? ", plus " + esc(lc(v.prize.tutor)) : "") + ".</p>" : "") + hofLink(v);
+    } else if (sp.status === "running") {
+      panel = '<p class="eyebrow">Exam Sprint · Workbook Q34 to Q43</p><div class="huge" id="tm">12:00</div>' +
+        '<div class="meter"><i style="width:' + (sp.people ? (sp.answered / (sp.people * sp.n) * 100) : 0) + '%"></i></div>' +
+        '<div class="stats"><div><b>' + (sp.answered || 0) + "</b><span>Answers locked</span></div><div><b>" + (sp.people || 0) + "</b><span>Students going</span></div><div><b>" + sp.finished + "</b><span>Finished</span></div></div>" ;
+    } else {
+      panel = '<p class="eyebrow">Exam Sprint · Workbook Q34 to Q43</p><h2>10 questions · 12 minutes · just you</h2>' +
+        '<ol class="steps"><li><b>1</b>Each answer locks. No changing it.</li><li><b>2</b>Skip slow ones, come back to them later.</li><li><b>3</b>Most right wins. Ties go to the faster finish.</li></ol>' +
+        '<div style="display:flex;gap:20px;align-items:center;margin-top:22px"><div class="qr" id="qr" style="width:180px"></div><div><p class="eyebrow">Late? Join with</p><div class="bigcode" style="font-size:64px">' + esc(B.room) + "</div></div></div>";
+    }
+    stage(panel, v);
+    if ($("qr")) $("qr").innerHTML = QR.svg(studentUrl(), { dark: "#0B3D91" });
+  }
+
+  function controls(v) {
+    var c = [], sp = v.sprint.status;
+    if (v.mode === "team") {
+      var total = Q[v.round].length;
+      c.push('<button class="btn" data-op="prev" type="button"' + (v.qi === 0 ? " disabled" : "") + ">Back<span class=\"k\">P</span></button>");
+      c.push('<button class="btn orange big" data-op="reveal" type="button"' + (v.revealed ? " disabled" : "") + ">Reveal answer<span class=\"k\">R</span></button>");
+      if (v.qi < total - 1) c.push('<button class="btn primary big" data-op="next" type="button">Next question<span class="k">N</span></button>');
+      else if (v.round === "warmup") c.push('<button class="btn primary big" data-op="round" data-round="challenge" type="button">Start Round 2</button>');
+      else c.push('<button class="btn primary big" data-op="teamEnd" type="button">Finish Team Challenge</button>');
+    } else if (v.mode === "teamDone") {
+      c.push('<button class="btn primary big" data-op="sprintReady" type="button">Go to Exam Sprint</button>');
+    } else if (v.mode === "sprint") {
+      if (sp === "ready" || sp === "idle") c.push('<button class="btn green big" data-op="sprintStart" type="button">Start 12 minute timer</button>');
+      if (sp === "running") c.push('<button class="btn orange big" data-op="sprintEnd" type="button">End sprint now</button>');
+      if (sp === "ended") c.push('<button class="btn" data-op="sprintStart" data-restart="1" type="button">Run sprint again</button>');
+    } else {
+      c.push('<button class="btn primary big" data-op="round" data-round="warmup" type="button">Start Round 1: Warm Up</button>');
+    }
+    c.push('<span class="sep"></span><button class="btn" id="fs" type="button">Full screen<span class="k">F</span></button>');
+    $("controls").innerHTML = c.join(""); $("controls").hidden = false;
+    $("fs").onclick = fullscreen;
+  }
+  function fullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+
+  $("controls").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-op]"); if (!b || b.disabled) return;
+    var op = b.dataset.op, extra = {};
+    if (b.dataset.round) extra.round = b.dataset.round;
+    if (b.dataset.restart) { if (!confirm("Clear the sprint results and run it again?")) return; extra.restart = true; }
+    if (op === "sprintEnd" && !confirm("End the sprint now?")) return;
+    if (op === "teamEnd" && !confirm("Finish the Team Challenge and put the winners in the Hall of Fame?")) return;
+    act(op, extra);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (!B.view || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+    var k = e.key.toLowerCase();
+    if (k === "f") fullscreen();
+    if (B.view.mode !== "team") return;
+    if (k === "n" && B.view.qi < Q[B.view.round].length - 1) act("next");
+    if (k === "p" && B.view.qi > 0) act("prev");
+    if (k === "r" && !B.view.revealed) act("reveal");
+  });
+
+  function topRight(v) {
+    var tabs = [["lobby", "Lobby"], ["warmup", "Warm Up"], ["challenge", "Challenge"], ["teamDone", "Results"], ["sprint", "Sprint"]];
+    var cur = v.mode === "team" ? v.round : v.mode;
+    $("topRight").innerHTML = '<span class="classchip">' + esc(v.cls) + " · " + esc(v.campus) + "</span>" + '<div class="modes" id="modes">' + tabs.map(function (t) { return '<button type="button" data-m="' + t[0] + '" class="' + (t[0] === cur ? "on" : "") + '">' + t[1] + "</button>"; }).join("") + "</div>" +
+      '<span class="codechip" title="Room code">' + esc(B.room) + "</span>" + '<span class="chip">' + (v.players || 0) + " joined</span>";
+    $("modes").onclick = function (e) {
+      var b = e.target.closest("button"); if (!b || b.classList.contains("on")) return;
+      var m = b.dataset.m;
+      if (m === "lobby") act("lobby"); else if (m === "teamDone") { if (confirm("Finish the Team Challenge and put the winners in the Hall of Fame?")) act("teamEnd"); } else if (m === "sprint") act("sprintReady"); else act("round", { round: m });
+    };
+  }
+
+  var timerInt = null;
+  function tickTimer() {
+    var v = B.view, el = $("tm"); if (!v || !el) return;
+    var ms = v.sprint.endAt - now(); el.textContent = Live.clock(ms); el.classList.toggle("low", ms < 60000);
+    if (ms <= 0) { B.lastMain = ""; poller.now(); }
+  }
+
+  function render(v) {
+    if (!B.room) return;
+    if (!v.ok) { if (v.error === "room") { Live.ls("cl-board-room", null); B.room = ""; renderEmpty("That room has closed. Make a new one."); } return; }
+    if (!v.tutor) { renderEmpty("This screen is not the tutor board for room " + B.room + ". Make a new room here."); B.room = ""; return; }
+    B.view = v; B.offset = v.now - Date.now();
+    if (v.mode === "sprint" && v.sprint.status === "ended" && !v.sprint.closed && !B.busy) act("sprintEnd");
+    var key = [v.v, v.mode, v.round, v.qi, v.revealed, v.sprint.status, v.players, JSON.stringify(v.teams)].join("|");
+    if (key !== B.lastMain) {
+      var structural = [v.mode, v.round, v.qi, v.revealed, v.sprint.status, v.teams.length].join("|");
+      if (structural === B.lastStruct && document.activeElement && document.activeElement.tagName === "INPUT") { updateScoreboard(v); }
+      else {
+        var sy = window.scrollY;
+        if (v.mode === "team" && v.qid) renderTeamQ(v);
+        else if (v.mode === "sprint") renderSprint(v);
+        else if (v.mode === "teamDone") renderTeamDone(v);
+        else renderLobby(v);
+        window.scrollTo(0, sy);
+      }
+      B.lastStruct = structural; B.lastMain = key;
+      controls(v); topRight(v);
+    }
+    clearInterval(timerInt); timerInt = null;
+    if (v.mode === "sprint" && v.sprint.status === "running") { timerInt = setInterval(tickTimer, 250); tickTimer(); }
+  }
+
+  var poller = Live.poll(function () { return B.room && B.tk ? { room: B.room, extra: { tk: B.tk } } : null; }, render);
+  if (!B.room || !B.tk) { B.room = ""; renderEmpty(); }
+})();
+</script>
+</body>
+</html>

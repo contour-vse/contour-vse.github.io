@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="The weekly Contour Hall of Fame: winning teams, Sprint champions and campus leaderboard.">
+<title>Contour Hall of Fame</title>
+<link rel="stylesheet" href="../team-challenge/live.css">
+<style>
+.wrap{max-width:1240px;margin:0 auto;padding:16px 16px 56px;display:flex;flex-direction:column;gap:16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pick{display:flex;align-items:center;gap:8px}
+.pick label{font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pick select{border:2px solid var(--line);border-radius:12px;padding:9px 12px;font:inherit;font-weight:750;color:var(--navy);background:#fff;max-width:72vw}
+.hero{background:var(--navy);color:#fff;border-radius:22px;padding:24px 26px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center}
+.hero .wk{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.hero h2{font-weight:850;font-size:clamp(28px,4vw,46px);letter-spacing:-.03em;line-height:1.05;margin:6px 0 4px}
+.hero p{margin:0;opacity:.85;font-weight:600}
+.hero .n{text-align:center}
+.hero .n b{display:block;font-family:var(--mono);font-size:44px;line-height:1}
+.hero .n span{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.8}
+.nums{display:flex;gap:26px}
+.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:20px 22px;min-width:0}
+.panel h3{font-weight:850;font-size:24px;letter-spacing:-.02em;color:var(--navy);margin:0 0 4px}
+.panel .sub{color:var(--muted);font-size:15px;margin:0 0 14px}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.cl{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:12px;align-items:center;border:2px solid var(--line);border-radius:16px;padding:12px 14px;background:#fff}
+.cl.first{border-color:var(--orange);background:var(--orange-soft)}
+.cl .rk{font-family:var(--mono);font-weight:850;font-size:24px;color:var(--navy);text-align:center}
+.cl.first .rk{color:var(--orange-ink)}
+.cl .team{font-weight:850;font-size:20px;color:var(--navy);line-height:1.15}
+.cl .names{font-weight:650;font-size:15.5px;margin-top:2px}
+.cl .where{font-size:14px;color:var(--muted);font-weight:700;margin-top:3px}
+.cl .sc{font-family:var(--mono);font-weight:850;font-size:24px;color:var(--navy);text-align:right;line-height:1}
+.cl .sc small{display:block;font-size:12px;color:var(--muted);font-family:var(--sans);letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+.camp{display:grid;grid-template-columns:28px minmax(0,7.5em) minmax(0,1fr) 52px;gap:10px;align-items:center;margin-bottom:10px}
+.camp .rk{font-family:var(--mono);font-weight:850;color:var(--muted);text-align:center}
+.camp .nm{font-weight:850;color:var(--navy);line-height:1.1}
+.camp .nm small{display:block;font-weight:700;color:var(--muted);font-size:12.5px}
+.camp .track{height:26px;border-radius:9px;background:var(--wash);border:2px solid var(--line);overflow:hidden}
+.camp .bar{height:100%;background:var(--blue);border-radius:7px;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.camp.lead .bar{background:var(--orange)}
+.camp .sc{font-family:var(--mono);font-weight:850;color:var(--navy);text-align:right}
+.empty{text-align:center;padding:40px 16px;color:var(--muted);font-size:18px}
+.empty b{display:block;font-size:26px;color:var(--navy);margin-bottom:6px}
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+@media (max-width:900px){.grid{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.nums{justify-content:flex-start}}
+@media (max-width:420px){.cl{grid-template-columns:34px minmax(0,1fr) auto;padding:10px 12px}.cl .rk{font-size:20px}.cl .team{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 21h8M9 18h6"/></svg></div>
+      <h1>Hall of Fame</h1>
+      <span class="chip orange" id="demoChip" hidden>Demo</span>
+    </div>
+    <div class="pick"><label for="wk">Week</label><select id="wk"></select></div>
+  </header>
+  <section class="hero" id="hero"></section>
+  <div class="grid">
+    <section class="panel"><h3>Class leaderboard</h3><p class="sub">The winning team from every class this week</p><ol class="list" id="classes"></ol></section>
+    <div class="side">
+      <section class="panel"><h3>Campus leaderboard</h3><p class="sub">Average winning team score, so small campuses compete fairly</p><div id="campuses"></div></section>
+      <section class="panel"><h3>Sprint champions</h3><p class="sub">Most right in the Exam Sprint, fastest finish breaks ties</p><ol class="list" id="sprint"></ol></section>
+    </div>
+  </div>
+</div>
+<script src="../config.js"></script>
+<script src="../feedback/resources.js"></script>
+<script src="../team-challenge/engine.js"></script>
+<script src="../team-challenge/api.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); }, esc = Live.esc;
+  var params = new URLSearchParams(location.search), week = params.get("week") || "";
+  $("demoChip").hidden = !Live.demo;
+  function label(id) { var l = Live.weekLabel(id); return l.week + (l.dates ? " · " + l.dates : "") + (l.title ? " · " + l.title : ""); }
+
+  function render(h) {
+    if (!h.ok) { $("hero").innerHTML = "<div><h2>Can't load the Hall of Fame</h2><p>Check the connection and refresh.</p></div>"; return; }
+    week = h.week;
+    $("wk").innerHTML = h.weeks.length ? h.weeks.map(function (w) { return '<option value="' + esc(w) + '"' + (w === h.week ? " selected" : "") + ">" + esc(label(w)) + "</option>"; }).join("") : "<option>No weeks yet</option>";
+    var r = Engine.rankClasses(h.rows), sprint = h.rows.filter(function (x) { return x.type === "sprint"; });
+    sprint.sort(function (a, b) { return (b.score - a.score) || (a.ms - b.ms); });
+    var l = Live.weekLabel(h.week);
+    $("hero").innerHTML = '<div><div class="wk">' + esc(l.week || "This week") + (l.dates ? " · " + esc(l.dates) : "") + "</div><h2>" +
+      (r.classes.length ? "Top class: " + esc(r.classes[0].cls) : "No winners yet") + "</h2><p>" +
+      (r.classes.length ? esc(r.classes[0].campus) + " · " + esc(r.classes[0].teams.map(function (t) { return t.team; }).join(" and ")) : "Winners appear here when a tutor finishes the Team Challenge.") + (l.title ? " · " + esc(l.title) : "") + "</p></div>" +
+      '<div class="nums"><div class="n"><b>' + r.classes.length + "</b><span>Classes</span></div><div class=\"n\"><b>" + r.campuses.length + "</b><span>Campuses</span></div><div class=\"n\"><b>" + sprint.length + "</b><span>Champions</span></div></div>";
+
+    $("classes").innerHTML = r.classes.length ? r.classes.map(function (c) {
+      return '<li class="cl' + (c.rank === 1 ? " first" : "") + '"><span class="rk">' + c.rank + "</span><div>" +
+        c.teams.map(function (t) { return '<div class="team">' + esc(t.team) + '</div><div class="names">' + esc(t.names || "") + "</div>"; }).join("") +
+        '<div class="where">' + esc(c.cls) + " · " + esc(c.campus) + '</div></div><span class="sc">' + c.score + "<small>points</small></span></li>";
+    }).join("") : '<li class="empty"><b>Nothing yet</b>Finish a Team Challenge to fill this up.</li>';
+
+    var max = r.campuses.length ? Math.max(1, r.campuses[0].avg) : 1;
+    $("campuses").innerHTML = r.campuses.length ? r.campuses.map(function (k) {
+      return '<div class="camp' + (k.rank === 1 ? " lead" : "") + '"><span class="rk">' + k.rank + '</span><span class="nm">' + esc(k.campus) + "<small>" + k.n + (k.n === 1 ? " class" : " classes") + '</small></span><div class="track"><div class="bar" data-w="' + (k.avg / max * 100) + '"></div></div><span class="sc">' + k.avg + "</span></div>";
+    }).join("") : '<p class="empty" style="padding:16px">No campuses yet</p>';
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      Array.prototype.forEach.call(document.querySelectorAll(".camp .bar"), function (b) { b.style.width = b.dataset.w + "%"; });
+    }); });
+
+    $("sprint").innerHTML = sprint.length ? sprint.map(function (s, i) {
+      return '<li class="cl' + (i === 0 ? " first" : "") + '"><span class="rk">' + (i + 1) + '</span><div><div class="team">' + esc(s.names) + '</div><div class="where">' + esc(s.team) + " · " + esc(s.cls) + " · " + esc(s.campus) + '</div></div><span class="sc">' + s.score + "/10<small>" + Live.clock(s.ms) + "</small></span></li>";
+    }).join("") : '<li class="empty"><b>Nothing yet</b>Champions appear when a tutor ends the Sprint.</li>';
+  }
+
+  function load() { Live.hallOfFame(week).then(render); }
+  $("wk").onchange = function () { week = this.value; history.replaceState(null, "", "?week=" + encodeURIComponent(week)); load(); };
+  load();
+  setInterval(load, 30000);
+})();
+</script>
+</body>
+</html>

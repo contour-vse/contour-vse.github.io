@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Fold a square sheet, punch holes and unfold it one fold at a time.">
+<title>Fold and Punch · Contour</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F6FC; --panel:#FFFFFF; --ink:#12203D; --muted:#46557A; --line:#D3DDEC; --wash:#F6F9FE;
+  --navy:#0B3D91; --navy-soft:#E4ECF8;
+  --blue:#007AFF; --blue-ink:#0060C7; --blue-soft:#E5F1FF;
+  --green:#2FB76A; --green-ink:#17793F; --green-soft:#E2F5EA;
+  --orange:#E88100; --orange-ink:#9A5400; --orange-soft:#FFF0DC;
+  --red:#D62C2C; --red-soft:#FDE7E7;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.4;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:12px 18px 24px;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.brand h1{font-weight:850;font-size:28px;letter-spacing:-.02em;margin:0;color:var(--navy);line-height:1}
+.keys{font-family:var(--mono);font-size:13px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.keys b{background:var(--panel);border:1.5px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--navy)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tabs button{flex:1 0 auto;min-height:44px;border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 16px;font-size:17px;font-weight:750;color:var(--muted);white-space:nowrap}
+.tabs button .n{font-family:var(--mono);margin-right:7px;color:var(--blue-ink)}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tabs button.on .n{color:#AFC8F0}
+.stage{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;min-height:560px}
+.vis{position:relative;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.side{display:flex;flex-direction:column;gap:9px;min-width:0}
+.q{font-weight:850;font-size:24px;line-height:1.15;color:var(--navy);letter-spacing:-.01em;margin:0}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap}
+.btn{min-height:44px;border:2px solid var(--line);background:var(--panel);border-radius:12px;padding:8px 14px;font-weight:750;font-size:17px;line-height:1.1;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:var(--navy)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-ink);border-color:var(--blue-ink)}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.on{background:var(--navy-soft);border-color:var(--navy);color:var(--navy)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn .k{font-family:var(--mono);font-size:12px;opacity:.75}
+.ans-t{width:100%;border:2px dashed var(--orange);background:var(--orange-soft);color:var(--orange-ink)}
+.ans-t[aria-pressed="true"]{border-style:solid;background:var(--orange);color:#fff}
+.ans{border:2px solid var(--orange);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:#fff}
+.big{font-size:44px;font-weight:900;color:var(--blue-ink);line-height:1;letter-spacing:-.02em}
+.mid{font-size:26px;font-weight:850;color:var(--navy);line-height:1.15}
+.rule{font-size:19px;font-weight:750;color:var(--navy)}
+.rule em{font-style:normal;color:var(--blue-ink)}
+.lbl{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:2px solid var(--line);border-radius:12px;padding:4px 10px;font-weight:800;font-size:18px;background:#fff;color:var(--navy);min-width:44px;text-align:center}
+.chip small{display:block;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.chip.hot{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-ink)}
+.chip.good{border-color:var(--green);background:var(--green-soft);color:var(--green-ink)}
+.chip.bad{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:16px;font-weight:700}
+.ok{color:var(--green-ink)} .no{color:var(--red)}
+@media (max-width:860px){
+  .stage{display:flex;flex-direction:column;padding:12px;min-height:0;gap:12px}
+  .side{display:contents}
+  .q{order:-1}
+  .brand h1{font-size:23px}
+  .keys{display:none}
+  .q{font-size:21px}
+  .tabs button{font-size:15px;padding:6px 12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.sheet{display:block;touch-action:manipulation;max-width:100%;height:auto}
+.sheet.tap{cursor:crosshair}
+.pair{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;width:100%}
+.pair > div{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cap{font-weight:850;font-size:20px;color:var(--navy)}
+.opts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%;max-width:500px}
+.opt{border:2px solid var(--line);border-radius:14px;background:#fff;padding:6px 6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:900;font-size:22px;color:var(--navy);min-height:44px}
+.opt svg{width:100%;height:auto;display:block}
+.opt.pick{border-color:var(--blue);background:var(--blue-soft)}
+.opt.right{border-color:var(--green);background:var(--green-soft);color:var(--green-ink)}
+.opt.wrong{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.opt small{font-size:12px;font-weight:750;color:var(--muted);letter-spacing:.02em;line-height:1.1;text-align:center;min-height:14px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{border:2px solid var(--line);border-radius:12px;padding:4px 12px;min-width:84px}
+.stat b{display:block;font-size:30px;line-height:1.1;color:var(--navy)}
+.stat span{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fold-btns{display:grid;grid-template-columns:repeat(4,52px);gap:6px}
+.ib{width:52px;height:48px;border:2px solid var(--navy);border-radius:12px;background:var(--navy-soft);display:grid;place-items:center;padding:0}
+.ib:disabled{opacity:.25;cursor:default}
+.ib.on{background:var(--navy)}
+.ib.on svg *{stroke:#fff}
+.ib.on svg .fillme{fill:#fff}
+.tools2{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sw{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--navy);min-height:44px;border:2px solid var(--line);border-radius:12px;padding:6px 12px;background:#fff}
+.sw[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-ink)}
+.sw i{width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;flex:none}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s}
+.sw[aria-pressed="true"] i{background:var(--blue)}
+.sw[aria-pressed="true"] i::after{left:17px}
+.note{font-weight:850;font-size:20px;color:var(--navy);min-height:28px;text-align:center}
+@media (max-width:860px){ .opts{gap:6px} .opt{font-size:18px} }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M12 4v16" stroke-dasharray="2.5 2.5"/><circle cx="16.5" cy="9" r="1.8" fill="#fff" stroke="none"/><circle cx="7.5" cy="9" r="1.8" fill="#fff" stroke="none"/></svg></div>
+      <h1 id="title">Fold and Punch</h1>
+    </div>
+    <div class="keys"><span><b>&larr;</b> <b>&rarr;</b> step</span><span><b>Space</b> play</span><span><b>R</b> reset</span></div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <main class="stage">
+    <section class="vis" id="vis"></section>
+    <aside class="side">
+      <p class="q" id="q"></p>
+      <div class="ctrls">
+        <button class="btn primary" id="playBtn" type="button">Play <span class="k">Space</span></button>
+        <button class="btn" id="stepBtn" type="button">Step</button>
+        <button class="btn" id="resetBtn" type="button">Reset <span class="k">R</span></button>
+      </div>
+      <div id="extra"></div>
+      <button class="btn ans-t" id="ansBtn" type="button" aria-pressed="false">Show answer</button>
+      <div class="ans" id="ans" hidden></div>
+    </aside>
+  </main>
+</div>
+<script id="model">
+/* fold and punch model. Sheet is N x N squares, x right, y down the page. */
+(function(root){
+  var EPS = 1e-6;
+  // each fold: which half moves (normal points towards the moving half)
+  var OPS = {
+    'L>R': { n:[-1,0], name:'Left onto right' },  'R>L': { n:[1,0], name:'Right onto left' },
+    'T>B': { n:[0,-1], name:'Top onto bottom' },  'B>T': { n:[0,1], name:'Bottom onto top' },
+    'TL>BR': { n:[-1,-1], name:'Top left corner down' }, 'BR>TL': { n:[1,1], name:'Bottom right corner up' },
+    'TR>BL': { n:[1,-1], name:'Top right corner down' }, 'BL>TR': { n:[-1,1], name:'Bottom left corner up' } };
+  function unit(v){ var l = Math.hypot(v[0], v[1]); return [v[0]/l, v[1]/l]; }
+  function bbox(poly){ var xs = poly.map(function(p){ return p[0]; }), ys = poly.map(function(p){ return p[1]; });
+    return { x0:Math.min.apply(0, xs), x1:Math.max.apply(0, xs), y0:Math.min.apply(0, ys), y1:Math.max.apply(0, ys) }; }
+  function area(poly){ var a = 0; for(var i = 0; i < poly.length; i++){ var p = poly[i], q = poly[(i + 1) % poly.length]; a += p[0]*q[1] - q[0]*p[1]; } return Math.abs(a) / 2; }
+  // keep the part of a convex polygon where s(q) = u.(q - c) <= 0
+  function clip(poly, c, u){
+    var out = [];
+    for(var i = 0; i < poly.length; i++){
+      var p = poly[i], q = poly[(i + 1) % poly.length];
+      var sp = u[0]*(p[0] - c[0]) + u[1]*(p[1] - c[1]), sq = u[0]*(q[0] - c[0]) + u[1]*(q[1] - c[1]);
+      if(sp <= EPS) out.push(p);
+      if((sp < -EPS && sq > EPS) || (sp > EPS && sq < -EPS)){ var t = sp / (sp - sq); out.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]); }
+    }
+    return out;
+  }
+  function reflect(q, c, u){ var s = u[0]*(q[0] - c[0]) + u[1]*(q[1] - c[1]); return [q[0] - 2*s*u[0], q[1] - 2*s*u[1]]; }
+  function reflectV(v, u){ var s = u[0]*v[0] + u[1]*v[1]; return [v[0] - 2*s*u[0], v[1] - 2*s*u[1]]; }
+  function inside(poly, q, tol){ tol = tol == null ? 1e-6 : tol;
+    var sgn = 0;
+    for(var i = 0; i < poly.length; i++){ var p = poly[i], r = poly[(i + 1) % poly.length];
+      var cr = (r[0] - p[0])*(q[1] - p[1]) - (r[1] - p[1])*(q[0] - p[0]);
+      var L = Math.hypot(r[0] - p[0], r[1] - p[1]); cr /= L;
+      if(Math.abs(cr) <= tol) continue;
+      var s = cr > 0 ? 1 : -1; if(!sgn) sgn = s; else if(s !== sgn) return false; }
+    return true; }
+  function square(N){ return [[0,0],[N,0],[N,N],[0,N]]; }
+  // try a fold on a region: returns {op,c,u,kept,moved} or null when it is not a clean half fold
+  function fold(region, op){
+    var b = bbox(region), c = [(b.x0 + b.x1)/2, (b.y0 + b.y1)/2], u = unit(OPS[op].n);
+    var kept = clip(region, c, u), moved = clip(region, c, [-u[0], -u[1]]);
+    if(kept.length < 3 || moved.length < 3 || area(kept) < 1e-3 || area(moved) < 1e-3) return null;
+    var ok = moved.every(function(p){ return inside(kept, reflect(p, c, u), 1e-4); }) && Math.abs(area(kept) - area(moved)) < 1e-4;
+    return ok ? { op:op, c:c, u:u, kept:kept, moved:moved, before:region } : null;
+  }
+  function validOps(region){ return Object.keys(OPS).filter(function(op){ return !!fold(region, op); }); }
+  // folds: list of op names from a flat N x N sheet. returns the fold records
+  function makeFolds(N, ops){ var region = square(N), out = [];
+    ops.forEach(function(op){ var f = fold(region, op); if(!f) throw new Error('bad fold ' + op); out.push(f); region = f.kept; });
+    return out; }
+  function key(h){ return [h.x, h.y].map(function(v){ return (Math.round(v * 100) / 100).toFixed(2); }).join(',') + '|' + h.shape + '|' +
+    (h.shape === 'circle' ? '' : h.dir.map(function(v){ return Math.round(v) + 0; }).join(',')); }
+  function dedupe(hs){ var seen = {}, out = []; hs.forEach(function(h){ var k = key(h); if(!seen[k]){ seen[k] = 1; out.push(h); } }); return out; }
+  function mirror(h, f){ var p = reflect([h.x, h.y], f.c, f.u), d = reflectV(h.dir, f.u);
+    return { x:p[0], y:p[1], shape:h.shape, dir:[Math.round(d[0]), Math.round(d[1])], copy:true }; }
+  // holes after undoing the last k folds (k = folds.length for the open sheet)
+  function stages(folds, punches){
+    var hs = punches.map(function(h){ return Object.assign({}, h, { copy:false }); }), out = [hs];
+    for(var i = folds.length - 1; i >= 0; i--){ var f = folds[i];
+      hs = dedupe(hs.concat(hs.map(function(h){ return mirror(h, f); }))); out.push(hs); }
+    return out;
+  }
+  function openSheet(folds, punches){ var s = stages(folds, punches); return s[s.length - 1]; }
+  function centroid(poly){ var x = 0, y = 0; poly.forEach(function(p){ x += p[0]; y += p[1]; }); return [x / poly.length, y / poly.length]; }
+  // wrong ways to unfold
+  var WRONG = {
+    slide: function(folds, P){ var hs = P.slice();
+      for(var i = folds.length - 1; i >= 0; i--){ var f = folds[i], a = centroid(f.kept), b = centroid(f.moved), t = [b[0] - a[0], b[1] - a[1]];
+        hs = dedupe(hs.concat(hs.map(function(h){ return { x:h.x + t[0], y:h.y + t[1], shape:h.shape, dir:h.dir.slice() }; }))); }
+      return hs; },
+    missingCopy: function(folds, P){ var hs = P.slice();
+      if(folds.length < 2) return P.slice();
+      for(var i = folds.length - 1; i >= 0; i--){ var f = folds[i]; hs = dedupe(hs.concat(P.map(function(h){ return mirror(h, f); }))); }
+      return hs; },
+    wrongLine: function(folds, P){ var hs = P.slice();
+      for(var i = folds.length - 1; i >= 0; i--){ var f = folds[i], g = { c:f.c, u:[-f.u[1], f.u[0]] };
+        hs = dedupe(hs.concat(hs.map(function(h){ return mirror(h, g); }))); }
+      return hs; },
+    onlyLast: function(folds, P){ return stages(folds, P)[1]; },
+    noFlip: function(folds, P){ var hs = P.slice();
+      for(var i = folds.length - 1; i >= 0; i--){ var f = folds[i];
+        hs = dedupe(hs.concat(hs.map(function(h){ var m = mirror(h, f); m.dir = h.dir.slice(); return m; }))); }
+      return hs; }
+  };
+  function sameSet(a, b){ var ka = a.map(key).sort(), kb = b.map(key).sort(); return ka.join(';') === kb.join(';'); }
+  // two different holes on the same spot would look like a strange new shape, so such a sheet is not used as an option
+  function clashes(hs){ var n = 0; for(var i = 0; i < hs.length; i++) for(var j = i + 1; j < hs.length; j++) if(Math.hypot(hs[i].x - hs[j].x, hs[i].y - hs[j].y) < 0.7) n++; return n; }
+  function onSheet(hs, N){ return hs.every(function(h){ return h.x > 0 && h.y > 0 && h.x < N && h.y < N; }); }
+  // 4 options: 1 right, 3 plausible wrong (slide, missing copy, wrong fold line, then fallbacks)
+  function options(N, folds, P, rnd, order){
+    rnd = rnd || Math.random;
+    var right = openSheet(folds, P), list = [{ kind:'right', holes:right }], base = clashes(right);
+    function clash(hs){ return clashes(hs) > base; }
+    (order || ['slide', 'missingCopy', 'wrongLine', 'onlyLast', 'noFlip']).forEach(function(k){
+      if(list.length >= 4) return;
+      var hs = WRONG[k](folds, P);
+      if(!hs.length || !onSheet(hs, N) || clash(hs)) return;
+      if(list.some(function(o){ return sameSet(o.holes, hs); })) return;
+      list.push({ kind:k, holes:hs });
+    });
+    // fallbacks: the right sheet turned or flipped as a whole
+    [function(h){ return [N - h.y, h.x, [-h.dir[1], h.dir[0]]]; }, function(h){ return [N - h.x, h.y, [-h.dir[0], h.dir[1]]]; },
+     function(h){ return [h.x, N - h.y, [h.dir[0], -h.dir[1]]]; }, function(h){ return [N - h.x, N - h.y, [-h.dir[0], -h.dir[1]]]; }].forEach(function(T){
+      if(list.length >= 4) return;
+      var hs = right.map(function(h){ var r = T(h); return { x:r[0], y:r[1], shape:h.shape, dir:r[2] }; });
+      if(!list.some(function(o){ return sameSet(o.holes, hs); })) list.push({ kind:'turned', holes:hs }); });
+    var shift = 1;
+    while(list.length < 4 && shift < 4){   // last resort: the right sheet nudged one square
+      [[1,0],[0,1],[-1,0],[0,-1]].forEach(function(t){ if(list.length >= 4) return;
+        var hs = right.map(function(h){ return Object.assign({}, h, { x:h.x + t[0]*shift, y:h.y + t[1]*shift }); });
+        if(onSheet(hs, N) && !clash(hs) && !list.some(function(o){ return sameSet(o.holes, hs); })) list.push({ kind:'shifted', holes:hs }); });
+      shift++; }
+    if(!order){ for(var i = list.length - 1; i > 0; i--){ var j = Math.floor(rnd() * (i + 1)); var t = list[i]; list[i] = list[j]; list[j] = t; } }
+    return list;
+  }
+  var api = { mirror:mirror, dedupe:dedupe, OPS:OPS, bbox:bbox, area:area, clip:clip, reflect:reflect, reflectV:reflectV, inside:inside, square:square, fold:fold,
+    validOps:validOps, makeFolds:makeFolds, stages:stages, openSheet:openSheet, WRONG:WRONG, options:options, sameSet:sameSet, key:key, onSheet:onSheet,
+    // booklet scenes (Fold and Punch explorations)
+    N: 6,
+    ONE: { folds:['L>R'], punches:[{ x:5.5, y:1.5, shape:'circle', dir:[1,0] }] },
+    ELIF: { folds:['L>R','T>B'], punches:[{ x:5.5, y:3.5, shape:'circle', dir:[1,0] }],
+      // booklet options A to D: undid only the last fold, right, copied only the punched hole, slid
+      optionOrder:['onlyLast','right','missingCopy','slide'] },
+    MIDDLE: { folds:['L>R'], punches:[{ x:4.5, y:2.5, shape:'triangle', dir:[1,0] }] },
+    DIAG: { folds:['TL>BR'], punches:[{ x:4.5, y:4.5, shape:'triangle', dir:[1,0] }] } };
+  api.bookletOptions = function(sc){ var f = makeFolds(api.N, sc.folds), P = sc.punches;
+    return sc.optionOrder.map(function(k){ return { kind:k, holes: k === 'right' ? openSheet(f, P) : WRONG[k](f, P) }; }); };
+  if(typeof module !== 'undefined' && module.exports) module.exports = api; else root.FoldModel = api;
+})(this);
+
+</script>
+<script>
+/* shared lab shell: tabs, controls, keyboard, answer toggle, tweening */
+var Lab = (function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cfg, cur = -1, inst = null, gen = 0, showAns = false;
+  var $ = function(id){ return document.getElementById(id); };
+  function el(tag, cls, html){ var e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; }
+  function sleep(ms, g){ return new Promise(function(res, rej){ setTimeout(function(){ g === gen ? res() : rej('x'); }, RM ? 0 : ms); }); }
+  function tween(ms, fn, g){
+    return new Promise(function(res, rej){
+      if(RM || ms <= 0){ fn(1); res(); return; }
+      var t0 = performance.now();
+      function f(now){
+        if(g !== gen){ rej('x'); return; }
+        var t = Math.min(1, (now - t0) / ms);
+        fn(t);
+        if(t < 1) requestAnimationFrame(f); else res();
+      }
+      requestAnimationFrame(f);
+    });
+  }
+  function ease(t){ return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
+  function setAns(v){
+    showAns = v;
+    var b = $('ansBtn'); b.setAttribute('aria-pressed', v ? 'true' : 'false');
+    b.textContent = v ? 'Hide answer' : 'Show answer';
+    $('ans').hidden = !v || !$('ans').innerHTML;
+    if(inst && inst.answer) inst.answer(v);
+  }
+  function go(i){
+    if(i < 0 || i >= cfg.steps.length) return;
+    gen++; cur = i;
+    if(inst && inst.destroy) inst.destroy();
+    var s = cfg.steps[i];
+    [].forEach.call($('tabs').children, function(b, j){ b.classList.toggle('on', j === i); b.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+    $('q').textContent = s.q || '';
+    $('q').hidden = !s.q;
+    $('vis').innerHTML = ''; $('extra').innerHTML = ''; $('ans').innerHTML = '';
+    $('playBtn').hidden = s.play === false; $('stepBtn').hidden = s.step === false;
+    $('ansBtn').hidden = s.answer === false;
+    $('stepBtn').textContent = s.stepLabel || 'Step';
+    if(s.playLabel) $('playBtn').firstChild.nodeValue = s.playLabel + ' '; else $('playBtn').firstChild.nodeValue = 'Play ';
+    showAns = false;
+    inst = s.mount({ vis: $('vis'), extra: $('extra'), ans: $('ans'), gen: gen, el: el,
+      alive: function(g){ return g === gen; } }) || {};
+    setAns(false);
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch(e) {}
+  }
+  function guard(p){ if(p && p.catch) p.catch(function(){}); }
+  function init(c){
+    cfg = c;
+    document.title = c.title + ' · Contour';
+    $('title').textContent = c.title;
+    c.steps.forEach(function(s, i){
+      var b = el('button', '', '<span class="n">' + (i + 1) + '</span>' + s.name);
+      b.type = 'button'; b.setAttribute('role', 'tab');
+      b.onclick = function(){ go(i); };
+      $('tabs').appendChild(b);
+    });
+    $('playBtn').onclick = function(){ if(inst.play) guard(inst.play()); };
+    $('stepBtn').onclick = function(){ if(inst.step) guard(inst.step()); };
+    $('resetBtn').onclick = function(){ reset(); };
+    $('ansBtn').onclick = function(){ setAns(!showAns); };
+    document.addEventListener('keydown', function(e){
+      if(e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+      if(e.altKey || e.ctrlKey || e.metaKey) return;
+      if(inst && inst.key && inst.key(e)) { e.preventDefault(); return; }
+      if(e.key === 'ArrowRight'){ go(cur + 1); e.preventDefault(); }
+      else if(e.key === 'ArrowLeft'){ go(cur - 1); e.preventDefault(); }
+      else if(e.key === ' '){ if(!$('playBtn').hidden && inst.play) guard(inst.play()); e.preventDefault(); }
+      else if(e.key === 'r' || e.key === 'R'){ reset(); }
+      else if(e.key === 'a' || e.key === 'A'){ if(!$('ansBtn').hidden) setAns(!showAns); }
+    });
+    var h = parseInt((location.hash || '').slice(1), 10);
+    go(h >= 1 && h <= c.steps.length ? h - 1 : 0);
+  }
+  function reset(){ gen++; var keep = showAns; if(inst && inst.reset) inst.reset(); else go(cur); if(keep) setAns(true); }
+  function refreshAns(){ $('ans').hidden = !showAns || !$('ans').innerHTML; }
+  return { init: init, tween: tween, sleep: sleep, ease: ease, el: el, RM: RM,
+    gen: function(){ return gen; }, bump: function(){ return ++gen; }, showing: function(){ return showAns; },
+    refreshAns: refreshAns, go: go, guard: guard };
+})();
+
+</script>
+<script>
+(function(){
+var F = FoldModel, el = Lab.el, N = F.N, NS = 'http://www.w3.org/2000/svg';
+var FOLD_MS = 900, PAD = 0.7;
+var LAYER = ['#FFFFFF', '#E5F1FF', '#CFE2FA', '#B5D2F7', '#9DC3F2', '#86B4EE'];
+var BLUE = '#2E6DB4', ORANGE = '#E88100', INK = '#12203D';
+var uid = 0;
+
+function shapePts(h, s){
+  s = s || 1; var c = [h.x, h.y], d = h.dir, p = [-d[1], d[0]], out = [], i;
+  if(h.shape === 'circle'){ for(i = 0; i < 28; i++){ var a = i / 28 * Math.PI * 2; out.push([c[0] + Math.cos(a) * 0.32 * s, c[1] + Math.sin(a) * 0.32 * s]); } }
+  else if(h.shape === 'triangle'){ var k = 0.38 * s;
+    out = [[c[0] + d[0]*k, c[1] + d[1]*k], [c[0] - d[0]*k + p[0]*k, c[1] - d[1]*k + p[1]*k], [c[0] - d[0]*k - p[0]*k, c[1] - d[1]*k - p[1]*k]]; }
+  else { var r = 0.4 * s, o = [c[0] - d[0]*0.18*s, c[1] - d[1]*0.18*s];
+    for(i = 0; i <= 16; i++){ var b = -Math.PI/2 + Math.PI * i / 16; var ux = Math.cos(b), uy = Math.sin(b);
+      out.push([o[0] + (d[0]*ux + p[0]*uy) * r, o[1] + (d[1]*ux + p[1]*uy) * r]); } }
+  return out;
+}
+function ptsStr(ps, f){ return ps.map(function(q){ q = f ? f(q) : q; return q[0].toFixed(3) + ',' + q[1].toFixed(3); }).join(' '); }
+function lineThrough(c, u, L){ var d = [-u[1], u[0]]; return [[c[0] - d[0]*L, c[1] - d[1]*L], [c[0] + d[0]*L, c[1] + d[1]*L]]; }
+function layerFill(k){ return LAYER[Math.min(LAYER.length - 1, k)]; }
+
+/* ---------- a sheet scene ---------- */
+function Sheet(host, o){
+  this.o = o || {}; this.id = 'sh' + (uid++);
+  this.svg = document.createElementNS(NS, 'svg'); this.svg.setAttribute('class', 'sheet');
+  this.svg.setAttribute('viewBox', [-PAD, -PAD, N + 2*PAD, N + 2*PAD].join(' '));
+  host.appendChild(this.svg); this.size(this.o.px || 320);
+  this.reset();
+}
+Sheet.prototype.size = function(px){ this.svg.setAttribute('width', px); this.svg.setAttribute('height', px); };
+Sheet.prototype.reset = function(){ this.region = F.square(N); this.folds = []; this.done = []; this.holes = []; this.preview = null; this.flap = null; this.marks = false; this.draw(); };
+Sheet.prototype.layers = function(){ return Math.pow(2, this.folds.length); };
+Sheet.prototype.draw = function(){
+  var s = '', id = this.id, k = this.folds.length;
+  s += '<defs><clipPath id="' + id + 'c"><polygon points="' + ptsStr(this.region) + '"/></clipPath></defs>';
+  s += '<rect x="0" y="0" width="' + N + '" height="' + N + '" fill="none" stroke="#B9C6DC" stroke-width="0.05" stroke-dasharray="0.15 0.12"/>';
+  s += '<polygon points="' + ptsStr(this.region) + '" fill="' + layerFill(k) + '"/>';
+  s += '<g clip-path="url(#' + id + 'c)" stroke="#B0B0B0" stroke-width="0.035">';
+  for(var i = 1; i < N; i++) s += '<line x1="' + i + '" y1="0" x2="' + i + '" y2="' + N + '"/><line x1="0" y1="' + i + '" x2="' + N + '" y2="' + i + '"/>';
+  // creases left by folds already undone
+  this.done.forEach(function(f){ var L = lineThrough(f.c, f.u, N * 2); s += '<line x1="' + L[0][0] + '" y1="' + L[0][1] + '" x2="' + L[1][0] + '" y2="' + L[1][1] + '" stroke="#7D8BA6" stroke-width="0.05" stroke-dasharray="0.18 0.12"/>'; });
+  s += '</g>';
+  s += '<polygon points="' + ptsStr(this.region) + '" fill="none" stroke="' + INK + '" stroke-width="0.09" stroke-linejoin="round"/>';
+  var self = this;
+  if(this.marks && this.markFold){ s += this.markSVG(); }
+  this.holes.forEach(function(h){ s += self.holeSVG(h); });
+  if(this.preview){ var f = this.preview, L = lineThrough(f.c, f.u, N * 2);
+    s += '<g clip-path="url(#' + id + 'c)"><line x1="' + L[0][0] + '" y1="' + L[0][1] + '" x2="' + L[1][0] + '" y2="' + L[1][1] + '" stroke="' + INK + '" stroke-width="0.1" stroke-dasharray="0.35 0.22"/></g>';
+    var a = centroid(f.moved), b = reflect(a, f), mid = [(a[0] + b[0])/2 - f.u[1]*0.9 + f.u[0]*0.2, (a[1] + b[1])/2 + f.u[0]*0.9 + f.u[1]*0.2];
+    var a2 = [a[0] + (mid[0] - a[0]) * 0.15, a[1] + (mid[1] - a[1]) * 0.15];
+    s += '<path d="M' + a2.join(',') + ' Q' + mid.join(',') + ' ' + b.join(',') + '" fill="none" stroke="' + ORANGE + '" stroke-width="0.16" stroke-linecap="round"/>';
+    var dx = b[0] - mid[0], dy = b[1] - mid[1], l = Math.hypot(dx, dy); dx /= l; dy /= l;
+    s += '<polygon points="' + ptsStr([[b[0] + dx*0.15, b[1] + dy*0.15], [b[0] - dx*0.4 - dy*0.28, b[1] - dy*0.4 + dx*0.28], [b[0] - dx*0.4 + dy*0.28, b[1] - dy*0.4 - dx*0.28]]) + '" fill="' + ORANGE + '"/>';
+  }
+  if(this.flap){ var fl = this.flap;
+    s += '<polygon points="' + ptsStr(fl.poly, fl.f) + '" fill="' + (fl.back ? '#DCE6F5' : layerFill(fl.layers)) + '" stroke="' + INK + '" stroke-width="0.07" stroke-linejoin="round" opacity="0.97"/>';
+    fl.holes.forEach(function(h){ s += self.holeSVG(h, fl.f); });
+  }
+  this.svg.innerHTML = s;
+};
+Sheet.prototype.holeSVG = function(h, f){
+  var col = h.copy ? ORANGE : BLUE;
+  return '<polygon points="' + ptsStr(shapePts(h, h.scale), f) + '" fill="' + col + '" stroke="' + INK + '" stroke-width="0.05" stroke-linejoin="round"/>';
+};
+Sheet.prototype.markSVG = function(){
+  // distance markers from the last undone fold line to each hole and its copy
+  var f = this.markFold, s = '';
+  this.holes.forEach(function(h){
+    var d = f.u[0]*(h.x - f.c[0]) + f.u[1]*(h.y - f.c[1]); if(Math.abs(d) < 0.05) return;
+    var foot = [h.x - d*f.u[0], h.y - d*f.u[1]];
+    s += '<line x1="' + foot[0] + '" y1="' + foot[1] + '" x2="' + h.x + '" y2="' + h.y + '" stroke="#D62C2C" stroke-width="0.07" stroke-dasharray="0.12 0.08"/>';
+  });
+  return s;
+};
+function centroid(p){ var x = 0, y = 0; p.forEach(function(q){ x += q[0]; y += q[1]; }); return [x / p.length, y / p.length]; }
+function reflect(q, f){ return F.reflect(q, f.c, f.u); }
+// projected half turn of the flap about the fold line: t = 0 flat where it is, t = 1 lying on the other side
+function swing(f, t){ var k = (1 - Math.cos(Math.PI * t)) / 2; return function(q){ var r = reflect(q, f); return [q[0] + (r[0] - q[0]) * k, q[1] + (r[1] - q[1]) * k]; }; }
+Sheet.prototype.showFold = function(op){ this.preview = F.fold(this.region, op); this.draw(); };
+Sheet.prototype.fold = function(op, g){
+  var f = F.fold(this.region, op), self = this; if(!f) return Promise.resolve();
+  this.preview = null;
+  var lay = this.folds.length;
+  this.region = f.kept; this.flap = { poly:f.moved, holes:[], layers:lay, f:null };
+  return Lab.tween(FOLD_MS, function(t){ var e = Lab.ease(t); self.flap.f = swing(f, e); self.flap.back = e > 0.5; self.draw(); }, g)
+    .then(function(){ self.flap = null; self.folds.push(f); self.draw(); }, function(e){ self.flap = null; self.folds.push(f); self.draw(); throw e; });
+};
+Sheet.prototype.foldNow = function(op){ var f = F.fold(this.region, op); if(!f) return; this.region = f.kept; this.folds.push(f); this.preview = null; this.draw(); };
+Sheet.prototype.punch = function(h, g){
+  var self = this, hole = { x:h.x, y:h.y, shape:h.shape, dir:h.dir.slice(), copy:false, scale:0.01 };
+  this.holes.push(hole);
+  return Lab.tween(300, function(t){ hole.scale = 0.2 + 0.8 * Lab.ease(t); self.draw(); }, g).then(function(){ hole.scale = 1; self.draw(); });
+};
+Sheet.prototype.unfold = function(g){
+  var f = this.folds.pop(), self = this; if(!f) return Promise.resolve();
+  var old = this.holes.map(function(h){ return Object.assign({}, h, { scale:1 }); });
+  var copies = old.map(function(h){ return F.mirror(h, f); });
+  var all = F.dedupe(old.concat(copies));
+  var fresh = all.filter(function(h){ return copies.indexOf(h) >= 0; });
+  this.flap = { poly:f.moved, holes:fresh, layers:this.folds.length, f:null };
+  this.holes = old; this.markFold = null;
+  return Lab.tween(FOLD_MS, function(t){ var e = 1 - Lab.ease(t); self.flap.f = swing(f, e); self.flap.back = e > 0.5; self.draw(); }, g)
+    .then(fin, function(e){ fin(); throw e; });
+  function fin(){ self.flap = null; self.region = f.before; self.done.push(f); self.holes = all; self.markFold = f; self.draw(); }
+};
+Sheet.prototype.unfoldNow = function(){ var f = this.folds.pop(); if(!f) return;
+  this.holes = F.dedupe(this.holes.concat(this.holes.map(function(h){ return F.mirror(h, f); }))); this.region = f.before; this.done.push(f); this.markFold = f; this.draw(); };
+Sheet.prototype.toSheet = function(ev){
+  var r = this.svg.getBoundingClientRect(), W = N + 2*PAD;
+  return [(ev.clientX - r.left) / r.width * W - PAD, (ev.clientY - r.top) / r.height * W - PAD];
+};
+
+/* mini sheet for options */
+function miniSVG(holes){
+  var s = '<svg viewBox="-0.2 -0.2 ' + (N + 0.4) + ' ' + (N + 0.4) + '"><rect x="0" y="0" width="' + N + '" height="' + N + '" fill="#fff"/>';
+  for(var i = 1; i < N; i++) s += '<line x1="' + i + '" y1="0" x2="' + i + '" y2="' + N + '" stroke="#B0B0B0" stroke-width="0.04"/><line x1="0" y1="' + i + '" x2="' + N + '" y2="' + i + '" stroke="#B0B0B0" stroke-width="0.04"/>';
+  s += '<rect x="0" y="0" width="' + N + '" height="' + N + '" fill="none" stroke="' + INK + '" stroke-width="0.12"/>';
+  holes.forEach(function(h){ s += '<polygon points="' + ptsStr(shapePts(h)) + '" fill="' + BLUE + '" stroke="' + INK + '" stroke-width="0.05"/>'; });
+  return s + '</svg>';
+}
+function sheetPx(vis, frac, max, hf){ var w = vis.clientWidth || 800, h = window.innerHeight; if(w < 520) frac = 0.9; return Math.max(200, Math.min(max || 420, Math.floor(w * frac), Math.floor(h * (hf || 0.62)))); }
+function onResize(fn){ var t; var h = function(){ clearTimeout(t); t = setTimeout(fn, 80); }; window.addEventListener('resize', h); return function(){ window.removeEventListener('resize', h); }; }
+function stats(x, list){ x.innerHTML = '<div class="stats">' + list.map(function(s){ return '<div class="stat"><b>' + s[1] + '</b><span>' + s[0] + '</span></div>'; }).join('') + '</div>'; }
+
+/* a scripted scene: folds, punch, unfold one at a time */
+function Script(sheets, scenes){
+  this.sheets = sheets; this.scenes = scenes; this.i = 0;
+  var sc = scenes[0]; this.plan = [];
+  var self = this;
+  sc.folds.forEach(function(op, j){ self.plan.push({ t:'fold', j:j }); });
+  this.plan.push({ t:'punch' });
+  sc.folds.forEach(function(){ self.plan.push({ t:'unfold' }); });
+}
+Script.prototype.reset = function(){ var self = this; this.i = 0;
+  this.sheets.forEach(function(s, k){ s.reset(); s.showFold(self.scenes[k].folds[0]); }); };
+Script.prototype.next = function(g){
+  var self = this, a = this.plan[this.i]; if(!a) return Promise.resolve();
+  this.i++;
+  return Promise.all(this.sheets.map(function(s, k){ var sc = self.scenes[k];
+    if(a.t === 'fold') return s.fold(sc.folds[a.j], g).then(function(){ if(sc.folds[a.j + 1]) s.showFold(sc.folds[a.j + 1]); });
+    if(a.t === 'punch') return Promise.all(sc.punches.map(function(h){ return s.punch(h, g); }));
+    return s.unfold(g); }));
+};
+Script.prototype.atEnd = function(){ return this.i >= this.plan.length; };
+function driver(sc, after){
+  return {
+    step: function(){ var g = Lab.bump(); if(sc.atEnd()){ sc.reset(); after(); return; } return sc.next(g).then(after); },
+    play: function(){ var g = Lab.bump(); if(sc.atEnd() || sc.i > 0){ sc.reset(); after(); }
+      var p = Lab.sleep(200, g); sc.plan.forEach(function(){ p = p.then(function(){ return sc.next(g); }).then(after).then(function(){ return Lab.sleep(380, g); }); }); return p; },
+    reset: function(){ Lab.bump(); sc.reset(); after(); }
+  };
+}
+
+/* ---------- steps ---------- */
+function stepOne(ctx){
+  var vis = ctx.vis, sh = new Sheet(vis, { px: sheetPx(vis, 0.6) });
+  var sc = new Script([sh], [F.ONE]);
+  var open = F.openSheet(F.makeFolds(N, F.ONE.folds), F.ONE.punches);
+  function after(){
+    stats(ctx.extra, [['Layers', sh.layers()], ['Holes', sc.atEnd() || Lab.showing() ? sh.holes.length || open.length : '?']]);
+    sh.marks = Lab.showing() && sc.atEnd(); sh.draw();
+  }
+  var f0 = F.makeFolds(N, F.ONE.folds)[0], h = open.filter(function(x){ return !x.copy; })[0], c = open.filter(function(x){ return x.copy; })[0];
+  var d1 = Math.abs(f0.u[0]*(h.x - f0.c[0]) + f0.u[1]*(h.y - f0.c[1])), d2 = Math.abs(f0.u[0]*(c.x - f0.c[0]) + f0.u[1]*(c.y - f0.c[1]));
+  ctx.ans.innerHTML = '<div class="hud"><span class="big">' + open.length + '</span><span class="mid">holes</span></div>' +
+    '<div class="rule">Same distance from the fold ' + (Math.abs(d1 - d2) < 1e-9 ? '<span class="ok">&#10003;</span>' : '') + '</div>' +
+    '<div class="rule"><em>Mirror image</em>, not a slide</div>';
+  sc.reset(); after();
+  var off = onResize(function(){ sh.size(sheetPx(vis, 0.6)); });
+  var d = driver(sc, after); d.answer = after; d.destroy = off; return d;
+}
+
+function stepTwo(ctx){
+  var vis = ctx.vis, sh = new Sheet(vis, { px: sheetPx(vis, 0.5, 330) });
+  var sc = new Script([sh], [F.ELIF]);
+  var opts = F.bookletOptions(F.ELIF), L = 'ABCD';
+  var right = opts.map(function(o){ return o.kind; }).indexOf('right');
+  var box = el('div', 'opts'); vis.appendChild(box);
+  var pick = -1;
+  function drawOpts(){
+    box.innerHTML = '';
+    opts.forEach(function(o, i){
+      var b = el('button', 'opt', miniSVG(o.holes) + '<span>' + L[i] + '</span>'); b.type = 'button';
+      if(pick === i) b.classList.add('pick');
+      if(Lab.showing()) b.classList.add(i === right ? 'right' : 'wrong');
+      b.onclick = function(){ pick = pick === i ? -1 : i; drawOpts(); };
+      box.appendChild(b); });
+  }
+  var final = F.openSheet(F.makeFolds(N, F.ELIF.folds), F.ELIF.punches);
+  function after(){ stats(ctx.extra, [['Layers', sh.layers()], ['Holes', sc.i > F.ELIF.folds.length || Lab.showing() ? (sc.i > F.ELIF.folds.length ? sh.holes.length : final.length) : '?']]); drawOpts(); }
+  ctx.ans.innerHTML = '<div class="rule">' + Math.pow(2, F.ELIF.folds.length) + ' layers = <em>' + final.length + ' holes</em></div>' +
+    '<div class="rule">Undo the <em>last</em> fold first</div><div class="rule">Each unfold copies <em>every</em> hole</div>' +
+    '<div class="hud"><span class="mid">Elif\'s sheet</span><span class="big">' + L[right] + '</span></div>';
+  sc.reset(); after();
+  var off = onResize(function(){ sh.size(sheetPx(vis, 0.5, 330)); });
+  var d = driver(sc, after); d.answer = after; d.destroy = off; return d;
+}
+
+function stepShapes(ctx){
+  var vis = ctx.vis, pair = el('div', 'pair'); vis.appendChild(pair);
+  var px = function(){ return Math.min(380, Math.floor(window.innerHeight * 0.56), Math.floor(((vis.clientWidth || 800) - 30) / ((vis.clientWidth || 800) < 520 ? 1 : 2))); };
+  var names = ['Middle Fold', 'Diagonal Fold'], scenes = [F.MIDDLE, F.DIAG];
+  var sheets = scenes.map(function(s, i){ var b = el('div'); pair.appendChild(b); var sh = new Sheet(b, { px: px() }); var n = el('div', 'cap', names[i]); b.appendChild(n); return sh; });
+  var sc = new Script(sheets, scenes);
+  function word(d){ return d[0] === 1 ? 'right' : d[0] === -1 ? 'left' : d[1] === -1 ? 'up' : 'down'; }
+  var res = scenes.map(function(s){ return F.openSheet(F.makeFolds(N, s.folds), s.punches).filter(function(h){ return h.copy; })[0]; });
+  ctx.ans.innerHTML = names.map(function(n, i){ return '<div class="rule">' + n + ': copy points <em>' + word(res[i].dir) + '</em></div>'; }).join('') +
+    '<div class="rule">Mirror = new place <em>and</em> flipped shape</div>';
+  ctx.extra.innerHTML = '<div class="muted">Punched triangle points right</div>';
+  sc.reset();
+  var off = onResize(function(){ sheets.forEach(function(s){ s.size(px()); }); });
+  var d = driver(sc, function(){}); d.destroy = off; return d;
+}
+
+function iconFold(op){
+  var n = F.OPS[op].n, l = Math.hypot(n[0], n[1]), u = [n[0]/l, n[1]/l], d = [-u[1], u[0]], c = [12, 12];
+  var a = [c[0] + u[0]*6.5, c[1] + u[1]*6.5], b = [c[0] - u[0]*5.5, c[1] - u[1]*5.5];
+  var hx = -u[0], hy = -u[1];
+  return '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0B3D91" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">' +
+    '<rect x="3" y="3" width="18" height="18"/>' +
+    '<line x1="' + (c[0] - d[0]*12) + '" y1="' + (c[1] - d[1]*12) + '" x2="' + (c[0] + d[0]*12) + '" y2="' + (c[1] + d[1]*12) + '" stroke-dasharray="2 2" />' +
+    '<path d="M' + a.join(',') + ' L' + b.join(',') + '" stroke="#E88100" stroke-width="2.4"/>' +
+    '<path d="M' + (b[0] - hx*3 - hy*2.6) + ',' + (b[1] - hy*3 + hx*2.6) + ' L' + b.join(',') + ' L' + (b[0] - hx*3 + hy*2.6) + ',' + (b[1] - hy*3 - hx*2.6) + '" stroke="#E88100" stroke-width="2.4"/></svg>';
+}
+function iconShape(shape, dir){
+  var h = { x:12, y:12, shape:shape, dir:dir };
+  var pts = shapePts({ x:0, y:0, shape:shape, dir:dir }, 1).map(function(p){ return [12 + p[0]*20, 12 + p[1]*20]; });
+  return '<svg width="30" height="30" viewBox="0 0 24 24"><polygon class="fillme" points="' + ptsStr(pts) + '" fill="#0B3D91"/></svg>';
+}
+
+function stepFree(ctx){
+  var vis = ctx.vis, sh = new Sheet(vis, { px: sheetPx(vis, 0.6, 440, 0.44) });
+  sh.svg.classList.add('tap');
+  var note = el('div', 'note', 'Fold, then tap to punch'); vis.appendChild(note);
+  var box = el('div', 'opts'); box.hidden = true; vis.appendChild(box);
+  var tool = { shape:'circle', dir:[1,0] }, guess = false, guessed = false, punched = [];
+  var x = ctx.extra;
+  var OPS = ['L>R','R>L','T>B','B>T','TL>BR','BR>TL','TR>BL','BL>TR'];
+  x.innerHTML = '<div style="display:flex;flex-direction:column;gap:10px">' +
+    '<div class="lbl">Fold</div><div class="fold-btns">' + OPS.map(function(op){ return '<button class="ib" type="button" data-op="' + op + '" title="' + F.OPS[op].name + '" aria-label="' + F.OPS[op].name + '">' + iconFold(op) + '</button>'; }).join('') + '</div>' +
+    '<div class="lbl">Punch</div><div class="tools2" id="ftools"></div>' +
+    '<button class="sw" type="button" id="fguess" aria-pressed="false"><i></i>Guess first</button>' +
+    '<div id="fstats"></div></div>';
+  function tools(){
+    var t = x.querySelector('#ftools');
+    t.innerHTML = ['circle','half','triangle'].map(function(s){ return '<button class="ib' + (tool.shape === s ? ' on' : '') + '" type="button" data-s="' + s + '" aria-label="' + (s === 'half' ? 'Half circle' : s) + '">' + iconShape(s, tool.dir) + '</button>'; }).join('') +
+      '<button class="btn" type="button" id="fturn">Turn &#8635;</button>';
+    t.querySelectorAll('[data-s]').forEach(function(b){ b.onclick = function(){ tool.shape = b.dataset.s; tools(); }; });
+    t.querySelector('#fturn').onclick = function(){ tool.dir = [-tool.dir[1], tool.dir[0]]; tools(); };
+  }
+  function upd(){
+    var canFold = !punched.length && !sh.done.length;
+    var valid = F.validOps(sh.region);
+    x.querySelectorAll('[data-op]').forEach(function(b){ b.disabled = !canFold || valid.indexOf(b.dataset.op) < 0 || sh.busy; });
+    stats(x.querySelector('#fstats'), [['Layers', sh.layers()], ['Holes', sh.folds.length && !Lab.showing() ? '?' : sh.holes.length]]);
+    var open = F.openSheet(sh.folds, sh.holes);
+    ctx.ans.innerHTML = sh.holes.length ? '<div class="rule">' + sh.holes.length + ' &times; ' + sh.layers() + ' = <em>' + open.length + ' holes</em></div>' + '<div style="max-width:200px">' + miniSVG(open) + '</div>' : '';
+    Lab.refreshAns();
+    note.textContent = !sh.folds.length && !sh.done.length ? 'Fold, then tap to punch' : sh.folds.length ? (sh.holes.length ? 'Press Unfold' : 'Tap to punch') : 'Open';
+  }
+  x.querySelectorAll('[data-op]').forEach(function(b){ b.onclick = function(){ if(sh.busy) return; var g = Lab.bump(); sh.busy = true; upd();
+    sh.fold(b.dataset.op, g).then(function(){ sh.busy = false; upd(); }, function(){ sh.busy = false; upd(); }); }; });
+  x.querySelector('#fguess').onclick = function(){ guess = !guess; this.setAttribute('aria-pressed', guess); };
+  tools();
+  sh.svg.addEventListener('click', function(ev){
+    if(sh.busy || guessing) return;
+    var p = sh.toSheet(ev), c = [Math.floor(p[0]) + 0.5, Math.floor(p[1]) + 0.5];
+    if(c[0] < 0 || c[1] < 0 || c[0] > N || c[1] > N || !F.inside(sh.region, c, 1e-6)) return;
+    var ex = sh.holes.filter(function(h){ return Math.abs(h.x - c[0]) < 1e-6 && Math.abs(h.y - c[1]) < 1e-6; })[0];
+    if(ex){ sh.holes.splice(sh.holes.indexOf(ex), 1); punched = punched.filter(function(h){ return h !== ex; }); sh.draw(); upd(); return; }
+    var h = { x:c[0], y:c[1], shape:tool.shape, dir:tool.dir.slice() };
+    punched.push(h);
+    sh.punch(h, Lab.gen()).then(function(){ punched[punched.indexOf(h)] = sh.holes[sh.holes.length - 1]; upd(); }, function(){}); upd();
+  });
+  var guessing = false;
+  function showGuess(){
+    var opts = F.options(N, sh.folds.slice(), sh.holes.map(function(h){ return { x:h.x, y:h.y, shape:h.shape, dir:h.dir }; }));
+    box.hidden = false; box.innerHTML = ''; guessing = true; note.textContent = 'Pick the open sheet';
+    return new Promise(function(res){
+      opts.forEach(function(o, i){ var b = el('button', 'opt', miniSVG(o.holes) + '<span>' + 'ABCD'[i] + '</span><small></small>'); b.type = 'button';
+        b.onclick = function(){ if(!guessing) return; guessing = false;
+          var ri = opts.map(function(q){ return q.kind; }).indexOf('right');
+          box.children[ri].classList.add('right'); if(i !== ri) b.classList.add('wrong');
+          var why = { slide:'Slide', missingCopy:'Missing copy', wrongLine:'Wrong fold line', onlyLast:'One fold undone', noFlip:'Not flipped', shifted:'Wrong place', turned:'Wrong place', right:'Right' };
+          [].forEach.call(box.children, function(c, k){ c.querySelector('small').textContent = why[opts[k].kind]; });
+          note.innerHTML = i === ri ? '<span class="ok">Right!</span>' : '<span class="no">Not quite</span>';
+          res(); };
+        box.appendChild(b); });
+    });
+  }
+  function unfoldOne(g){ if(!sh.folds.length) return Promise.resolve(); sh.busy = true; upd();
+    return sh.unfold(g).then(function(){ sh.busy = false; upd(); }, function(e){ sh.busy = false; upd(); throw e; }); }
+  function maybeGuess(){
+    if(guess && !guessed && sh.folds.length && sh.holes.length && !sh.done.length){ guessed = true; return showGuess(); }
+    return Promise.resolve();
+  }
+  upd();
+  var off = onResize(function(){ sh.size(sheetPx(vis, 0.6, 440, 0.44)); });
+  return {
+    step: function(){ if(sh.busy || guessing) return; var g = Lab.bump(); return maybeGuess().then(function(){ return unfoldOne(g); }); },
+    play: function(){ if(sh.busy || guessing) return; var g = Lab.bump();
+      return maybeGuess().then(function(){ var p = Promise.resolve(); sh.folds.forEach(function(){ p = p.then(function(){ return unfoldOne(g); }).then(function(){ return Lab.sleep(300, g); }); }); return p; }); },
+    reset: function(){ Lab.bump(); sh.busy = false; sh.reset(); punched = []; guessed = false; guessing = false; box.hidden = true; box.innerHTML = ''; upd(); },
+    answer: upd, destroy: off };
+}
+
+Lab.init({ title: 'Fold and Punch', steps: [
+  { name:'One Fold', q:'Where does the new hole go?', mount: stepOne },
+  { name:'Two Folds', q:'What does Elif\'s sheet look like?', mount: stepTwo },
+  { name:'Shapes', q:'Which way does each copy point?', mount: stepShapes },
+  { name:'Free Play', q:'', playLabel:'Unfold all', stepLabel:'Unfold one', mount: stepFree }
+]});
+})();
+
+</script>
+</body>
+</html>

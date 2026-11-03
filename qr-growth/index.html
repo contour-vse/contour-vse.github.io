@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Matchstick squares and growing rectangles, forwards and backwards.">
+<title>Growth Patterns · Contour</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F6FC; --panel:#FFFFFF; --ink:#12203D; --muted:#46557A; --line:#D3DDEC; --wash:#F6F9FE;
+  --navy:#0B3D91; --navy-soft:#E4ECF8;
+  --blue:#007AFF; --blue-ink:#0060C7; --blue-soft:#E5F1FF;
+  --green:#2FB76A; --green-ink:#17793F; --green-soft:#E2F5EA;
+  --orange:#E88100; --orange-ink:#9A5400; --orange-soft:#FFF0DC;
+  --red:#D0342C; --red-ink:#B42318; --red-soft:#FDE8E6;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.4;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+.wrap{max-width:1280px;margin:0 auto;padding:14px 20px 28px;display:flex;flex-direction:column;gap:12px}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.brand h1{font-weight:850;font-size:30px;letter-spacing:-.025em;margin:0;color:var(--navy);line-height:1}
+.keys{font-size:14px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+kbd{font-family:var(--mono);font-size:13px;border:2px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;color:var(--navy);background:#fff}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tabs button{flex:1 0 auto;min-height:46px;border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 16px;font-size:17px;font-weight:750;color:var(--muted);white-space:nowrap}
+.tabs button .n{font-family:var(--mono);margin-right:8px;opacity:.8}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.stage{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-height:540px}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ctl .sp{flex:1}
+.btn{min-height:46px;border:2px solid var(--line);background:var(--panel);border-radius:12px;padding:6px 16px;font-weight:750;font-size:17px;line-height:1.15;color:var(--ink)}
+.btn:hover{border-color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-ink);border-color:var(--blue-ink)}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.orange{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn.ans{border-color:var(--orange);color:var(--orange-ink)}
+.btn.ans.on{background:var(--orange);color:#fff}
+.btn.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.scene{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:20px;align-items:start}
+.scene.wide{grid-template-columns:minmax(0,1fr)}
+.vis{min-width:0}
+.vis svg{display:block;width:100%;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.prompt{font-weight:850;font-size:clamp(22px,2.4vw,30px);line-height:1.15;color:var(--navy);margin:0;letter-spacing:-.015em}
+.stat{border:2px solid var(--line);border-radius:14px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff}
+.stat .l{font-size:16px;font-weight:750;color:var(--muted)}
+.stat .v{font-family:var(--mono);font-weight:850;font-size:36px;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:17px;font-weight:800;vertical-align:middle}
+.badge.odd{background:var(--red-soft);color:var(--red-ink);border:2px solid var(--red)}
+.badge.even{background:var(--blue-soft);color:var(--blue-ink);border:2px solid var(--blue)}
+.badge.good{background:var(--green-soft);color:var(--green-ink);border:2px solid var(--green)}
+.badge.warn{background:var(--orange-soft);color:var(--orange-ink);border:2px solid var(--orange)}
+.big{font-family:var(--mono);font-weight:850;font-size:40px;color:var(--navy)}
+.note{font-size:16px;color:var(--muted);font-weight:650}
+.rule{background:var(--blue-soft);border:2px solid var(--blue);border-radius:14px;padding:10px 14px;font-weight:850;font-size:22px;color:var(--navy);text-align:center}
+.rule.bad{background:var(--red-soft);border-color:var(--red);color:var(--red-ink)}
+.rule.good{background:var(--green-soft);border-color:var(--green);color:var(--green-ink)}
+.tbl-wrap{overflow-x:auto;max-width:100%}
+table.st{border-collapse:collapse;font-size:20px;min-width:100%}
+table.st th,table.st td{border:2px solid var(--line);padding:6px 10px;text-align:center;font-variant-numeric:tabular-nums}
+table.st tr>th:first-child{position:sticky;left:0;z-index:1}
+table.st th{background:var(--navy-soft);color:var(--navy);font-size:16px;font-weight:800;white-space:nowrap}
+table.st td{font-family:var(--mono);font-weight:800;color:var(--navy);min-width:44px}
+table.st td.new{background:var(--orange-soft)}
+table.st tr.cur td{background:var(--blue-soft)}
+.ansv{border-radius:8px}
+.stage:not(.ans-on) .ansv{color:transparent!important;background:var(--wash);outline:2px dashed var(--line);position:relative;user-select:none}
+.stage:not(.ans-on) .ansv::after{content:"?";position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-family:var(--sans)}
+.stage:not(.ans-on) .ansblock{display:none!important}
+.stage.ans-on .ansoff{display:none!important}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;flex-wrap:wrap}
+.seg button{min-height:42px;border:0;background:#fff;padding:4px 14px;font-weight:750;font-size:17px;color:var(--muted)}
+.seg button+button{border-left:2px solid var(--line)}
+.seg button.on{background:var(--navy);color:#fff}
+.field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:750;color:var(--navy)}
+.field input[type=number],.field select{width:96px;min-height:44px;border:2px solid var(--line);border-radius:10px;padding:4px 10px;font-size:20px;font-weight:800;background:#fff}
+.field input[type=range]{width:220px;accent-color:var(--blue)}
+.msg{min-height:30px;font-size:20px;font-weight:800;color:var(--navy)}
+.msg.good{color:var(--green-ink)} .msg.bad{color:var(--red-ink)}
+.svgtxt{font-family:var(--sans);font-weight:800}
+.mono{font-family:var(--mono)}
+.tap{cursor:pointer}
+@media (max-width:900px){
+  .scene{grid-template-columns:minmax(0,1fr)}
+  .stage{min-height:0}
+}
+@media (max-width:640px){
+  body{font-size:17px}
+  .wrap{padding:10px 12px 24px;gap:10px}
+  .brand h1{font-size:24px}.mark{width:34px;height:34px}
+  .keys{display:none}
+  .tabs button{font-size:15px;padding:6px 12px}
+  .stage{padding:12px 12px;border-radius:16px}
+  .btn{padding:6px 11px;font-size:16px}
+  .ctl{gap:6px}
+  .stage>.ctl .sp{display:none}
+  .stage>.ctl .btn{padding:6px 10px}
+  .stat .v{font-size:30px}
+  .rule{font-size:19px}
+  table.st{font-size:17px}
+  table.st th,table.st td{padding:5px 6px}
+  .field input[type=range]{width:160px}
+}
+
+
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+(function(){
+'use strict';
+var RM = false;
+try { RM = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+var NS = 'http://www.w3.org/2000/svg';
+function setAttrs(n, a, isSvg){
+  if(!a) return;
+  for(var k in a){
+    var v = a[k];
+    if(v == null || v === false) continue;
+    if(k === 'text') n.textContent = v;
+    else if(k === 'html') n.innerHTML = v;
+    else if(k.slice(0,2) === 'on' && typeof v === 'function') n.addEventListener(k.slice(2), v);
+    else if(k === 'class' && !isSvg) n.className = v;
+    else n.setAttribute(k, v === true ? '' : v);
+  }
+}
+function add(n, kids){
+  kids.forEach(function(c){
+    if(c == null || c === false) return;
+    if(Array.isArray(c)) add(n, c);
+    else n.appendChild(typeof c === 'object' ? c : document.createTextNode(String(c)));
+  });
+}
+function h(tag, a){ var n = document.createElement(tag); setAttrs(n, a, false); add(n, [].slice.call(arguments, 2)); return n; }
+function s(tag, a){ var n = document.createElementNS(NS, tag); setAttrs(n, a, true); add(n, [].slice.call(arguments, 2)); return n; }
+function clear(n){ while(n.firstChild) n.removeChild(n.firstChild); return n; }
+function Cancel(){}
+function fmt(x){ return String(Math.round(x * 100) / 100); }
+
+function Lab(cfg){
+  var app = document.getElementById('app');
+  var state = { i: 0, tok: 0, busy: false };
+  var tabs = h('nav', { class: 'tabs', role: 'tablist', 'aria-label': 'Steps' });
+  var stage = h('main', { class: 'stage', id: 'stage' });
+  var playBtn = h('button', { class: 'btn primary', type: 'button', id: 'playBtn' }, 'Play');
+  var stepBtn = h('button', { class: 'btn', type: 'button', id: 'stepBtn' }, 'Step');
+  var resetBtn = h('button', { class: 'btn', type: 'button', id: 'resetBtn' }, 'Reset');
+  var ansBtn = h('button', { class: 'btn ans', type: 'button', id: 'ansBtn', 'aria-pressed': 'false' }, 'Show answer');
+  var ctl = h('div', { class: 'ctl' }, playBtn, stepBtn, resetBtn, h('span', { class: 'sp' }), ansBtn);
+  var body = h('div', { class: 'body' });
+  stage.appendChild(ctl); stage.appendChild(body);
+  var head = h('header', { class: 'top' },
+    h('div', { class: 'brand' },
+      h('div', { class: 'mark', 'aria-hidden': 'true', html: cfg.icon || '' }),
+      h('h1', null, cfg.title)),
+    h('div', { class: 'keys' }, h('kbd', null, '←'), h('kbd', null, '→'), 'step', h('kbd', null, 'Space'), 'play', h('kbd', null, 'R'), 'reset'));
+  app.appendChild(head); app.appendChild(tabs); app.appendChild(stage);
+
+  var cur = null;
+  var api = {
+    RM: RM,
+    wait: function(ms){
+      var t = state.tok;
+      return new Promise(function(res, rej){
+        setTimeout(function(){ if(t !== state.tok) rej(new Cancel()); else res(); }, RM ? Math.min(ms, 60) : ms);
+      });
+    },
+    cancel: function(){ state.tok++; setBusy(false); },
+    ans: function(){ return stage.classList.contains('ans-on'); },
+    setAns: function(on){ setAns(on); },
+    go: function(fn){ return runTask(fn); },
+    labels: function(play, step){ playBtn.dataset.lab = play || 'Play'; playBtn.textContent = state.busy ? 'Stop' : playBtn.dataset.lab; stepBtn.textContent = step || 'Step'; },
+    refresh: function(){ if(cur && cur.update) cur.update(); }
+  };
+  function setBusy(b){ state.busy = b; playBtn.textContent = b ? 'Stop' : (playBtn.dataset.lab || 'Play'); }
+  function runTask(fn){
+    api.cancel();
+    var t = state.tok;
+    setBusy(true);
+    return Promise.resolve().then(fn).catch(function(e){ if(!(e instanceof Cancel)) console.error(e); })
+      .then(function(){ if(t === state.tok) setBusy(false); });
+  }
+  function setAns(on){
+    stage.classList.toggle('ans-on', on);
+    ansBtn.classList.toggle('on', on);
+    ansBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    ansBtn.textContent = on ? 'Hide answer' : 'Show answer';
+    if(cur && cur.answer) cur.answer(on);
+  }
+  cfg.steps.forEach(function(st, i){
+    var b = h('button', { type: 'button', role: 'tab', 'aria-selected': 'false', onclick: function(){ go(i); } },
+      h('span', { class: 'n' }, String(i + 1)), st.name);
+    tabs.appendChild(b);
+  });
+  function go(i){
+    if(i < 0 || i >= cfg.steps.length) return;
+    api.cancel();
+    state.i = i;
+    [].forEach.call(tabs.children, function(b, j){ b.classList.toggle('on', j === i); b.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+    tabs.children[i].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    clear(body);
+    stage.classList.remove('ans-on'); ansBtn.classList.remove('on'); ansBtn.textContent = 'Show answer';
+    playBtn.dataset.lab = 'Play'; stepBtn.textContent = 'Step';
+    cur = cfg.steps[i].make(body, api) || {};
+    stepBtn.disabled = !cur.step; playBtn.disabled = !cur.play;
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch(e){}
+  }
+  playBtn.addEventListener('click', function(){
+    if(state.busy){ api.cancel(); if(cur.stop) cur.stop(); return; }
+    if(cur.play) runTask(function(){ return cur.play(); });
+  });
+  stepBtn.addEventListener('click', function(){ if(cur.step){ api.cancel(); cur.step(); } });
+  resetBtn.addEventListener('click', function(){ api.cancel(); setAns(false); if(cur.reset) cur.reset(); });
+  ansBtn.addEventListener('click', function(){ setAns(!stage.classList.contains('ans-on')); });
+  document.addEventListener('keydown', function(e){
+    var t = e.target, tag = t && t.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.key === 'ArrowRight'){ e.preventDefault(); go(state.i + 1); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); go(state.i - 1); }
+    else if(e.key === ' ' || e.code === 'Space'){ e.preventDefault(); playBtn.click(); }
+    else if(e.key === 'r' || e.key === 'R'){ e.preventDefault(); resetBtn.click(); }
+  });
+  var start = parseInt((location.hash || '').slice(1), 10);
+  go(start >= 1 && start <= cfg.steps.length ? start - 1 : 0);
+  window.__lab = { go: go, api: api };
+}
+window.LabKit = { h: h, s: s, clear: clear, Lab: Lab, fmt: fmt, RM: RM };
+})();
+
+</script>
+<script id="model">
+var Model = (function(){
+  var SHAPES = {
+    tri: { name: 'Triangles', first: 3, add: 2 },
+    sq: { name: 'Squares', first: 4, add: 3 },
+    house: { name: 'Houses', first: 5, add: 4 },
+    hex: { name: 'Hexagons', first: 6, add: 5 }
+  };
+  function sticks(n, first, add){ if(first == null){ first = 4; add = 3; } return first + (n - 1) * add; }
+  function patternFor(total, first, add){
+    if(first == null){ first = 4; add = 3; }
+    var g = (total - first) / add;
+    return g >= 0 && g === Math.floor(g) ? { groups: g, pattern: g + 1 } : null;
+  }
+  function dots(n, c){ if(c == null) c = 1; return n * (n + c); }
+  function added(n, c){ return n <= 1 ? null : dots(n, c) - dots(n - 1, c); }
+  // segments for pattern n, each tagged with the pattern that added it (p)
+  function segs(shape, n, u){
+    u = u || 1; var out = [];
+    function L(x1, y1, x2, y2, p){ out.push({ x1: x1, y1: y1, x2: x2, y2: y2, p: p }); }
+    var i, k, x, hh;
+    if(shape === 'sq'){
+      for(i = 0; i < n; i++){
+        x = i * u;
+        if(i === 0) L(0, 0, 0, u, 1);
+        L(x, 0, x + u, 0, i + 1); L(x, u, x + u, u, i + 1); L(x + u, 0, x + u, u, i + 1);
+      }
+    } else if(shape === 'tri'){
+      hh = u * Math.sqrt(3) / 2;
+      for(i = 0; i < n; i++){
+        if(i % 2 === 0){
+          k = i / 2;
+          if(i === 0) L(0, hh, u / 2, 0, 1);
+          L(k * u, hh, (k + 1) * u, hh, i + 1); L((k + 1) * u, hh, (k + 0.5) * u, 0, i + 1);
+        } else {
+          k = (i - 1) / 2;
+          L((k + 0.5) * u, 0, (k + 1.5) * u, 0, i + 1); L((k + 1.5) * u, 0, (k + 1) * u, hh, i + 1);
+        }
+      }
+    } else if(shape === 'house'){
+      var r = u * 0.6;
+      for(i = 0; i < n; i++){
+        x = i * u;
+        if(i === 0) L(0, r, 0, r + u, 1);
+        L(x, r + u, x + u, r + u, i + 1); L(x + u, r, x + u, r + u, i + 1);
+        L(x, r, x + u / 2, 0, i + 1); L(x + u / 2, 0, x + u, r, i + 1);
+      }
+    } else if(shape === 'hex'){
+      var w = Math.sqrt(3) * u;
+      for(i = 0; i < n; i++){
+        var cx = w / 2 + i * w, cy = u;
+        var P = [[cx, cy - u], [cx + w / 2, cy - u / 2], [cx + w / 2, cy + u / 2], [cx, cy + u], [cx - w / 2, cy + u / 2], [cx - w / 2, cy - u / 2]];
+        for(var j = 0; j < 6; j++){
+          if(i > 0 && j === 4) continue; // left side is the last hexagon's right side
+          var a = P[j], b = P[(j + 1) % 6]; L(a[0], a[1], b[0], b[1], i + 1);
+        }
+      }
+    }
+    return out;
+  }
+  return { SHAPES: SHAPES, sticks: sticks, patternFor: patternFor, dots: dots, added: added, segs: segs };
+})();
+if(typeof module !== 'undefined') module.exports = Model;
+
+</script>
+<script>
+(function(){
+var K = LabKit, h = K.h, s = K.s, clear = K.clear, M = Model;
+var ICON = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M3 6h6M3 18h6M3 6v12M9 6v12M9 6h6M9 18h6M15 6v12M15 6h6M15 18h6M21 6v12"/></svg>';
+var NAVY = '#0B3D91', OR = '#E88100';
+function stat(label, cls){ var v = h('span', { class: 'v' }, ''); if(cls) v.style.color = cls; return { el: h('div', { class: 'stat' }, h('span', { class: 'l' }, label), v), v: v }; }
+
+/* draw matchsticks into an svg; viewBox fits maxN patterns so size stays steady */
+function stickSvg(host, shape, maxN, u){
+  u = u || 80;
+  var all = M.segs(shape, maxN, u), pad = 16;
+  var xs = [], ys = [];
+  all.forEach(function(g){ xs.push(g.x1, g.x2); ys.push(g.y1, g.y2); });
+  var W = Math.max.apply(null, xs) + 2 * pad, H = Math.max.apply(null, ys) + 2 * pad;
+  var svg = s('svg', { viewBox: (-pad) + ' ' + (-pad) + ' ' + W + ' ' + H, role: 'img', 'aria-label': 'Matchstick pattern' });
+  host.appendChild(svg);
+  return {
+    svg: svg,
+    draw: function(n, upto, newP){
+      clear(svg);
+      var sg = M.segs(shape, n, u);
+      if(upto != null) sg = sg.slice(0, upto);
+      sg.forEach(function(g){
+        var isNew = newP != null && g.p === newP;
+        svg.appendChild(s('line', { x1: g.x1, y1: g.y1, x2: g.x2, y2: g.y2, stroke: isNew ? OR : NAVY, 'stroke-width': u / 9, 'stroke-linecap': 'round' }));
+      });
+      return sg.length;
+    }
+  };
+}
+function seqTable(rowsSpec){
+  var t = h('table', { class: 'st' });
+  rowsSpec.forEach(function(r){
+    var tr = h('tr', null, h('th', null, r[0]));
+    r[1].forEach(function(c){ tr.appendChild(h('td', c && c.cls ? { class: c.cls } : null, c && c.v != null ? c.v : c)); });
+    t.appendChild(tr);
+  });
+  return h('div', { class: 'tbl-wrap' }, t);
+}
+
+/* ---------- Step 1: Matchstick Squares ---------- */
+function stepSquares(root, api){
+  var n = 1, MAXN = 8;
+  var vis = h('div', { class: 'vis' }), side = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene' }, vis, side));
+  var pic = h('div'); vis.appendChild(pic);
+  var sl = h('input', { type: 'range', min: 1, max: MAXN, value: 1, 'aria-label': 'Pattern' });
+  vis.appendChild(h('div', { class: 'ctl', style: 'margin-top:10px' }, h('label', { class: 'field' }, 'Pattern', sl, h('span', { class: 'big', id: 'pn' }, '1'))));
+  var tot = stat('Matchsticks'), nw = stat('New', OR);
+  var tbl = h('div');
+  side.appendChild(h('div', { class: 'stats' }, tot.el, nw.el)); side.appendChild(tbl);
+  side.appendChild(h('div', { class: 'ansblock side' },
+    h('div', { class: 'rule' }, 'Groups of 3 added = Pattern − 1'),
+    h('div', { class: 'rule good' }, 'Pattern 50 = 4 + 49 × 3 = ' + M.sticks(50))));
+  function paint(upto){
+    clear(pic); var S = stickSvg(pic, 'sq', Math.max(n, 5), 80);
+    var c = S.draw(n, upto, n > 1 ? n : null);
+    vis.querySelector('#pn').textContent = n;
+    tot.v.textContent = upto != null ? c : M.sticks(n);
+    nw.v.textContent = n > 1 ? '+' + (M.sticks(n) - M.sticks(n - 1)) : '';
+    var a = [], b = [];
+    for(var i = 1; i <= n; i++){ a.push(i); b.push({ v: M.sticks(i), cls: i === n ? 'new' : '' }); }
+    clear(tbl).appendChild(seqTable([['Pattern', a], ['Matchsticks', b]]));
+    sl.value = n;
+  }
+  sl.addEventListener('input', function(){ api.cancel(); n = +sl.value; paint(); });
+  paint();
+  return {
+    play: function(){
+      n = 1; paint(0);
+      var k = 0;
+      return (function next(){
+        if(k >= M.sticks(n)){ paint(); if(n >= 5) return; n++; k = M.sticks(n - 1); return api.wait(500).then(next); }
+        k++; paint(k);
+        return api.wait(260).then(next);
+      })();
+    },
+    step: function(){ if(n < MAXN){ n++; paint(); } },
+    reset: function(){ n = 1; paint(); }
+  };
+}
+
+/* ---------- Step 2: Backwards ---------- */
+function stepBack(root, api){
+  var T = 25, m = 1;
+  var main = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene wide' }, main));
+  var seg = h('div', { class: 'seg' });
+  [25, 100].forEach(function(v){ seg.appendChild(h('button', { type: 'button', 'data-v': v, onclick: function(){ api.cancel(); T = v; m = 1; paint(); } }, String(v))); });
+  seg.appendChild(h('button', { type: 'button', 'data-v': 'new', onclick: function(){ api.cancel(); var k = 5 + Math.floor(Math.random() * 40); T = M.sticks(k + 1); m = 1; paint(); } }, 'New'));
+  var prompt = h('p', { class: 'prompt' });
+  var pic = h('div', { style: 'min-height:120px' });
+  var have = stat('Matchsticks'), pat = stat('Pattern');
+  var bar = h('div', { style: 'height:22px;border-radius:999px;background:var(--wash);border:2px solid var(--line);overflow:hidden' }, h('div', { style: 'height:100%;width:0;background:var(--blue);transition:width .2s' }));
+  var msg = h('div', { class: 'msg' });
+  var addB = function(d, lab){ return h('button', { class: 'btn' + (d > 0 ? ' navy' : ''), type: 'button', onclick: function(){ api.cancel(); m = Math.max(1, m + d); paint(); } }, lab); };
+  var work = h('div', { class: 'ansblock ctl' });
+  main.appendChild(h('div', { class: 'ctl' }, h('span', { class: 'field' }, 'Target'), seg));
+  main.appendChild(prompt); main.appendChild(pic); main.appendChild(bar);
+  main.appendChild(h('div', { class: 'ctl' }, addB(1, '+1 square'), addB(10, '+10 squares'), addB(-1, '−1 square'), h('div', { class: 'stats', style: 'flex:1;min-width:260px' }, have.el, pat.el)));
+  main.appendChild(msg); main.appendChild(work);
+  function paint(){
+    [].forEach.call(seg.children, function(b){ b.classList.toggle('on', +b.dataset.v === T || (b.dataset.v === 'new' && T !== 25 && T !== 100)); });
+    prompt.textContent = 'Which pattern uses ' + T + ' matchsticks?';
+    clear(pic);
+    var S = stickSvg(pic, 'sq', Math.max(m, 8), 80); S.draw(m, null, m > 1 ? m : null);
+    S.svg.style.maxHeight = '170px';
+    var c = M.sticks(m);
+    have.v.textContent = c + ' / ' + T; pat.v.textContent = m;
+    bar.firstChild.style.width = Math.min(100, 100 * c / T) + '%';
+    bar.firstChild.style.background = c === T ? 'var(--green)' : c > T ? 'var(--red)' : 'var(--blue)';
+    msg.textContent = c === T ? 'Pattern ' + m + ' uses ' + T + ' ✓' : c > T ? 'Too many' : '';
+    msg.className = 'msg ' + (c === T ? 'good' : c > T ? 'bad' : '');
+    var P = M.patternFor(T);
+    clear(work);
+    if(P){
+      work.appendChild(h('div', { class: 'rule' }, T + ' − 4 = ' + (T - 4)));
+      work.appendChild(h('div', { class: 'rule' }, (T - 4) + ' ÷ 3 = ' + P.groups + ' groups'));
+      work.appendChild(h('div', { class: 'rule good' }, P.groups + ' + 1 = Pattern ' + P.pattern));
+    } else work.appendChild(h('div', { class: 'rule bad' }, 'No pattern uses ' + T));
+  }
+  paint();
+  return {
+    play: function(){
+      m = 1; paint();
+      var P = M.patternFor(T), goal = P ? P.pattern : 1;
+      return (function next(){ if(m >= goal) return; return api.wait(goal > 12 ? 140 : 450).then(function(){ m++; paint(); return next(); }); })();
+    },
+    step: function(){ m++; paint(); },
+    reset: function(){ T = 25; m = 1; paint(); }
+  };
+}
+
+/* ---------- dots ---------- */
+function dotSvg(host, n, c, view){
+  var rows = n, cols = n + c, gap = 34, pad = 50;
+  var W = Math.max(cols, 6) * gap + pad + 20, H = Math.max(rows, 5) * gap + pad + 10;
+  var big = cols > 12;
+  var g2 = big ? 14 : gap, r = big ? 5.5 : 11;
+  if(big){ W = cols * g2 + pad + 20; H = rows * g2 + pad + 10; }
+  var svg = s('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': rows + ' rows of ' + cols + ' dots' });
+  svg.style.maxHeight = '420px';
+  var ox = pad, oy = pad - 8;
+  for(var i = 0; i < rows; i++) for(var j = 0; j < cols; j++){
+    var isNew = view === 'added' && n > 1 && (i === rows - 1 || j === cols - 1);
+    svg.appendChild(s('circle', { cx: ox + j * g2 + g2 / 2, cy: oy + i * g2 + g2 / 2, r: r, fill: isNew ? OR : '#2E6DB4', stroke: isNew ? '#9A5400' : NAVY, 'stroke-width': big ? 1 : 2 }));
+  }
+  if(view === 'rc'){
+    var x0 = ox, x1 = ox + cols * g2, y0 = oy, y1 = oy + rows * g2;
+    svg.appendChild(s('path', { d: 'M' + x0 + ' ' + (y0 - 10) + 'v-8H' + x1 + 'v8', fill: 'none', stroke: OR, 'stroke-width': 3 }));
+    svg.appendChild(s('text', { x: (x0 + x1) / 2, y: y0 - 24, 'text-anchor': 'middle', class: 'svgtxt', 'font-size': 22, fill: '#9A5400', text: cols + ' columns' }));
+    svg.appendChild(s('path', { d: 'M' + (x0 - 10) + ' ' + y0 + 'h-8V' + y1 + 'h8', fill: 'none', stroke: OR, 'stroke-width': 3 }));
+    svg.appendChild(s('text', { x: x0 - 26, y: (y0 + y1) / 2, 'text-anchor': 'middle', class: 'svgtxt', 'font-size': 22, fill: '#9A5400', transform: 'rotate(-90 ' + (x0 - 26) + ' ' + (y0 + y1) / 2 + ')', text: rows + ' rows' }));
+  }
+  host.appendChild(svg);
+}
+
+/* ---------- Step 3: Growing Rectangles ---------- */
+function stepRect(root, api){
+  var ORDER = [1, 2, 3, 4, 5, 6, 20], n = 1, view = 'added', seen = [1];
+  var vis = h('div', { class: 'vis' }), side = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene' }, vis, side));
+  var seg = h('div', { class: 'seg' });
+  [['added', 'Amount added'], ['rc', 'Rows × columns']].forEach(function(o){ seg.appendChild(h('button', { type: 'button', 'data-k': o[0], onclick: function(){ view = o[0]; paint(); } }, o[1])); });
+  var sl = h('input', { type: 'range', min: 1, max: 20, value: 1, 'aria-label': 'Pattern' });
+  var pic = h('div');
+  vis.appendChild(h('div', { class: 'ctl' }, seg));
+  vis.appendChild(pic);
+  vis.appendChild(h('div', { class: 'ctl' }, h('label', { class: 'field' }, 'Pattern', sl, h('span', { class: 'big', id: 'rn' }, '1'))));
+  var dt = stat('Dots'), ad = stat('Added', OR);
+  var tbl = h('div'), eq = h('div', { class: 'rule' });
+  side.appendChild(h('div', { class: 'stats' }, dt.el, ad.el)); side.appendChild(tbl); side.appendChild(eq);
+  function paint(){
+    [].forEach.call(seg.children, function(b){ b.classList.toggle('on', b.dataset.k === view); });
+    if(seen.indexOf(n) < 0) seen.push(n);
+    seen.sort(function(a, b){ return a - b; });
+    clear(pic); dotSvg(pic, n, 1, view);
+    vis.querySelector('#rn').textContent = n; sl.value = n;
+    dt.v.textContent = M.dots(n); ad.v.textContent = n > 1 ? '+' + M.added(n) : '';
+    var a = [], b = [], c = [];
+    seen.forEach(function(i){ a.push(i); b.push({ v: M.dots(i), cls: i === n ? 'new' : '' }); c.push(i > 1 && seen.indexOf(i - 1) >= 0 ? M.added(i) : ''); });
+    clear(tbl).appendChild(seqTable([['Pattern', a], ['Dots', b], ['Amount added', c]]));
+    clear(eq);
+    eq.appendChild(h('span', null, 'Pattern ' + n + ' = '));
+    eq.appendChild(h('span', { class: 'ansv' }, n + ' × ' + (n + 1)));
+    eq.appendChild(h('span', null, ' = '));
+    eq.appendChild(h('span', { class: 'ansv' }, String(M.dots(n))));
+  }
+  sl.addEventListener('input', function(){ api.cancel(); n = +sl.value; paint(); });
+  paint();
+  return {
+    play: function(){
+      n = 1; seen = [1]; paint();
+      var i = 0;
+      return (function next(){ if(i >= ORDER.length - 1) return; return api.wait(i >= 4 ? 1400 : 900).then(function(){ i++; n = ORDER[i]; paint(); return next(); }); })();
+    },
+    step: function(){ var i = ORDER.indexOf(n); n = i < 0 ? Math.min(20, n + 1) : ORDER[Math.min(ORDER.length - 1, i + 1)]; paint(); },
+    reset: function(){ n = 1; seen = [1]; view = 'added'; paint(); }
+  };
+}
+
+/* ---------- Step 4: Free Play ---------- */
+function stepFree(root, api){
+  var kind = 'sq', n = 3, c = 1, far = 50;
+  var vis = h('div', { class: 'vis' }), side = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene' }, vis, side));
+  var seg = h('div', { class: 'seg' });
+  [['tri', 'Triangles'], ['sq', 'Squares'], ['house', 'Houses'], ['hex', 'Hexagons'], ['rect', 'Rectangles']].forEach(function(o){
+    seg.appendChild(h('button', { type: 'button', 'data-k': o[0], onclick: function(){ api.cancel(); kind = o[0]; n = Math.min(n, 6); paint(); } }, o[1]));
+  });
+  var cSel = h('select', { 'aria-label': 'Rectangle rule' });
+  [[0, 'n rows of n'], [1, 'n rows of n + 1'], [2, 'n rows of n + 2']].forEach(function(o){ var op = h('option', { value: o[0] }, o[1]); if(o[0] === c) op.selected = true; cSel.appendChild(op); });
+  cSel.addEventListener('change', function(){ c = +cSel.value; paint(); });
+  var cWrap = h('label', { class: 'field' }, 'Rule', cSel);
+  var sl = h('input', { type: 'range', min: 1, max: 8, value: n, 'aria-label': 'Pattern' });
+  var pic = h('div');
+  vis.appendChild(seg);
+  vis.appendChild(h('div', { style: 'margin-top:10px' }, pic));
+  vis.appendChild(h('div', { class: 'ctl' }, h('label', { class: 'field' }, 'Pattern', sl, h('span', { class: 'big', id: 'fn' }, String(n))), cWrap));
+  var tot = stat('Total'), nw = stat('New', OR);
+  var tbl = h('div');
+  var fIn = h('input', { type: 'number', value: far, min: 1, max: 1000, 'aria-label': 'Far pattern' });
+  fIn.addEventListener('change', function(){ far = Math.max(1, Math.min(1000, parseInt(fIn.value, 10) || 1)); fIn.value = far; paint(); });
+  var farOut = h('div', { class: 'rule' });
+  side.appendChild(h('div', { class: 'stats' }, tot.el, nw.el)); side.appendChild(tbl);
+  side.appendChild(h('label', { class: 'field' }, 'Pattern', fIn, '= ?'));
+  side.appendChild(farOut);
+  function val(i){ if(kind === 'rect') return M.dots(i, c); var S = M.SHAPES[kind]; return M.sticks(i, S.first, S.add); }
+  function paint(){
+    [].forEach.call(seg.children, function(b){ b.classList.toggle('on', b.dataset.k === kind); });
+    cWrap.hidden = kind !== 'rect';
+    clear(pic);
+    if(kind === 'rect') dotSvg(pic, n, c, 'added');
+    else { var Sv = stickSvg(pic, kind, Math.max(n, 4), 80); Sv.draw(n, null, n > 1 ? n : null); }
+    vis.querySelector('#fn').textContent = n; sl.value = n;
+    tot.v.textContent = val(n); nw.v.textContent = n > 1 ? '+' + (val(n) - val(n - 1)) : '';
+    var a = [], b = [], d = [];
+    for(var i = 1; i <= Math.max(n, 5); i++){ a.push(i); b.push({ v: val(i), cls: i === n ? 'new' : '' }); d.push(i > 1 ? val(i) - val(i - 1) : ''); }
+    clear(tbl).appendChild(seqTable([['Pattern', a], [kind === 'rect' ? 'Dots' : 'Matchsticks', b], ['Amount added', d]]));
+    clear(farOut);
+    var how;
+    if(kind === 'rect') how = far + ' × ' + (far + c);
+    else { var S = M.SHAPES[kind]; how = S.first + ' + ' + (far - 1) + ' × ' + S.add; }
+    farOut.appendChild(h('span', null, 'Pattern ' + far + ' = '));
+    farOut.appendChild(h('span', { class: 'ansv' }, how + ' = ' + val(far)));
+  }
+  sl.addEventListener('input', function(){ api.cancel(); n = +sl.value; paint(); });
+  paint();
+  return {
+    play: function(){ n = 1; paint(); return (function next(){ if(n >= 5) return; return api.wait(700).then(function(){ n++; paint(); return next(); }); })(); },
+    step: function(){ if(n < 8){ n++; paint(); } },
+    reset: function(){ kind = 'sq'; n = 3; c = 1; cSel.value = 1; far = 50; fIn.value = 50; paint(); }
+  };
+}
+
+K.Lab({ title: 'Growth Patterns', icon: ICON, steps: [
+  { name: 'Matchstick Squares', make: stepSquares },
+  { name: 'Backwards', make: stepBack },
+  { name: 'Growing Rectangles', make: stepRect },
+  { name: 'Free Play', make: stepFree }
+]});
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Roll a lettered cube along a grid path and track the top face.">
+<title>Cube Rolls · Contour</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F6FC; --panel:#FFFFFF; --ink:#12203D; --muted:#46557A; --line:#D3DDEC; --wash:#F6F9FE;
+  --navy:#0B3D91; --navy-soft:#E4ECF8;
+  --blue:#007AFF; --blue-ink:#0060C7; --blue-soft:#E5F1FF;
+  --green:#2FB76A; --green-ink:#17793F; --green-soft:#E2F5EA;
+  --orange:#E88100; --orange-ink:#9A5400; --orange-soft:#FFF0DC;
+  --red:#D62C2C; --red-soft:#FDE7E7;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.4;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:12px 18px 24px;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.brand h1{font-weight:850;font-size:28px;letter-spacing:-.02em;margin:0;color:var(--navy);line-height:1}
+.keys{font-family:var(--mono);font-size:13px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.keys b{background:var(--panel);border:1.5px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--navy)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tabs button{flex:1 0 auto;min-height:44px;border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 16px;font-size:17px;font-weight:750;color:var(--muted);white-space:nowrap}
+.tabs button .n{font-family:var(--mono);margin-right:7px;color:var(--blue-ink)}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tabs button.on .n{color:#AFC8F0}
+.stage{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;min-height:560px}
+.vis{position:relative;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.side{display:flex;flex-direction:column;gap:9px;min-width:0}
+.q{font-weight:850;font-size:24px;line-height:1.15;color:var(--navy);letter-spacing:-.01em;margin:0}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap}
+.btn{min-height:44px;border:2px solid var(--line);background:var(--panel);border-radius:12px;padding:8px 14px;font-weight:750;font-size:17px;line-height:1.1;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:var(--navy)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-ink);border-color:var(--blue-ink)}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.on{background:var(--navy-soft);border-color:var(--navy);color:var(--navy)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn .k{font-family:var(--mono);font-size:12px;opacity:.75}
+.ans-t{width:100%;border:2px dashed var(--orange);background:var(--orange-soft);color:var(--orange-ink)}
+.ans-t[aria-pressed="true"]{border-style:solid;background:var(--orange);color:#fff}
+.ans{border:2px solid var(--orange);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:#fff}
+.big{font-size:44px;font-weight:900;color:var(--blue-ink);line-height:1;letter-spacing:-.02em}
+.mid{font-size:26px;font-weight:850;color:var(--navy);line-height:1.15}
+.rule{font-size:19px;font-weight:750;color:var(--navy)}
+.rule em{font-style:normal;color:var(--blue-ink)}
+.lbl{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:2px solid var(--line);border-radius:12px;padding:4px 10px;font-weight:800;font-size:18px;background:#fff;color:var(--navy);min-width:44px;text-align:center}
+.chip small{display:block;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.chip.hot{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-ink)}
+.chip.good{border-color:var(--green);background:var(--green-soft);color:var(--green-ink)}
+.chip.bad{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:16px;font-weight:700}
+.ok{color:var(--green-ink)} .no{color:var(--red)}
+@media (max-width:860px){
+  .stage{display:flex;flex-direction:column;padding:12px;min-height:0;gap:12px}
+  .side{display:contents}
+  .q{order:-1}
+  .brand h1{font-size:23px}
+  .keys{display:none}
+  .q{font-size:21px}
+  .tabs button{font-size:15px;padding:6px 12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.scene{position:relative;perspective:1500px;perspective-origin:50% 30%;margin:0 auto;flex:none}
+.board{position:absolute;left:0;top:0;transform-style:preserve-3d;transform-origin:50% 50%}
+.grid{position:absolute;inset:0;background:#fff;box-shadow:0 0 0 3px var(--ink);
+  background-image:linear-gradient(var(--ink) 1.5px,transparent 1.5px),linear-gradient(90deg,var(--ink) 1.5px,transparent 1.5px);background-position:-1px -1px}
+.cellhi{position:absolute;background:#CFE2FA}
+.pathsvg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.cube{position:absolute;left:0;top:0;width:0;height:0;transform-style:preserve-3d}
+.face{position:absolute;display:grid;place-items:center;border:3px solid var(--navy);border-radius:6px;backface-visibility:hidden;-webkit-backface-visibility:hidden;font-weight:900;color:var(--navy);background:#fff}
+.bb{position:absolute;left:0;top:0;transform-style:preserve-3d;pointer-events:none}
+.bb > span{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font-weight:850;color:var(--navy);background:#fff;border:2px solid var(--line);border-radius:.45em;padding:.05em .4em;font-size:var(--fs,18px);line-height:1.25}
+.bb.mid > span{transform:translate(-50%,-50%)}
+.bb.hot > span{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-ink)}
+.bb.red > span{border-color:var(--red);color:var(--red);background:#fff}
+.front-tag{font-size:15px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.duo{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;width:100%}
+.duo > div{display:flex;flex-direction:column;align-items:center;gap:4px}
+.cap{font-weight:850;font-size:20px;color:var(--navy)}
+.cross{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+.cross svg{display:block}
+.strip{display:flex;gap:6px;flex-wrap:wrap}
+.strip .chip{min-width:58px}
+.pad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(2,48px);gap:6px;justify-content:start}
+.pad button{min-height:48px;font-size:24px;font-weight:900;border-radius:12px;border:2px solid var(--navy);background:var(--navy-soft);color:var(--navy)}
+.pad button:active{background:var(--navy);color:#fff}
+.seg{display:flex;border:2px solid var(--navy);border-radius:12px;overflow:hidden;width:max-content}
+.seg button{border:0;background:#fff;min-height:42px;padding:6px 14px;font-weight:800;color:var(--navy)}
+.seg button.on{background:var(--navy);color:#fff}
+.netbox{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.hud{display:flex;align-items:center;gap:10px}
+.hud .big{font-size:40px}
+.muted{color:var(--muted);font-size:15px;font-weight:700}
+.flash{animation:fl .4s}
+@keyframes fl{0%,100%{transform:none}30%{transform:translateX(-6px)}60%{transform:translateX(6px)}}
+@media (max-width:860px){ .cross svg{width:118px;height:auto} .pad{grid-template-columns:repeat(3,64px)} .strip .chip{min-width:50px;padding:4px 6px} }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></div>
+      <h1 id="title">Cube Rolls</h1>
+    </div>
+    <div class="keys"><span><b>&larr;</b> <b>&rarr;</b> step</span><span><b>Space</b> play</span><span><b>R</b> reset</span></div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <main class="stage">
+    <section class="vis" id="vis"></section>
+    <aside class="side">
+      <p class="q" id="q"></p>
+      <div class="ctrls">
+        <button class="btn primary" id="playBtn" type="button">Play <span class="k">Space</span></button>
+        <button class="btn" id="stepBtn" type="button">Step</button>
+        <button class="btn" id="resetBtn" type="button">Reset <span class="k">R</span></button>
+      </div>
+      <div id="extra"></div>
+      <button class="btn ans-t" id="ansBtn" type="button" aria-pressed="false">Show answer</button>
+      <div class="ans" id="ans" hidden></div>
+    </aside>
+  </main>
+</div>
+<script id="model">
+/* cube roll model: logical faces, net folding, path shortcuts, 3D orientation matrices */
+(function(root){
+  var DIRS = { R:[1,0], L:[-1,0], U:[0,-1], D:[0,1] };   // grid: x right, y down the page (towards the front)
+  var NAME = { R:'right', L:'left', U:'up', D:'down' };
+  var OPP = { R:'L', L:'R', U:'D', D:'U' };
+  // roll a cube state {top,bottom,front,back,left,right}
+  function roll(s, d){
+    var n = Object.assign({}, s);
+    if(d === 'R'){ n.top = s.left; n.right = s.top; n.bottom = s.right; n.left = s.bottom; }
+    if(d === 'L'){ n.top = s.right; n.left = s.top; n.bottom = s.left; n.right = s.bottom; }
+    if(d === 'U'){ n.top = s.front; n.back = s.top; n.bottom = s.back; n.front = s.bottom; }   // up the page = away from the front
+    if(d === 'D'){ n.top = s.back; n.front = s.top; n.bottom = s.front; n.back = s.bottom; }
+    return n;
+  }
+  function rollAll(s, moves){ moves.forEach(function(d){ s = roll(s, d); }); return s; }
+  function tops(s, moves){ var out = [s.top]; moves.forEach(function(d){ s = roll(s, d); out.push(s.top); }); return out; }
+  // fold a net (list of {r,c,f}) by rolling a cube over it; returns opposite pairs and a full state
+  function foldNet(net){
+    var at = {}; net.forEach(function(n){ at[n.r + ',' + n.c] = n.f; });
+    var body = { top:'t', bottom:'b', front:'f', back:'k', left:'l', right:'r' };
+    var stick = {}; var seen = {};
+    function visit(r, c, s){
+      var key = r + ',' + c; if(seen[key]) return; seen[key] = 1;
+      stick[s.bottom] = at[key];
+      [['R',0,1],['L',0,-1],['U',-1,0],['D',1,0]].forEach(function(m){
+        var k2 = (r + m[1]) + ',' + (c + m[2]);
+        if(at[k2] && !seen[k2]) visit(r + m[1], c + m[2], roll(s, m[0]));
+      });
+    }
+    visit(net[0].r, net[0].c, body);
+    var st = {}; Object.keys(body).forEach(function(p){ st[p] = stick[body[p]]; });
+    // rolling over the net gives the mirror image of the folded paper cube (printed side out): swap top and bottom
+    var t = st.top; st.top = st.bottom; st.bottom = t;
+    return st;   // a valid cube state (some orientation)
+  }
+  function allOrientations(s){
+    var out = [], seen = {}, q = [s];
+    while(q.length){ var x = q.shift(); var k = JSON.stringify(x); if(seen[k]) continue; seen[k] = 1; out.push(x);
+      ['R','U'].forEach(function(d){ q.push(roll(x, d)); }); }
+    return out;
+  }
+  function orient(net, top, front, right){
+    return allOrientations(foldNet(net)).filter(function(s){ return s.top === top && s.front === front && (!right || s.right === right); })[0];
+  }
+  function opposite(s, f){ var P = [['top','bottom'],['front','back'],['left','right']];
+    for(var i = 0; i < 3; i++){ if(s[P[i][0]] === f) return s[P[i][1]]; if(s[P[i][1]] === f) return s[P[i][0]]; } }
+  // paths
+  function expand(segs){ var m = []; segs.forEach(function(sg){ for(var i = 0; i < sg[1]; i++) m.push(sg[0]); }); return m; }
+  function segments(moves){ var out = []; moves.forEach(function(d){ var l = out[out.length - 1]; if(l && l[0] === d) l[1]++; else out.push([d, 1]); }); return out; }
+  function shortSeg(seg){ var n = seg[1] % 4; if(n === 3) return [OPP[seg[0]], 1]; return [seg[0], n]; }
+  function shortcut(moves){ return expand(segments(moves).map(shortSeg)); }
+  function segText(seg){
+    var s = shortSeg(seg), a = seg[1] + ' ' + NAME[seg[0]];
+    if(s[1] === 0) return a + ' = no change';
+    if(s[1] === seg[1] && s[0] === seg[0]) return a;
+    return a + ' = ' + s[1] + ' ' + NAME[s[0]];
+  }
+  function cells(start, moves){ var p = [start.slice()]; moves.forEach(function(d){ var l = p[p.length - 1]; p.push([l[0] + DIRS[d][0], l[1] + DIRS[d][1]]); }); return p; }
+  // 3D: board frame x right, y towards the front, z up. body orientation as 3x3 matrix (rows)
+  var FACE_N = { top:[0,0,1], bottom:[0,0,-1], front:[0,1,0], back:[0,-1,0], right:[1,0,0], left:[-1,0,0] };
+  function mul(A, B){ var C = [[0,0,0],[0,0,0],[0,0,0]]; for(var i = 0; i < 3; i++) for(var j = 0; j < 3; j++) for(var k = 0; k < 3; k++) C[i][j] += A[i][k] * B[k][j]; return C; }
+  function app(A, v){ return [0,1,2].map(function(i){ return A[i][0]*v[0] + A[i][1]*v[1] + A[i][2]*v[2]; }); }
+  function rotY(a){ var c = Math.cos(a), s = Math.sin(a); return [[c,0,s],[0,1,0],[-s,0,c]]; }
+  function rotX(a){ var c = Math.cos(a), s = Math.sin(a); return [[1,0,0],[0,c,-s],[0,s,c]]; }
+  // rolling right turns +z (top) to +x; rolling up (towards the back, -y) turns +z to -y
+  function rollRot(d, a){ if(d === 'R') return rotY(a); if(d === 'L') return rotY(-a); if(d === 'U') return rotX(a); return rotX(-a); }
+  function roundM(A){ return A.map(function(r){ return r.map(function(v){ return Math.round(v); }); }); }
+  function topFromMatrix(Rm, body){   // which body face now points up
+    var best = null; Object.keys(FACE_N).forEach(function(p){ var n = app(Rm, FACE_N[p]); if(n[2] > 0.5) best = body[p]; }); return best;
+  }
+  var api = { DIRS:DIRS, NAME:NAME, OPP:OPP, roll:roll, rollAll:rollAll, tops:tops, foldNet:foldNet, orient:orient,
+    opposite:opposite, expand:expand, segments:segments, shortSeg:shortSeg, shortcut:shortcut, segText:segText, cells:cells,
+    FACE_N:FACE_N, mul:mul, app:app, rollRot:rollRot, roundM:roundM, topFromMatrix:topFromMatrix,
+    // booklet data (Cube Rolls exploration)
+    NET: [{r:0,c:0,f:'G'},{r:0,c:1,f:'K'},{r:0,c:2,f:'P'},{r:1,c:1,f:'H'},{r:2,c:1,f:'M'},{r:3,c:1,f:'R'}],
+    START: { top:'G', front:'H', right:'K' },
+    PATH: [['R',5],['U',4],['L',3]],
+    LOOP: [['R',1],['U',1],['L',1],['D',1]] };
+  api.startState = function(){ return orient(api.NET, api.START.top, api.START.front, api.START.right); };
+  if(typeof module !== 'undefined' && module.exports) module.exports = api; else root.CubeModel = api;
+})(this);
+
+</script>
+<script>
+/* shared lab shell: tabs, controls, keyboard, answer toggle, tweening */
+var Lab = (function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cfg, cur = -1, inst = null, gen = 0, showAns = false;
+  var $ = function(id){ return document.getElementById(id); };
+  function el(tag, cls, html){ var e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; }
+  function sleep(ms, g){ return new Promise(function(res, rej){ setTimeout(function(){ g === gen ? res() : rej('x'); }, RM ? 0 : ms); }); }
+  function tween(ms, fn, g){
+    return new Promise(function(res, rej){
+      if(RM || ms <= 0){ fn(1); res(); return; }
+      var t0 = performance.now();
+      function f(now){
+        if(g !== gen){ rej('x'); return; }
+        var t = Math.min(1, (now - t0) / ms);
+        fn(t);
+        if(t < 1) requestAnimationFrame(f); else res();
+      }
+      requestAnimationFrame(f);
+    });
+  }
+  function ease(t){ return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
+  function setAns(v){
+    showAns = v;
+    var b = $('ansBtn'); b.setAttribute('aria-pressed', v ? 'true' : 'false');
+    b.textContent = v ? 'Hide answer' : 'Show answer';
+    $('ans').hidden = !v || !$('ans').innerHTML;
+    if(inst && inst.answer) inst.answer(v);
+  }
+  function go(i){
+    if(i < 0 || i >= cfg.steps.length) return;
+    gen++; cur = i;
+    if(inst && inst.destroy) inst.destroy();
+    var s = cfg.steps[i];
+    [].forEach.call($('tabs').children, function(b, j){ b.classList.toggle('on', j === i); b.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+    $('q').textContent = s.q || '';
+    $('q').hidden = !s.q;
+    $('vis').innerHTML = ''; $('extra').innerHTML = ''; $('ans').innerHTML = '';
+    $('playBtn').hidden = s.play === false; $('stepBtn').hidden = s.step === false;
+    $('ansBtn').hidden = s.answer === false;
+    $('stepBtn').textContent = s.stepLabel || 'Step';
+    if(s.playLabel) $('playBtn').firstChild.nodeValue = s.playLabel + ' '; else $('playBtn').firstChild.nodeValue = 'Play ';
+    showAns = false;
+    inst = s.mount({ vis: $('vis'), extra: $('extra'), ans: $('ans'), gen: gen, el: el,
+      alive: function(g){ return g === gen; } }) || {};
+    setAns(false);
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch(e) {}
+  }
+  function guard(p){ if(p && p.catch) p.catch(function(){}); }
+  function init(c){
+    cfg = c;
+    document.title = c.title + ' · Contour';
+    $('title').textContent = c.title;
+    c.steps.forEach(function(s, i){
+      var b = el('button', '', '<span class="n">' + (i + 1) + '</span>' + s.name);
+      b.type = 'button'; b.setAttribute('role', 'tab');
+      b.onclick = function(){ go(i); };
+      $('tabs').appendChild(b);
+    });
+    $('playBtn').onclick = function(){ if(inst.play) guard(inst.play()); };
+    $('stepBtn').onclick = function(){ if(inst.step) guard(inst.step()); };
+    $('resetBtn').onclick = function(){ reset(); };
+    $('ansBtn').onclick = function(){ setAns(!showAns); };
+    document.addEventListener('keydown', function(e){
+      if(e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+      if(e.altKey || e.ctrlKey || e.metaKey) return;
+      if(inst && inst.key && inst.key(e)) { e.preventDefault(); return; }
+      if(e.key === 'ArrowRight'){ go(cur + 1); e.preventDefault(); }
+      else if(e.key === 'ArrowLeft'){ go(cur - 1); e.preventDefault(); }
+      else if(e.key === ' '){ if(!$('playBtn').hidden && inst.play) guard(inst.play()); e.preventDefault(); }
+      else if(e.key === 'r' || e.key === 'R'){ reset(); }
+      else if(e.key === 'a' || e.key === 'A'){ if(!$('ansBtn').hidden) setAns(!showAns); }
+    });
+    var h = parseInt((location.hash || '').slice(1), 10);
+    go(h >= 1 && h <= c.steps.length ? h - 1 : 0);
+  }
+  function reset(){ gen++; var keep = showAns; if(inst && inst.reset) inst.reset(); else go(cur); if(keep) setAns(true); }
+  function refreshAns(){ $('ans').hidden = !showAns || !$('ans').innerHTML; }
+  return { init: init, tween: tween, sleep: sleep, ease: ease, el: el, RM: RM,
+    gen: function(){ return gen; }, bump: function(){ return ++gen; }, showing: function(){ return showAns; },
+    refreshAns: refreshAns, go: go, guard: guard };
+})();
+
+</script>
+<script>
+(function(){
+var M = CubeModel, el = Lab.el;
+var S0 = M.startState();
+var TILT = 50, SPIN = 16;
+var ROLL_MS = 520;
+
+/* ---------- 3D cube on a grid ---------- */
+function CubeBoard(host, o){
+  this.o = o; this.cols = o.cols; this.rows = o.rows;
+  this.scene = el('div', 'scene'); host.appendChild(this.scene);
+  this.board = el('div', 'board'); this.scene.appendChild(this.board);
+  this.grid = el('div', 'grid'); this.board.appendChild(this.grid);
+  this.hi = el('div', 'cellhi'); this.grid.appendChild(this.hi);
+  this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); this.svg.setAttribute('class', 'pathsvg'); this.board.appendChild(this.svg);
+  this.cube = el('div', 'cube'); this.board.appendChild(this.cube);
+  this.labels = [];
+  this.body = Object.assign({}, o.state || S0);
+  this.faces = {};
+  var self = this;
+  ['top','bottom','front','back','right','left'].forEach(function(p){
+    var f = el('div', 'face', '<span>' + self.body[p] + '</span>'); self.faces[p] = f; self.cube.appendChild(f);
+  });
+  this.path = null;
+  this.size(o.cell);
+  this.reset();
+}
+CubeBoard.prototype.size = function(cell){
+  this.cell = cell; var W = this.cols * cell, H = this.rows * cell, self = this;
+  var a = TILT * Math.PI / 180;
+  var spin = this.o.spin != null ? this.o.spin : SPIN;
+  this.spin = spin;
+  var projH = H * Math.cos(a) + W * Math.sin(Math.abs(spin) * Math.PI / 180) * 0.45 + cell * 1.05;
+  this.scene.style.width = (W + cell * 0.6) + 'px';
+  this.scene.style.height = (projH + cell * 0.35 + (this.o.extraH || 0) * cell) + 'px';
+  this.board.style.width = W + 'px'; this.board.style.height = H + 'px';
+  this.board.style.left = (cell * 0.3) + 'px';
+  this.board.style.top = (projH / 2 - H / 2 + cell * 0.55) + 'px';
+  this.board.style.transform = 'rotateX(' + TILT + 'deg) rotateZ(' + spin + 'deg)';
+  this.grid.style.backgroundSize = cell + 'px ' + cell + 'px';
+  this.svg.setAttribute('width', W); this.svg.setAttribute('height', H);
+  var s = cell, fs = Math.round(cell * 0.56);
+  var T = { top:'translateZ(' + s/2 + 'px)', bottom:'rotateX(180deg) translateZ(' + s/2 + 'px)',
+    front:'rotateX(-90deg) translateZ(' + s/2 + 'px)', back:'rotateZ(180deg) rotateX(-90deg) translateZ(' + s/2 + 'px)',
+    right:'rotateZ(-90deg) rotateX(-90deg) translateZ(' + s/2 + 'px)', left:'rotateZ(90deg) rotateX(-90deg) translateZ(' + s/2 + 'px)' };
+  Object.keys(this.faces).forEach(function(p){ var f = self.faces[p];
+    f.style.width = s + 'px'; f.style.height = s + 'px'; f.style.left = -s/2 + 'px'; f.style.top = -s/2 + 'px';
+    f.style.fontSize = fs + 'px'; f.style.transform = T[p]; });
+  if(this.o.hiCell){ this.hi.style.left = this.o.hiCell[0] * cell + 'px'; this.hi.style.top = this.o.hiCell[1] * cell + 'px'; this.hi.style.width = cell + 'px'; this.hi.style.height = cell + 'px'; } else this.hi.hidden = true;
+  if(this.path) this.drawPath(this.path[0], this.path[1]);
+  this.labels.forEach(function(l){ self.placeLabel(l); });
+  if(this.R) this.render(this.C(), this.R);
+};
+CubeBoard.prototype.C = function(){ var c = this.cell; return [(this.pos[0] + .5) * c, (this.pos[1] + .5) * c, c / 2]; };
+CubeBoard.prototype.reset = function(){
+  this.pos = (this.o.start || [0, 0]).slice(); this.s = Object.assign({}, this.body);
+  this.R = [[1,0,0],[0,1,0],[0,0,1]]; this.busy = false; this.render(this.C(), this.R);
+};
+var LIGHT = (function(){ var v = [-0.35, 0.55, 0.85], n = Math.hypot(v[0], v[1], v[2]); return v.map(function(x){ return x / n; }); })();
+CubeBoard.prototype.render = function(C, R){
+  var m = [R[0][0],R[1][0],R[2][0],0, R[0][1],R[1][1],R[2][1],0, R[0][2],R[1][2],R[2][2],0, C[0],C[1],C[2],1];
+  this.cube.style.transform = 'matrix3d(' + m.map(function(v){ return +v.toFixed(5); }).join(',') + ')';
+  var self = this;
+  Object.keys(this.faces).forEach(function(p){
+    var n = M.app(R, M.FACE_N[p]); var d = Math.max(0, n[0]*LIGHT[0] + n[1]*LIGHT[1] + n[2]*LIGHT[2]);
+    var l = Math.round(72 + 26 * d);
+    self.faces[p].style.background = 'hsl(214, 70%, ' + l + '%)';
+  });
+};
+CubeBoard.prototype.canRoll = function(d){ var p = [this.pos[0] + M.DIRS[d][0], this.pos[1] + M.DIRS[d][1]];
+  return p[0] >= 0 && p[1] >= 0 && p[0] < this.cols && p[1] < this.rows; };
+CubeBoard.prototype.roll = function(d, g, ms){
+  var self = this, c = this.cell, C = this.C(), R0 = this.R;
+  var dv = M.DIRS[d];
+  var P = [C[0] + dv[0] * c/2, C[1] + dv[1] * c/2, 0];
+  var rel = [C[0] - P[0], C[1] - P[1], C[2] - P[2]];
+  this.busy = true;
+  return Lab.tween(ms == null ? ROLL_MS : ms, function(t){
+    var Q = M.rollRot(d, Lab.ease(t) * Math.PI / 2);
+    var r = M.app(Q, rel);
+    self.render([P[0] + r[0], P[1] + r[1], P[2] + r[2]], M.mul(Q, R0));
+  }, g).then(function(){
+    self.R = M.roundM(M.mul(M.rollRot(d, Math.PI / 2), R0));
+    self.pos = [self.pos[0] + dv[0], self.pos[1] + dv[1]];
+    self.s = M.roll(self.s, d); self.busy = false;
+    self.render(self.C(), self.R);
+  }, function(e){ self.busy = false; throw e; });
+};
+CubeBoard.prototype.drawPath = function(from, moves){
+  this.path = [from, moves];
+  var c = this.cell, pts = M.cells(from, moves).map(function(p){ return [(p[0] + .5) * c, (p[1] + .5) * c]; });
+  var NS = 'http://www.w3.org/2000/svg', svg = this.svg; svg.innerHTML = '';
+  if(!moves.length){ return; }
+  var last = pts[pts.length - 1], prev = pts[pts.length - 2];
+  var dx = last[0] - prev[0], dy = last[1] - prev[1], L = Math.hypot(dx, dy); dx /= L; dy /= L;
+  var tip = [last[0] + dx * c * 0.12, last[1] + dy * c * 0.12];
+  var line = pts.slice(0, -1).concat([[tip[0] - dx * c * 0.22, tip[1] - dy * c * 0.22]]);
+  var pl = document.createElementNS(NS, 'polyline');
+  pl.setAttribute('points', line.map(function(p){ return p.join(','); }).join(' '));
+  pl.setAttribute('fill', 'none'); pl.setAttribute('stroke', '#2E6DB4'); pl.setAttribute('stroke-width', Math.max(5, c * 0.08));
+  pl.setAttribute('stroke-linejoin', 'round'); svg.appendChild(pl);
+  var h = c * 0.24, w = c * 0.17;
+  var ar = document.createElementNS(NS, 'polygon');
+  ar.setAttribute('points', [[tip[0], tip[1]], [tip[0] - dx*h - dy*w, tip[1] - dy*h + dx*w], [tip[0] - dx*h + dy*w, tip[1] - dy*h - dx*w]].map(function(p){ return p.join(','); }).join(' '));
+  ar.setAttribute('fill', '#2E6DB4'); svg.appendChild(ar);
+  var dot = document.createElementNS(NS, 'circle'); dot.setAttribute('cx', pts[0][0]); dot.setAttribute('cy', pts[0][1]); dot.setAttribute('r', c * 0.11); dot.setAttribute('fill', '#2E6DB4'); svg.appendChild(dot);
+};
+// billboard label at board position (x,y in cells, z in cells)
+CubeBoard.prototype.label = function(x, y, z, text, cls){
+  var l = { x:x, y:y, z:z, e: el('div', 'bb ' + (cls || ''), '<span>' + text + '</span>') };
+  this.board.appendChild(l.e); this.labels.push(l); this.placeLabel(l); return l;
+};
+CubeBoard.prototype.placeLabel = function(l){
+  var c = this.cell;
+  l.e.style.transform = 'translate3d(' + l.x * c + 'px,' + l.y * c + 'px,' + l.z * c + 'px) rotateZ(' + (-this.spin) + 'deg) rotateX(' + (-TILT) + 'deg)';
+  l.e.style.setProperty('--fs', Math.max(13, Math.min(24, Math.round(c * (l.fs || 0.27)))) + 'px');
+};
+CubeBoard.prototype.clearLabels = function(){ this.labels.forEach(function(l){ l.e.remove(); }); this.labels = []; };
+
+function fitCell(host, cols, maxCell, frac){
+  var w = host.clientWidth || 800; if(w < 500) frac = Math.max(frac || 0.86, 0.94);
+  return Math.max(34, Math.min(maxCell, Math.floor(w * (frac || 0.86) / (cols + 0.6))));
+}
+function onResize(fn){ var t; var h = function(){ clearTimeout(t); t = setTimeout(fn, 80); }; window.addEventListener('resize', h); return function(){ window.removeEventListener('resize', h); }; }
+
+/* ---------- small 2D drawings ---------- */
+function netSVG(sz){
+  var u = sz || 26, NS = '', s = '<svg width="' + (3*u + 4) + '" height="' + (4*u + 4) + '" viewBox="-2 -2 ' + (3*u + 4) + ' ' + (4*u + 4) + '">';
+  M.NET.forEach(function(n){ s += '<rect x="' + n.c*u + '" y="' + n.r*u + '" width="' + u + '" height="' + u + '" fill="#fff" stroke="#12203D" stroke-width="2"/>' +
+    '<text x="' + (n.c*u + u/2) + '" y="' + (n.r*u + u*0.72) + '" text-anchor="middle" font-weight="900" font-size="' + (u*0.62) + '" fill="#0B3D91">' + n.f + '</text>'; });
+  return s + '</svg>';
+}
+function crossSVG(st, hide, redKeys){
+  var W = 170, H = 150, b = 64, x0 = (W - b)/2, y0 = (H - b)/2;
+  function t(x, y, v, k, size){ var red = redKeys && redKeys.indexOf(k) >= 0;
+    return '<text x="' + x + '" y="' + y + '" text-anchor="middle" dominant-baseline="central" font-size="' + (size || 26) + '" font-weight="900" fill="' + (red ? '#D62C2C' : '#0B3D91') + '">' + (hide && k !== 'front' ? '?' : v) + '</text>'; }
+  return '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '"><rect x="' + x0 + '" y="' + y0 + '" width="' + b + '" height="' + b + '" fill="#fff" stroke="#12203D" stroke-width="3"/>' +
+    t(W/2, H/2, st.front, 'front', 34) + t(W/2, y0 - 18, st.top, 'top') + t(W/2, y0 + b + 18, st.bottom, 'bottom') +
+    t(x0 - 20, H/2, st.left, 'left') + t(x0 + b + 20, H/2, st.right, 'right') + '</svg>';
+}
+function chips(list){ return '<div class="strip">' + list.map(function(c){ return '<div class="chip ' + (c.cls || '') + '"><small>' + c.k + '</small>' + c.v + '</div>'; }).join('') + '</div>'; }
+
+/* ---------- steps ---------- */
+function stepOne(ctx){
+  var vis = ctx.vis;
+  var cb = new CubeBoard(vis, { cols:3, rows:1, start:[0,0], cell:fitCell(vis, 3, 128, 0.6), extraH:0.2 });
+  var tag = el('div', 'front-tag', 'Front'); vis.appendChild(tag);
+  var cr = el('div', 'cross'); vis.appendChild(cr);
+  var done = false;
+  function draw(){
+    var after = M.roll(S0, 'R'), show = done || Lab.showing();
+    cr.innerHTML = '<div style="text-align:center">' + crossSVG(S0) + '<div class="lbl">Before</div></div>' +
+      '<div class="cap" style="font-size:30px">&rarr;</div>' +
+      '<div style="text-align:center">' + crossSVG(after, !show, show ? ['top','left','right','bottom'] : []) + '<div class="lbl">After</div></div>';
+  }
+  ctx.extra.innerHTML = '<div class="netbox"><div>' + netSVG(24) + '<div class="lbl">Net</div></div></div>';
+  function fillAns(){
+    var a = M.roll(S0, 'R');
+    var side = ['left','right','front','back','bottom'].filter(function(p){ return S0[p] === a.top; })[0];
+    var stay = ['front','back','left','right'].filter(function(p){ return S0[p] === a[p]; });
+    ctx.ans.innerHTML = '<div class="lbl">Comes up</div><div class="hud"><span class="big">' + a.top + '</span><span class="mid">' + side + ' face</span></div>' +
+      '<div class="lbl">Stay put</div><div class="rule">' + stay.map(function(p){ return S0[p] + ' (' + p + ')'; }).join(', ') + '</div>' +
+      '<div class="rule">Side it rolls <em>away from</em> comes up</div>';
+    Lab.refreshAns();
+  }
+  fillAns(); draw();
+  var off = onResize(function(){ cb.size(fitCell(vis, 3, 128, 0.6)); });
+  function go(){ var g = Lab.bump(); cb.reset(); done = false; draw();
+    return Lab.sleep(250, g).then(function(){ return cb.roll('R', g, 900); }).then(function(){ done = true; draw(); }); }
+  return { play: go, step: go, reset: function(){ cb.reset(); done = false; draw(); }, answer: draw, destroy: off };
+}
+
+function stepLine(ctx){
+  var vis = ctx.vis, N = 4;
+  var cb = new CubeBoard(vis, { cols:5, rows:1, start:[0,0], cell:fitCell(vis, 5, 120, 0.8), spin:8, extraH:0.9 });
+  vis.appendChild(el('div', 'front-tag', 'Front'));
+  var k = 0, T = M.tops(S0, ['R','R','R','R']);
+  function strip(){
+    var l = [{ k:'Start', v:T[0] }];
+    for(var i = 1; i <= N; i++) l.push({ k:i + (i === 1 ? ' roll' : ' rolls'), v: i <= k ? T[i] : '?', cls: i === k ? 'hot' : '' });
+    ctx.extra.innerHTML = '<div class="lbl">Top letter</div>' + chips(l);
+  }
+  function labels(){ cb.clearLabels(); cb.label(0.5, 1.45, 0, T[0], 'mid');
+    for(var i = 1; i <= k; i++) cb.label(i + 0.5, 1.45, 0, T[i], 'mid' + (i === k ? ' hot' : '')).fs = 0.34; }
+  function ans(){
+    var two = T[2] === M.opposite(S0, T[0]), four = T[4] === T[0], three = T[3] === M.roll(S0, 'L').top;
+    ctx.ans.innerHTML =
+      '<div class="rule">2 rolls: ' + T[2] + ' = <em>opposite</em> of ' + T[0] + ' ' + (two ? '<span class="ok">&#10003;</span>' : '') + '</div>' +
+      '<div class="rule">4 rolls: ' + T[4] + ' = <em>no change</em> ' + (four ? '<span class="ok">&#10003;</span>' : '') + '</div>' +
+      '<div class="rule">3 rolls: ' + T[3] + ' = <em>1 roll back</em> ' + (three ? '<span class="ok">&#10003;</span>' : '') + '</div>';
+    Lab.refreshAns();
+  }
+  strip(); labels(); ans();
+  var off = onResize(function(){ cb.size(fitCell(vis, 5, 120, 0.8)); });
+  function one(g){ if(k >= N) return Promise.resolve(); return cb.roll('R', g).then(function(){ k++; strip(); labels(); }); }
+  function rst(){ Lab.bump(); cb.reset(); k = 0; strip(); labels(); }
+  return {
+    step: function(){ var g = Lab.bump(); if(cb.busy) return; if(k >= N){ rst(); return; } return one(g); },
+    play: function(){ rst(); var g = Lab.gen(); var p = Lab.sleep(200, g);
+      for(var i = 0; i < N; i++) p = p.then(function(){ return one(g); }).then(function(){ return Lab.sleep(650, g); });
+      return p; },
+    reset: rst, destroy: off };
+}
+
+function stepPath(ctx){
+  var vis = ctx.vis, moves = M.expand(M.PATH), start = [0, 4];
+  var cb = new CubeBoard(vis, { cols:6, rows:5, start:start, hiCell:start, cell:fitCell(vis, 6, 82, 0.78) });
+  cb.drawPath(start, moves);
+  vis.appendChild(el('div', 'front-tag', 'Front'));
+  var k = 0;
+  var segs = M.segments(moves);
+  function info(){ ctx.extra.innerHTML = '<div class="lbl">Rolls</div><div class="mid">' + k + ' / ' + moves.length + '</div>'; }
+  function labels(){
+    cb.clearLabels(); if(!Lab.showing()) return;
+    var p = start.slice();
+    segs.forEach(function(sg){ var d = M.DIRS[sg[0]];
+      var mx = p[0] + d[0] * sg[1] / 2 + .5, my = p[1] + d[1] * sg[1] / 2 + .5;
+      if(sg[0] === 'R' || sg[0] === 'L') my -= 0.22; if(sg[0] === 'U') mx -= 1.4;
+      cb.label(mx, my, 0.05, M.segText(sg), 'red');
+      p = [p[0] + d[0] * sg[1], p[1] + d[1] * sg[1]]; });
+  }
+  function ans(){
+    var end = M.rollAll(S0, moves);
+    ctx.ans.innerHTML = segs.map(function(sg){ return '<div class="rule">' + M.segText(sg) + '</div>'; }).join('') +
+      '<div class="lbl">Top</div><div class="big">' + end.top + '</div>';
+    Lab.refreshAns();
+  }
+  info(); ans();
+  var off = onResize(function(){ cb.size(fitCell(vis, 6, 82, 0.78)); });
+  function rst(){ Lab.bump(); cb.reset(); k = 0; info(); }
+  function one(g){ return cb.roll(moves[k], g, 380).then(function(){ k++; info(); }); }
+  return {
+    step: function(){ var g = Lab.bump(); if(cb.busy) return; if(k >= moves.length){ rst(); return; } return one(g); },
+    play: function(){ var g = Lab.bump(); if(cb.busy || k >= moves.length){ rst(); g = Lab.gen(); }
+      var p = Lab.sleep(150, g); for(var i = k; i < moves.length; i++) p = p.then(function(){ return one(g); }).then(function(){ return Lab.sleep(90, g); }); return p; },
+    reset: rst, answer: labels, destroy: off };
+}
+
+function stepOrder(ctx){
+  var vis = ctx.vis, duo = el('div', 'duo'); vis.appendChild(duo);
+  var cases = [{ n:'Right then up', m:['R','U'] }, { n:'Up then right', m:['U','R'] }];
+  var cell = function(){ return Math.min(96, Math.floor((vis.clientWidth || 800) / 2 / 3.2)); };
+  var boards = cases.map(function(c){
+    var box = el('div'); box.appendChild(el('div', 'cap', c.n)); duo.appendChild(box);
+    var b = new CubeBoard(box, { cols:2, rows:2, start:[0,1], hiCell:[0,1], cell:cell() });
+    b.drawPath([0,1], c.m); box.appendChild(el('div', 'front-tag', 'Front'));
+    var t = el('div', 'mid', '&nbsp;'); box.appendChild(t); b.tagEl = t; return b; });
+  var k = 0;
+  function tags(){ boards.forEach(function(b, i){ b.tagEl.innerHTML = k >= 2 || Lab.showing() ? 'Top: <span style="color:var(--blue-ink)">' + M.rollAll(S0, cases[i].m).top + '</span>' : '&nbsp;'; }); }
+  var a = M.rollAll(S0, cases[0].m).top, b2 = M.rollAll(S0, cases[1].m).top;
+  ctx.extra.innerHTML = '<div class="muted">Start: ' + S0.top + ' top, ' + S0.front + ' front, ' + S0.right + ' right</div>';
+  ctx.ans.innerHTML = '<div class="hud"><span class="big">' + a + '</span><span class="mid">' + (a === b2 ? '=' : '&ne;') + '</span><span class="big">' + b2 + '</span></div>' +
+    '<div class="rule">Same top? <em>' + (a === b2 ? 'Yes' : 'No') + '</em></div><div class="rule">Keep the <em>order</em></div>';
+  tags();
+  var off = onResize(function(){ boards.forEach(function(b){ b.size(cell()); }); });
+  function rst(){ Lab.bump(); boards.forEach(function(b){ b.reset(); }); k = 0; tags(); }
+  function one(g){ var i = k; return Promise.all(boards.map(function(b, j){ return b.roll(cases[j].m[i], g, 800); })).then(function(){ k++; tags(); }); }
+  return {
+    step: function(){ var g = Lab.bump(); if(boards[0].busy) return; if(k >= 2){ rst(); return; } return one(g); },
+    play: function(){ rst(); var g = Lab.gen(); return Lab.sleep(200, g).then(function(){ return one(g); }).then(function(){ return Lab.sleep(350, g); }).then(function(){ return one(g); }); },
+    reset: rst, answer: tags, destroy: off };
+}
+
+function stepLoop(ctx){
+  var vis = ctx.vis, moves = M.expand(M.LOOP), start = [0, 1];
+  var cb = new CubeBoard(vis, { cols:2, rows:2, start:start, hiCell:start, cell:fitCell(vis, 2, 108, 0.42) });
+  cb.drawPath(start, moves); vis.appendChild(el('div', 'front-tag', 'Front'));
+  var T = M.tops(S0, moves), k = 0;
+  function strip(){
+    var l = [{ k:'Start', v:T[0] }];
+    for(var i = 1; i <= moves.length; i++) l.push({ k:'Roll ' + i, v: i <= k ? T[i] : '?', cls: i === k ? 'hot' : '' });
+    ctx.extra.innerHTML = '<div class="lbl">Top letter</div>' + chips(l);
+  }
+  var end = T[T.length - 1], cells = M.cells(start, moves), back = cells[cells.length - 1].join() === start.join();
+  ctx.ans.innerHTML = '<div class="lbl">Back on start square?</div><div class="rule"><em>' + (back ? 'Yes' : 'No') + '</em></div>' +
+    '<div class="lbl">Top</div><div class="hud"><span class="big">' + end + '</span><span class="mid">' + (end === T[0] ? '=' : '&ne;') + ' ' + T[0] + '</span></div>' +
+    '<div class="rule">Start square &ne; start <em>top</em></div>';
+  strip();
+  var off = onResize(function(){ cb.size(fitCell(vis, 2, 108, 0.42)); });
+  function rst(){ Lab.bump(); cb.reset(); k = 0; strip(); }
+  function one(g){ return cb.roll(moves[k], g, 700).then(function(){ k++; strip(); }); }
+  return {
+    step: function(){ var g = Lab.bump(); if(cb.busy) return; if(k >= moves.length){ rst(); return; } return one(g); },
+    play: function(){ rst(); var g = Lab.gen(); var p = Lab.sleep(200, g);
+      for(var i = 0; i < moves.length; i++) p = p.then(function(){ return one(g); }).then(function(){ return Lab.sleep(450, g); }); return p; },
+    reset: rst, destroy: off };
+}
+
+function stepFree(ctx){
+  var vis = ctx.vis, COLS = 7, ROWS = 5, start = [0, 4];
+  var cb = new CubeBoard(vis, { cols:COLS, rows:ROWS, start:start, hiCell:start, cell:fitCell(vis, COLS, 84, 0.8) });
+  vis.appendChild(el('div', 'front-tag', 'Front'));
+  var mode = 'roll', built = [], fromState = S0, queue = Promise.resolve();
+  var x = ctx.extra;
+  x.innerHTML = '<div style="display:flex;flex-direction:column;gap:10px">' +
+    '<div class="seg" id="cmode"><button type="button" data-m="roll" class="on">Roll</button><button type="button" data-m="build">Build path</button></div>' +
+    '<div class="netbox"><div class="pad"><span></span><button type="button" data-d="U" aria-label="Up">&uarr;</button><span></span>' +
+    '<button type="button" data-d="L" aria-label="Left">&larr;</button><button type="button" data-d="D" aria-label="Down">&darr;</button><button type="button" data-d="R" aria-label="Right">&rarr;</button></div>' +
+    '<div>' + netSVG(18) + '<div class="lbl">Net</div></div></div>' +
+    '<div id="cinfo"></div><button class="btn" id="cclear" type="button">Clear path</button></div>';
+  var info = x.querySelector('#cinfo');
+  function upd(){
+    x.querySelectorAll('#cmode button').forEach(function(b){ b.classList.toggle('on', b.dataset.m === mode); });
+    x.querySelector('#cclear').hidden = mode !== 'build';
+    document.getElementById('playBtn').hidden = mode !== 'build';
+    document.getElementById('ansBtn').hidden = mode !== 'build';
+    if(mode === 'roll'){
+      info.innerHTML = '<div class="hud"><span class="lbl">Top</span><span class="big">' + cb.s.top + '</span></div>';
+      ctx.ans.innerHTML = ''; Lab.refreshAns();
+    } else {
+      var segs = M.segments(built);
+      info.innerHTML = '<div class="lbl">Path</div><div class="rule">' + (segs.length ? segs.map(function(s){ return s[1] + ' ' + M.NAME[s[0]]; }).join(', ') : 'Tap the arrows') + '</div>';
+      var end = M.rollAll(fromState, built);
+      ctx.ans.innerHTML = segs.length ? segs.map(function(s){ return '<div class="rule">' + M.segText(s) + '</div>'; }).join('') +
+        '<div class="lbl">Top at the end</div><div class="big">' + end.top + '</div>' : '';
+      Lab.refreshAns();
+    }
+  }
+  function endCell(){ var c = M.cells(snap.pos, built); return c[c.length - 1]; }
+  var snap;
+  function takeSnap(){ snap = { pos: cb.pos.slice(), s: Object.assign({}, cb.s), R: cb.R }; }
+  function bump(){ cb.scene.classList.remove('flash'); void cb.scene.offsetWidth; cb.scene.classList.add('flash'); }
+  function press(d){
+    if(mode === 'roll'){
+      queue = queue.then(function(){
+        if(!cb.canRoll(d)){ bump(); return; }
+        return cb.roll(d, Lab.gen(), 330).then(upd);
+      }).catch(function(){});
+    } else {
+      if(cb.busy) return;
+      var e = endCell(), n = [e[0] + M.DIRS[d][0], e[1] + M.DIRS[d][1]];
+      if(n[0] < 0 || n[1] < 0 || n[0] >= COLS || n[1] >= ROWS){ bump(); return; }
+      built.push(d); cb.drawPath(snap.pos, built); upd();
+    }
+  }
+  function clearPath(){ built = []; takeSnap(); fromState = snap.s; cb.drawPath(snap.pos, []); upd(); }
+  x.querySelectorAll('.pad button').forEach(function(b){ b.onclick = function(){ press(b.dataset.d); }; });
+  x.querySelectorAll('#cmode button').forEach(function(b){ b.onclick = function(){ Lab.bump(); queue = Promise.resolve(); mode = b.dataset.m; clearPath(); }; });
+  x.querySelector('#cclear').onclick = clearPath;
+  takeSnap(); upd();
+  var off = onResize(function(){ cb.size(fitCell(vis, COLS, 84, 0.8)); });
+  function playPath(){
+    if(mode !== 'build' || !built.length) return;
+    var g = Lab.bump(), mv = built.slice();
+    cb.pos = snap.pos.slice(); cb.s = Object.assign({}, snap.s); cb.R = snap.R; cb.render(cb.C(), cb.R); upd();
+    var p = Lab.sleep(150, g);
+    mv.forEach(function(d){ p = p.then(function(){ return cb.roll(d, g, 360); }).then(function(){ return Lab.sleep(60, g); }); });
+    return p.then(function(){ info.insertAdjacentHTML('beforeend', '<div class="hud"><span class="lbl">Top</span><span class="big">' + cb.s.top + '</span></div>'); });
+  }
+  return {
+    play: playPath,
+    reset: function(){ Lab.bump(); queue = Promise.resolve(); cb.reset(); clearPath(); },
+    key: function(e){ var m = { ArrowRight:'R', ArrowLeft:'L', ArrowUp:'U', ArrowDown:'D' }[e.key]; if(m){ press(m); return true; } return false; },
+    destroy: off };
+}
+
+Lab.init({ title: 'Cube Rolls', steps: [
+  { name:'One Roll', q:'1 roll right: which face comes up?', mount: stepOne },
+  { name:'Rolls in a Line', q:'Which letter is on top?', mount: stepLine },
+  { name:'The Path', q:'Which letter is on top when it stops?', mount: stepPath },
+  { name:'Order Swap', q:'Same top both ways?', mount: stepOrder },
+  { name:'Round the Square', q:'Back to the start top?', mount: stepLoop },
+  { name:'Free Play', q:'', step:false, playLabel:'Go', mount: stepFree }
+]});
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Step through flowcharts, find far rounds and undo processes.">
+<title>Forwards and Backwards · Contour</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F6FC; --panel:#FFFFFF; --ink:#12203D; --muted:#46557A; --line:#D3DDEC; --wash:#F6F9FE;
+  --navy:#0B3D91; --navy-soft:#E4ECF8;
+  --blue:#007AFF; --blue-ink:#0060C7; --blue-soft:#E5F1FF;
+  --green:#2FB76A; --green-ink:#17793F; --green-soft:#E2F5EA;
+  --orange:#E88100; --orange-ink:#9A5400; --orange-soft:#FFF0DC;
+  --red:#D0342C; --red-ink:#B42318; --red-soft:#FDE8E6;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.4;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+.wrap{max-width:1280px;margin:0 auto;padding:14px 20px 28px;display:flex;flex-direction:column;gap:12px}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.brand h1{font-weight:850;font-size:30px;letter-spacing:-.025em;margin:0;color:var(--navy);line-height:1}
+.keys{font-size:14px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+kbd{font-family:var(--mono);font-size:13px;border:2px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;color:var(--navy);background:#fff}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tabs button{flex:1 0 auto;min-height:46px;border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 16px;font-size:17px;font-weight:750;color:var(--muted);white-space:nowrap}
+.tabs button .n{font-family:var(--mono);margin-right:8px;opacity:.8}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.stage{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-height:540px}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ctl .sp{flex:1}
+.btn{min-height:46px;border:2px solid var(--line);background:var(--panel);border-radius:12px;padding:6px 16px;font-weight:750;font-size:17px;line-height:1.15;color:var(--ink)}
+.btn:hover{border-color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-ink);border-color:var(--blue-ink)}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.orange{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn.ans{border-color:var(--orange);color:var(--orange-ink)}
+.btn.ans.on{background:var(--orange);color:#fff}
+.btn.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.scene{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:20px;align-items:start}
+.scene.wide{grid-template-columns:minmax(0,1fr)}
+.vis{min-width:0}
+.vis svg{display:block;width:100%;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.prompt{font-weight:850;font-size:clamp(22px,2.4vw,30px);line-height:1.15;color:var(--navy);margin:0;letter-spacing:-.015em}
+.stat{border:2px solid var(--line);border-radius:14px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff}
+.stat .l{font-size:16px;font-weight:750;color:var(--muted)}
+.stat .v{font-family:var(--mono);font-weight:850;font-size:36px;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:17px;font-weight:800;vertical-align:middle}
+.badge.odd{background:var(--red-soft);color:var(--red-ink);border:2px solid var(--red)}
+.badge.even{background:var(--blue-soft);color:var(--blue-ink);border:2px solid var(--blue)}
+.badge.good{background:var(--green-soft);color:var(--green-ink);border:2px solid var(--green)}
+.badge.warn{background:var(--orange-soft);color:var(--orange-ink);border:2px solid var(--orange)}
+.big{font-family:var(--mono);font-weight:850;font-size:40px;color:var(--navy)}
+.note{font-size:16px;color:var(--muted);font-weight:650}
+.rule{background:var(--blue-soft);border:2px solid var(--blue);border-radius:14px;padding:10px 14px;font-weight:850;font-size:22px;color:var(--navy);text-align:center}
+.rule.bad{background:var(--red-soft);border-color:var(--red);color:var(--red-ink)}
+.rule.good{background:var(--green-soft);border-color:var(--green);color:var(--green-ink)}
+.tbl-wrap{overflow-x:auto;max-width:100%}
+table.st{border-collapse:collapse;font-size:20px;min-width:100%}
+table.st th,table.st td{border:2px solid var(--line);padding:6px 10px;text-align:center;font-variant-numeric:tabular-nums}
+table.st tr>th:first-child{position:sticky;left:0;z-index:1}
+table.st th{background:var(--navy-soft);color:var(--navy);font-size:16px;font-weight:800;white-space:nowrap}
+table.st td{font-family:var(--mono);font-weight:800;color:var(--navy);min-width:44px}
+table.st td.new{background:var(--orange-soft)}
+table.st tr.cur td{background:var(--blue-soft)}
+.ansv{border-radius:8px}
+.stage:not(.ans-on) .ansv{color:transparent!important;background:var(--wash);outline:2px dashed var(--line);position:relative;user-select:none}
+.stage:not(.ans-on) .ansv::after{content:"?";position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-family:var(--sans)}
+.stage:not(.ans-on) .ansblock{display:none!important}
+.stage.ans-on .ansoff{display:none!important}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;flex-wrap:wrap}
+.seg button{min-height:42px;border:0;background:#fff;padding:4px 14px;font-weight:750;font-size:17px;color:var(--muted)}
+.seg button+button{border-left:2px solid var(--line)}
+.seg button.on{background:var(--navy);color:#fff}
+.field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:750;color:var(--navy)}
+.field input[type=number],.field select{width:96px;min-height:44px;border:2px solid var(--line);border-radius:10px;padding:4px 10px;font-size:20px;font-weight:800;background:#fff}
+.field input[type=range]{width:220px;accent-color:var(--blue)}
+.msg{min-height:30px;font-size:20px;font-weight:800;color:var(--navy)}
+.msg.good{color:var(--green-ink)} .msg.bad{color:var(--red-ink)}
+.svgtxt{font-family:var(--sans);font-weight:800}
+.mono{font-family:var(--mono)}
+.tap{cursor:pointer}
+@media (max-width:900px){
+  .scene{grid-template-columns:minmax(0,1fr)}
+  .stage{min-height:0}
+}
+@media (max-width:640px){
+  body{font-size:17px}
+  .wrap{padding:10px 12px 24px;gap:10px}
+  .brand h1{font-size:24px}.mark{width:34px;height:34px}
+  .keys{display:none}
+  .tabs button{font-size:15px;padding:6px 12px}
+  .stage{padding:12px 12px;border-radius:16px}
+  .btn{padding:6px 11px;font-size:16px}
+  .ctl{gap:6px}
+  .stage>.ctl .sp{display:none}
+  .stage>.ctl .btn{padding:6px 10px}
+  .stat .v{font-size:30px}
+  .rule{font-size:19px}
+  table.st{font-size:17px}
+  table.st th,table.st td{padding:5px 6px}
+  .field input[type=range]{width:160px}
+}
+
+.fc .nd rect,.fc .nd path,.fc .nd ellipse{fill:#E4ECF8;stroke:#0B3D91;stroke-width:3;transition:fill .2s,stroke .2s}
+.fc .nd.term rect{fill:#EEF1F6;stroke:#46557A}
+.fc .nd.on rect,.fc .nd.on path{fill:#FFF0DC;stroke:#E88100;stroke-width:6}
+.fc .nd text{font-family:var(--sans);font-weight:750;fill:#12203D}
+.fc .ed{fill:none;stroke:#12203D;stroke-width:3}
+.fc .ed.on{stroke:#E88100;stroke-width:5}
+.fc .lb{font-family:var(--sans);font-weight:850;font-size:24px;fill:#0B3D91}
+.chain{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.chain .bx{min-width:64px;min-height:56px;border:3px solid var(--navy);border-radius:10px;display:grid;place-items:center;font-family:var(--mono);font-weight:850;font-size:26px;color:var(--navy);background:#fff;padding:0 8px;transition:background .2s,border-color .2s}
+.chain .bx.empty{border-style:dashed;border-color:var(--line);color:var(--muted)}
+.chain .bx.on{background:var(--orange-soft);border-color:var(--orange)}
+.chain .bx.ok{background:var(--green-soft);border-color:var(--green)}
+.chain .bx.no{background:var(--red-soft);border-color:var(--red)}
+.chain .ar{display:flex;flex-direction:column;align-items:center;font-weight:850;font-size:20px;color:var(--navy);min-width:44px}
+.chain .ar i{font-style:normal;font-size:24px;line-height:1}
+.chain.back .ar{color:var(--orange-ink)}
+.rowlab{font-weight:850;font-size:16px;color:var(--muted);margin:4px 0}
+.ways{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.way{border:2px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-size:20px;font-weight:750}
+.way h3{margin:0;font-size:18px;color:var(--muted)}
+.way .val{font-family:var(--mono);font-weight:850;font-size:36px;color:var(--navy)}
+.way.ok{border-color:var(--green);background:var(--green-soft)}
+.way.no{border-color:var(--red);background:var(--red-soft)}
+.blocks{display:flex;flex-direction:column;gap:8px}
+.blk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:2px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff;transition:background .2s,border-color .2s}
+.blk.on{background:var(--orange-soft);border-color:var(--orange)}
+.blk .tag{font-weight:850;color:var(--navy);min-width:28px}
+.blk select,.blk input{min-height:42px;border:2px solid var(--line);border-radius:9px;font-size:19px;font-weight:800;padding:2px 6px;background:#fff}
+.blk input{width:72px}
+.blk .x{margin-left:auto;border:0;background:transparent;font-size:24px;color:var(--muted);min-width:40px;min-height:40px}
+.pal{display:flex;gap:8px;flex-wrap:wrap}
+.ringv{transition:opacity .3s}
+@media (max-width:640px){.ways{grid-template-columns:1fr}.chain{gap:2px}.chain .bx{min-width:44px;min-height:44px;font-size:18px;padding:0 4px}.chain .ar{min-width:30px;font-size:15px}}
+@media (prefers-reduced-motion:reduce){.fc .nd rect,.fc .nd path,.chain .bx,.blk,.ringv{transition:none}}
+
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+(function(){
+'use strict';
+var RM = false;
+try { RM = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+var NS = 'http://www.w3.org/2000/svg';
+function setAttrs(n, a, isSvg){
+  if(!a) return;
+  for(var k in a){
+    var v = a[k];
+    if(v == null || v === false) continue;
+    if(k === 'text') n.textContent = v;
+    else if(k === 'html') n.innerHTML = v;
+    else if(k.slice(0,2) === 'on' && typeof v === 'function') n.addEventListener(k.slice(2), v);
+    else if(k === 'class' && !isSvg) n.className = v;
+    else n.setAttribute(k, v === true ? '' : v);
+  }
+}
+function add(n, kids){
+  kids.forEach(function(c){
+    if(c == null || c === false) return;
+    if(Array.isArray(c)) add(n, c);
+    else n.appendChild(typeof c === 'object' ? c : document.createTextNode(String(c)));
+  });
+}
+function h(tag, a){ var n = document.createElement(tag); setAttrs(n, a, false); add(n, [].slice.call(arguments, 2)); return n; }
+function s(tag, a){ var n = document.createElementNS(NS, tag); setAttrs(n, a, true); add(n, [].slice.call(arguments, 2)); return n; }
+function clear(n){ while(n.firstChild) n.removeChild(n.firstChild); return n; }
+function Cancel(){}
+function fmt(x){ return String(Math.round(x * 100) / 100); }
+
+function Lab(cfg){
+  var app = document.getElementById('app');
+  var state = { i: 0, tok: 0, busy: false };
+  var tabs = h('nav', { class: 'tabs', role: 'tablist', 'aria-label': 'Steps' });
+  var stage = h('main', { class: 'stage', id: 'stage' });
+  var playBtn = h('button', { class: 'btn primary', type: 'button', id: 'playBtn' }, 'Play');
+  var stepBtn = h('button', { class: 'btn', type: 'button', id: 'stepBtn' }, 'Step');
+  var resetBtn = h('button', { class: 'btn', type: 'button', id: 'resetBtn' }, 'Reset');
+  var ansBtn = h('button', { class: 'btn ans', type: 'button', id: 'ansBtn', 'aria-pressed': 'false' }, 'Show answer');
+  var ctl = h('div', { class: 'ctl' }, playBtn, stepBtn, resetBtn, h('span', { class: 'sp' }), ansBtn);
+  var body = h('div', { class: 'body' });
+  stage.appendChild(ctl); stage.appendChild(body);
+  var head = h('header', { class: 'top' },
+    h('div', { class: 'brand' },
+      h('div', { class: 'mark', 'aria-hidden': 'true', html: cfg.icon || '' }),
+      h('h1', null, cfg.title)),
+    h('div', { class: 'keys' }, h('kbd', null, '←'), h('kbd', null, '→'), 'step', h('kbd', null, 'Space'), 'play', h('kbd', null, 'R'), 'reset'));
+  app.appendChild(head); app.appendChild(tabs); app.appendChild(stage);
+
+  var cur = null;
+  var api = {
+    RM: RM,
+    wait: function(ms){
+      var t = state.tok;
+      return new Promise(function(res, rej){
+        setTimeout(function(){ if(t !== state.tok) rej(new Cancel()); else res(); }, RM ? Math.min(ms, 60) : ms);
+      });
+    },
+    cancel: function(){ state.tok++; setBusy(false); },
+    ans: function(){ return stage.classList.contains('ans-on'); },
+    setAns: function(on){ setAns(on); },
+    go: function(fn){ return runTask(fn); },
+    labels: function(play, step){ playBtn.dataset.lab = play || 'Play'; playBtn.textContent = state.busy ? 'Stop' : playBtn.dataset.lab; stepBtn.textContent = step || 'Step'; },
+    refresh: function(){ if(cur && cur.update) cur.update(); }
+  };
+  function setBusy(b){ state.busy = b; playBtn.textContent = b ? 'Stop' : (playBtn.dataset.lab || 'Play'); }
+  function runTask(fn){
+    api.cancel();
+    var t = state.tok;
+    setBusy(true);
+    return Promise.resolve().then(fn).catch(function(e){ if(!(e instanceof Cancel)) console.error(e); })
+      .then(function(){ if(t === state.tok) setBusy(false); });
+  }
+  function setAns(on){
+    stage.classList.toggle('ans-on', on);
+    ansBtn.classList.toggle('on', on);
+    ansBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    ansBtn.textContent = on ? 'Hide answer' : 'Show answer';
+    if(cur && cur.answer) cur.answer(on);
+  }
+  cfg.steps.forEach(function(st, i){
+    var b = h('button', { type: 'button', role: 'tab', 'aria-selected': 'false', onclick: function(){ go(i); } },
+      h('span', { class: 'n' }, String(i + 1)), st.name);
+    tabs.appendChild(b);
+  });
+  function go(i){
+    if(i < 0 || i >= cfg.steps.length) return;
+    api.cancel();
+    state.i = i;
+    [].forEach.call(tabs.children, function(b, j){ b.classList.toggle('on', j === i); b.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+    tabs.children[i].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    clear(body);
+    stage.classList.remove('ans-on'); ansBtn.classList.remove('on'); ansBtn.textContent = 'Show answer';
+    playBtn.dataset.lab = 'Play'; stepBtn.textContent = 'Step';
+    cur = cfg.steps[i].make(body, api) || {};
+    stepBtn.disabled = !cur.step; playBtn.disabled = !cur.play;
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch(e){}
+  }
+  playBtn.addEventListener('click', function(){
+    if(state.busy){ api.cancel(); if(cur.stop) cur.stop(); return; }
+    if(cur.play) runTask(function(){ return cur.play(); });
+  });
+  stepBtn.addEventListener('click', function(){ if(cur.step){ api.cancel(); cur.step(); } });
+  resetBtn.addEventListener('click', function(){ api.cancel(); setAns(false); if(cur.reset) cur.reset(); });
+  ansBtn.addEventListener('click', function(){ setAns(!stage.classList.contains('ans-on')); });
+  document.addEventListener('keydown', function(e){
+    var t = e.target, tag = t && t.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.key === 'ArrowRight'){ e.preventDefault(); go(state.i + 1); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); go(state.i - 1); }
+    else if(e.key === ' ' || e.code === 'Space'){ e.preventDefault(); playBtn.click(); }
+    else if(e.key === 'r' || e.key === 'R'){ e.preventDefault(); resetBtn.click(); }
+  });
+  var start = parseInt((location.hash || '').slice(1), 10);
+  go(start >= 1 && start <= cfg.steps.length ? start - 1 : 0);
+  window.__lab = { go: go, api: api };
+}
+window.LabKit = { h: h, s: s, clear: clear, Lab: Lab, fmt: fmt, RM: RM };
+})();
+
+</script>
+<script id="model">
+var Model = (function(){
+  /* Step 1: A = 1, B = 1, then A = A + B, B = A + B until B is more than 20, output A */
+  function flowEvents(limit){
+    limit = limit || 20;
+    var A = 1, B = 1, ev = [{ at: 'start', A: null, B: null, round: null }];
+    ev.push({ at: 'init', A: A, B: B, round: 0 });
+    for(var r = 1; r <= 50; r++){
+      A = A + B; ev.push({ at: 'a', A: A, B: B, round: r });
+      B = A + B; ev.push({ at: 'b', A: A, B: B, round: r });
+      var yes = B > limit; ev.push({ at: 'test', A: A, B: B, round: r, yes: yes });
+      if(yes){ ev.push({ at: 'out', A: A, B: B, round: r, out: A }); ev.push({ at: 'stop', A: A, B: B, round: r, out: A }); break; }
+    }
+    return ev;
+  }
+  function flowTable(limit){
+    var rows = [{ round: 'Start', A: 1, B: 1, test: '' }];
+    flowEvents(limit).forEach(function(e){ if(e.at === 'test') rows.push({ round: e.round, A: e.A, B: e.B, test: e.yes ? 'Yes' : 'No' }); });
+    return rows;
+  }
+  function flowOutput(limit){ var ev = flowEvents(limit); return ev[ev.length - 1].out; }
+
+  /* Step 2: halve N if even, add 5 if odd */
+  function rule(n){ return n % 2 === 0 ? n / 2 : n + 5; }
+  function seq(start, rounds, f){ f = f || rule; var a = [start]; for(var i = 0; i < rounds; i++) a.push(f(a[a.length - 1])); return a; }
+  function cycle(start, f){
+    f = f || rule; var seen = {}, a = [start];
+    seen[start] = 0;
+    for(var i = 1; i < 10000; i++){
+      var v = f(a[i - 1]);
+      if(v in seen) return { start: seen[v], len: i - seen[v], values: a.slice(seen[v]), lead: a.slice(0, seen[v]) };
+      seen[v] = i; a.push(v);
+    }
+    return null;
+  }
+  function valueAt(start, round, f){
+    var c = cycle(start, f);
+    if(round < c.start) return c.lead[round];
+    return c.values[(round - c.start) % c.len];
+  }
+  // working for a far round: the last round before it that lands on the cycle's first value
+  function jump(start, round, f){
+    var c = cycle(start, f);
+    if(round < c.start + c.len) return { direct: true, value: valueAt(start, round, f), c: c };
+    var q = Math.floor((round - c.start) / c.len), base = c.start + q * c.len;
+    return { direct: false, c: c, q: q, base: base, extra: round - base, value: valueAt(start, round, f) };
+  }
+
+  /* operations */
+  var SYM = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+  var INV = { '+': '-', '-': '+', '*': '/', '/': '*' };
+  function apply(op, n, x){
+    if(op === '+') return x + n;
+    if(op === '-') return x - n;
+    if(op === '*') return x * n;
+    return x / n;
+  }
+  function runChain(blocks, x){
+    var out = [];
+    blocks.forEach(function(b){
+      if(b.t === 'test'){
+        var even = Math.abs(x) % 2 === 0, br = even ? b.yes : b.no;
+        x = apply(br.op, br.n, x); out.push({ x: x, branch: even ? 'yes' : 'no' });
+      } else { x = apply(b.op, b.n, x); out.push({ x: x }); }
+    });
+    return out;
+  }
+  function chainOut(blocks, x){ var r = runChain(blocks, x); return r.length ? r[r.length - 1].x : x; }
+  function undo(blocks, y){
+    var steps = [];
+    for(var i = blocks.length - 1; i >= 0; i--){
+      var b = blocks[i], op = INV[b.op], v = apply(op, b.n, y);
+      steps.unshift({ from: y, op: op, n: b.n, to: v }); y = v;
+    }
+    return { start: y, steps: steps };
+  }
+
+  /* Step 3: Kofi */
+  var kofi = { ops: [{ op: '*', n: 4 }, { op: '-', n: 8 }, { op: '/', n: 2 }], out: 12, wrong: 22 };
+
+  /* Step 4: one round back through the Yes / No box */
+  function waysBack(t){
+    var even = 2 * t, odd = t - 5;
+    return [
+      { way: 'even', n: even, isRight: even % 2 === 0, forward: rule(even), ok: rule(even) === t },
+      { way: 'odd', n: odd, valid: odd >= 1, isRight: odd >= 1 && odd % 2 === 1, forward: odd >= 1 ? rule(odd) : null, ok: odd >= 1 && rule(odd) === t }
+    ];
+  }
+
+  /* Step 5: find the start puzzles (seeded so a puzzle can be repeated) */
+  function rng(seed){ var s = seed >>> 0 || 1; return function(){ s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
+  function puzzle(seed){
+    var R = rng(seed), pick = function(a){ return a[Math.floor(R() * a.length)]; };
+    var nSteps = 3 + Math.floor(R() * 2), start = 2 + Math.floor(R() * 18), x = start, blocks = [];
+    var last = '';
+    for(var i = 0; i < nSteps; i++){
+      var op = pick(['+', '-', '*', '/'].filter(function(o){ return o !== last && o !== INV[last]; })), n;
+      if(op === '/'){
+        var ds = [2, 3, 4, 5].filter(function(d){ return x % d === 0; });
+        if(!ds.length) op = '*'; else n = pick(ds);
+      }
+      if(op === '*') n = pick([2, 3, 4, 5]);
+      if(op === '+') n = pick([3, 4, 5, 6, 7, 8, 9, 10, 12]);
+      if(op === '-'){ var ms = [2, 3, 4, 5, 6, 7, 8, 9, 10].filter(function(m){ return x - m > 0; }); if(!ms.length){ op = '+'; n = 5; } else n = pick(ms); }
+      blocks.push({ op: op, n: n }); x = apply(op, n, x); last = op;
+    }
+    return { start: start, blocks: blocks, out: x };
+  }
+  return { flowEvents: flowEvents, flowTable: flowTable, flowOutput: flowOutput, rule: rule, seq: seq, cycle: cycle,
+    valueAt: valueAt, jump: jump, SYM: SYM, INV: INV, apply: apply, runChain: runChain, chainOut: chainOut, undo: undo,
+    kofi: kofi, waysBack: waysBack, puzzle: puzzle };
+})();
+if(typeof module !== 'undefined') module.exports = Model;
+
+</script>
+<script>
+(function(){
+var K = LabKit, h = K.h, s = K.s, clear = K.clear, M = Model, fmt = K.fmt;
+var ICON = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5"/><path d="M18 3v4h-4"/><path d="M20 12a8 8 0 0 1-14 5"/><path d="M6 21v-4h4"/></svg>';
+function narrow(){ return window.innerWidth < 760; }
+function sym(op){ return M.SYM[op]; }
+function stat(label){ var v = h('span', { class: 'v' }, ''); return { el: h('div', { class: 'stat' }, h('span', { class: 'l' }, label), v), v: v }; }
+function defs(svg){
+  var d = s('defs');
+  [['ah', '#12203D'], ['ahO', '#E88100'], ['ahN', '#0B3D91']].forEach(function(m){
+    var mk = s('marker', { id: m[0], viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' });
+    mk.appendChild(s('path', { d: 'M0 0L10 5L0 10z', fill: m[1] })); d.appendChild(mk);
+  });
+  svg.appendChild(d);
+}
+
+/* ---------- flowchart ---------- */
+var LAY = {
+  wide: { vb: '0 0 1000 370', fs: 26, n: {
+      start: [70, 150, 110, 62], init: [235, 150, 160, 86], a: [430, 150, 165, 70], b: [625, 150, 165, 70],
+      test: [865, 150, 230, 150], out: [865, 320, 165, 64], stop: [625, 320, 110, 62] },
+    e: [[[125,150],[153,150]], [[315,150],[345,150]], [[512,150],[540,150]], [[707,150],[748,150]], [[865,225],[865,286]], [[782,320],[682,320]], [[865,75],[865,28],[430,28],[430,113]]],
+    lb: [['No', 905, 52], ['Yes', 905, 262]] },
+  tall: { vb: '0 0 440 800', fs: 26, n: {
+      start: [150, 40, 120, 56], init: [150, 140, 170, 86], a: [150, 262, 180, 66], b: [150, 368, 180, 66],
+      test: [150, 510, 250, 150], out: [150, 652, 180, 62], stop: [150, 752, 120, 56] },
+    e: [[[150,68],[150,95]], [[150,183],[150,227]], [[150,295],[150,333]], [[150,401],[150,433]], [[150,585],[150,619]], [[150,683],[150,722]], [[275,510],[405,510],[405,262],[242,262]]],
+    lb: [['No', 335, 498], ['Yes', 190, 610]] }
+};
+var TXT = { start: ['Start'], init: ['A = 1', 'B = 1'], a: ['A = A + B'], b: ['B = A + B'], test: ['Is B more', 'than 20?'], out: ['Output A'], stop: ['Stop'] };
+function drawFlow(host){
+  var L = narrow() ? LAY.tall : LAY.wide;
+  var svg = s('svg', { viewBox: L.vb, class: 'fc', role: 'img', 'aria-label': 'Flowchart' });
+  if(L === LAY.tall) svg.style.maxWidth = '420px';
+  defs(svg);
+  L.e.forEach(function(pts){
+    svg.appendChild(s('polyline', { class: 'ed', points: pts.map(function(p){ return p.join(','); }).join(' '), 'marker-end': 'url(#ah)' }));
+  });
+  L.lb.forEach(function(l){ svg.appendChild(s('text', { class: 'lb', x: l[1], y: l[2], 'text-anchor': 'middle', text: l[0] })); });
+  var nodes = {};
+  Object.keys(L.n).forEach(function(id){
+    var p = L.n[id], cx = p[0], cy = p[1], w = p[2], hh = p[3];
+    var g = s('g', { class: 'nd' + (id === 'start' || id === 'stop' ? ' term' : '') });
+    if(id === 'test') g.appendChild(s('path', { d: 'M' + (cx - w / 2) + ' ' + cy + 'L' + cx + ' ' + (cy - hh / 2) + 'L' + (cx + w / 2) + ' ' + cy + 'L' + cx + ' ' + (cy + hh / 2) + 'Z' }));
+    else g.appendChild(s('rect', { x: cx - w / 2, y: cy - hh / 2, width: w, height: hh, rx: (id === 'start' || id === 'stop') ? hh / 2 : 6 }));
+    var lines = TXT[id];
+    lines.forEach(function(t, i){
+      g.appendChild(s('text', { x: cx, y: cy + L.fs * 0.36 + (i - (lines.length - 1) / 2) * L.fs * 1.15, 'text-anchor': 'middle', 'font-size': L.fs, text: t }));
+    });
+    svg.appendChild(g); nodes[id] = g;
+  });
+  host.appendChild(svg);
+  return { light: function(id){ Object.keys(nodes).forEach(function(k){ nodes[k].classList.toggle('on', k === id); }); } };
+}
+
+function stepRun(root, api){
+  var ev = M.flowEvents(20), i = 0;
+  var vis = h('div', { class: 'vis' }), side = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene' }, vis, side));
+  var fc;
+  var va = stat('A'), vb = stat('B');
+  var tbody = h('tbody');
+  var out = h('div', { class: 'rule good' });
+  var outA = h('div', { class: 'rule good ansblock' }, 'Output: ' + M.flowOutput(20));
+  side.appendChild(h('div', { class: 'stats' }, va.el, vb.el));
+  side.appendChild(h('div', { class: 'tbl-wrap' }, h('table', { class: 'st' },
+    h('thead', null, h('tr', null, h('th', null, 'Round'), h('th', null, 'A'), h('th', null, 'B'), h('th', null, 'Is B more than 20?'))), tbody)));
+  side.appendChild(out); side.appendChild(outA);
+  function draw(){ clear(vis); fc = drawFlow(vis); paint(); }
+  function paint(){
+    var e = ev[i]; fc.light(e.at);
+    va.v.textContent = e.A == null ? '' : e.A; vb.v.textContent = e.B == null ? '' : e.B;
+    clear(tbody);
+    var rows = [];
+    for(var j = 0; j <= i; j++){
+      var x = ev[j];
+      if(x.at === 'init') rows.push({ r: 'Start', A: 1, B: 1, t: '', last: j === i ? 'B' : '' });
+      if(x.at === 'a') rows.push({ r: 'Round ' + x.round, A: x.A, B: '', t: '', last: j === i ? 'A' : '' });
+      if(x.at === 'b'){ rows[rows.length - 1].B = x.B; rows[rows.length - 1].last = j === i ? 'B' : ''; }
+      if(x.at === 'test'){ rows[rows.length - 1].t = x.yes ? 'Yes' : 'No'; rows[rows.length - 1].last = j === i ? 't' : ''; }
+      if(j < i && rows.length && x.at !== 'start') { /* keep */ }
+    }
+    rows.forEach(function(r, k){
+      var tr = h('tr', { class: k === rows.length - 1 ? 'cur' : '' },
+        h('th', null, r.r), h('td', { class: r.last === 'A' ? 'new' : '' }, r.A), h('td', { class: r.last === 'B' ? 'new' : '' }, r.B), h('td', { class: r.last === 't' ? 'new' : '' }, r.t));
+      tbody.appendChild(tr);
+    });
+    out.hidden = !(e.at === 'out' || e.at === 'stop');
+    out.textContent = 'Output: ' + (e.out || ''); outA.hidden = !out.hidden;
+  }
+  draw();
+  var lastN = narrow(); var mq = function(){ if(!vis.isConnected){ window.removeEventListener('resize', mq); return; } if(narrow() !== lastN){ lastN = narrow(); draw(); } };
+  window.addEventListener('resize', mq);
+  return {
+    play: function(){
+      i = 0; paint();
+      return (function next(){ if(i >= ev.length - 1) return; return api.wait(700).then(function(){ i++; paint(); return next(); }); })();
+    },
+    step: function(){ if(i < ev.length - 1){ i++; paint(); } },
+    reset: function(){ i = 0; paint(); }
+  };
+}
+
+/* ---------- Step 2: Far Rounds ---------- */
+function stepFar(root, api){
+  var START = 7, c = M.cycle(START), cur = 0;
+  var vis = h('div', { class: 'vis' }), side = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene' }, vis, side));
+  var svg = s('svg', { viewBox: '0 0 620 420', role: 'img', 'aria-label': 'Values of N' });
+  defs(svg); vis.appendChild(svg);
+  var pos = [];
+  c.lead.forEach(function(v, i){ pos.push([55 + i * 118, 200]); });
+  var cx = 430, cy = 200, R = 140;
+  c.values.forEach(function(v, i){ var a = Math.PI + i * 2 * Math.PI / c.len; pos.push([cx + R * Math.cos(a), cy + R * Math.sin(a)]); });
+  var all = c.lead.concat(c.values), nodeG = [], edgeG = [];
+  function seg(p, q, r){ var dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy); return [p[0] + dx * r / L, p[1] + dy * r / L, q[0] - dx * (r + 4) / L, q[1] - dy * (r + 4) / L]; }
+  for(var i = 0; i < all.length; i++){
+    var j = i + 1 < all.length ? i + 1 : c.lead.length;
+    var sg = seg(pos[i], pos[j], 36);
+    var ln = s('line', { x1: sg[0], y1: sg[1], x2: sg[2], y2: sg[3], stroke: '#0B3D91', 'stroke-width': 4, 'marker-end': 'url(#ahN)', class: 'ringv' });
+    svg.appendChild(ln); edgeG.push(ln);
+  }
+  all.forEach(function(v, i){
+    var g = s('g', { class: 'ringv' });
+    var cc = s('circle', { cx: pos[i][0], cy: pos[i][1], r: 34, fill: '#E4ECF8', stroke: '#0B3D91', 'stroke-width': 4 });
+    g.appendChild(cc);
+    g.appendChild(s('text', { x: pos[i][0], y: pos[i][1] + 11, 'text-anchor': 'middle', class: 'svgtxt', 'font-size': 30, fill: '#0B3D91', text: v }));
+    svg.appendChild(g); nodeG.push({ g: g, c: cc });
+  });
+  var lab = s('text', { x: 310, y: 405, 'text-anchor': 'middle', class: 'svgtxt', 'font-size': 26, fill: '#9A5400' });
+  svg.appendChild(lab);
+  function idxOf(r){ return r < c.start ? r : c.start + (r - c.start) % c.len; }
+  var big = stat('Round'), nv = stat('N');
+  var tbl = h('div', { class: 'tbl-wrap' });
+  var inp = h('input', { type: 'number', min: 0, max: 100000, value: 100, 'aria-label': 'Round' });
+  var jb = h('button', { class: 'btn navy', type: 'button' }, 'Jump');
+  var work = h('div', { class: 'side' });
+  side.appendChild(h('div', { class: 'rule', style: 'text-align:left;font-size:20px' }, h('div', null, 'Start: N = 7'), h('div', null, 'Even: halve N'), h('div', null, 'Odd: add 5')));
+  side.appendChild(h('div', { class: 'stats' }, big.el, nv.el));
+  side.appendChild(tbl);
+  side.appendChild(h('div', { class: 'ctl' }, h('label', { class: 'field' }, 'Round', inp), jb));
+  side.appendChild(work);
+  function paint(showIdx){
+    var maxIdx = -1;
+    for(var r = 0; r <= Math.min(cur, c.start + c.len); r++) maxIdx = Math.max(maxIdx, idxOf(r));
+    if(cur >= c.start + c.len - 1) maxIdx = all.length - 1;
+    var on = showIdx != null ? showIdx : idxOf(cur);
+    nodeG.forEach(function(n, i){
+      n.g.style.opacity = i <= maxIdx ? 1 : 0;
+      n.c.setAttribute('fill', i === on ? '#FFF0DC' : '#E4ECF8');
+      n.c.setAttribute('stroke', i === on ? '#E88100' : '#0B3D91');
+      n.c.setAttribute('stroke-width', i === on ? 7 : 4);
+    });
+    edgeG.forEach(function(e, i){
+      var target = i + 1 < all.length ? i + 1 : c.lead.length;
+      var shown = i + 1 < all.length ? (i + 1 <= maxIdx) : cur >= c.start + c.len;
+      e.style.opacity = shown ? 1 : 0;
+    });
+    big.v.textContent = cur; nv.v.textContent = M.valueAt(START, cur);
+    var from = Math.max(0, cur - 10), sq = M.seq(START, cur);
+    var t1 = h('tr', null, h('th', null, 'Round')), t2 = h('tr', null, h('th', null, 'N'));
+    for(var k = from; k <= cur; k++){ t1.appendChild(h('td', null, k)); t2.appendChild(h('td', { class: k === cur ? 'new' : '' }, sq[k])); }
+    clear(tbl).appendChild(h('table', { class: 'st' }, t1, t2));
+    tbl.scrollLeft = 9999;
+    lab.textContent = cur >= c.start + c.len ? 'Cycle of ' + c.len + ' from Round ' + c.start : '';
+  }
+  function showWork(target){
+    var J = M.jump(START, target);
+    clear(work);
+    if(J.direct){ work.appendChild(h('div', { class: 'rule good' }, 'Round ' + target + ': N = ' + J.value)); return; }
+    var landing = [];
+    for(var q = 0; q < 3; q++) landing.push(c.start + q * c.len);
+    work.appendChild(h('div', { class: 'note', style: 'font-size:18px' },
+      h('div', null, 'Cycle starts at Round ' + c.start + ', length ' + c.len),
+      h('div', null, 'Rounds ' + landing.join(', ') + ' and so on land on ' + c.values[0]),
+      h('div', null, J.base + ' = ' + c.start + ' + ' + J.q + ' × ' + c.len + ', so Round ' + J.base + ' lands on ' + c.values[0])));
+    var tail = [];
+    for(var e = 1; e <= J.extra; e++) tail.push('Round ' + (J.base + e) + ' = ' + c.values[e % c.len]);
+    if(tail.length) work.appendChild(h('div', { class: 'note', style: 'font-size:18px' }, tail.join(', ')));
+    work.appendChild(h('div', { class: 'rule good' }, 'Round ' + target + ': N = ' + J.value));
+  }
+  function doJump(){
+    var target = Math.max(0, Math.min(100000, parseInt(inp.value, 10) || 0));
+    var J = M.jump(START, target);
+    return api.go(function(){
+      cur = Math.max(cur, c.start + c.len); paint();
+      if(J.direct){ cur = target; paint(); showWork(target); return; }
+      showWork(target);
+      big.v.textContent = J.base; nv.v.textContent = c.values[0]; paint(c.start); big.v.textContent = J.base; nv.v.textContent = c.values[0];
+      var e = 0;
+      return (function next(){
+        if(e >= J.extra) return;
+        return api.wait(650).then(function(){ e++; paint(c.start + e % c.len); big.v.textContent = J.base + e; nv.v.textContent = c.values[e % c.len]; return next(); });
+      })();
+    });
+  }
+  jb.addEventListener('click', doJump);
+  paint();
+  return {
+    play: function(){
+      cur = 0; clear(work); paint();
+      return (function next(){ if(cur >= 8) return; return api.wait(700).then(function(){ cur++; paint(); return next(); }); })();
+    },
+    step: function(){ cur++; clear(work); paint(); },
+    reset: function(){ cur = 0; clear(work); inp.value = 100; paint(); },
+    answer: function(on){ if(on) doJump(); }
+  };
+}
+
+/* ---------- chain rows ---------- */
+function chainRow(vals, ops, back, states){
+  var row = h('div', { class: 'chain' + (back ? ' back' : '') });
+  vals.forEach(function(v, i){
+    row.appendChild(h('div', { class: 'bx' + (v === '' || v == null ? ' empty' : '') + (states && states[i] ? ' ' + states[i] : '') }, v == null ? '' : v));
+    if(i < ops.length) row.appendChild(h('div', { class: 'ar' }, h('span', null, ops[i] || ''), h('i', null, back ? '←' : '→')));
+  });
+  return row;
+}
+
+/* ---------- Step 3: Undo It ---------- */
+function stepUndo(root, api){
+  var k = M.kofi, U = M.undo(k.ops, k.out), lvl = 0, test = null;
+  var main = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene wide' }, main));
+  var f = h('div'), b = h('div');
+  var inp = h('input', { type: 'number', value: '', placeholder: '5', 'aria-label': 'Start number' });
+  var tb = h('button', { class: 'btn navy', type: 'button' }, 'Try');
+  var msg = h('div', { class: 'msg' });
+  main.appendChild(h('p', { class: 'prompt' }, 'Kofi: × 4, then − 8, then ÷ 2. He gets 12.'));
+  main.appendChild(h('div', { class: 'rowlab' }, 'Forwards')); main.appendChild(f);
+  main.appendChild(h('div', { class: 'rowlab' }, 'Backwards')); main.appendChild(b);
+  main.appendChild(h('div', { class: 'ctl' }, h('label', { class: 'field' }, 'Try a start', inp), tb, msg));
+  main.appendChild(h('div', { class: 'ansblock ctl' }, h('div', { class: 'rule' }, 'Undo the last step first'), h('div', { class: 'rule' }, 'Use the inverse'), h('div', { class: 'rule good' }, 'Start = ' + U.start)));
+  function paint(){
+    clear(f); clear(b);
+    var fv, st = null;
+    if(test != null){
+      var r = M.runChain(k.ops, test); fv = [test].concat(r.map(function(x){ return fmt(x.x); }));
+      var ok = r[r.length - 1].x === k.out; st = [null, null, null, ok ? 'ok' : 'no'];
+      msg.textContent = ok ? test + ' works' : test + ' gives ' + fmt(r[r.length - 1].x) + ', not 12';
+      msg.className = 'msg ' + (ok ? 'good' : 'bad');
+    } else if(lvl >= 4){
+      fv = [U.start].concat(M.runChain(k.ops, U.start).map(function(x){ return x.x; })); st = ['ok', 'ok', 'ok', 'ok'];
+      msg.textContent = 'Check: ' + U.start + ' gives 12'; msg.className = 'msg good';
+    } else { fv = ['?', '', '', k.out]; msg.textContent = ''; }
+    f.appendChild(chainRow(fv, k.ops.map(function(o){ return sym(o.op) + ' ' + o.n; }), false, st));
+    var bv = [], bo = [];
+    for(var i = 0; i < 4; i++){
+      var shown = i === 3 || (3 - i) <= lvl;
+      bv.push(i === 3 ? k.out : shown ? (i === 0 ? U.start : U.steps[i].from) : '');
+    }
+    // values: index0 start, index1 after step0 inverse... use steps
+    bv = [lvl >= 3 ? U.steps[0].to : '', lvl >= 2 ? U.steps[1].to : '', lvl >= 1 ? U.steps[2].to : '', k.out];
+    for(var j = 0; j < 3; j++) bo.push(lvl >= 3 - j ? sym(U.steps[j].op) + ' ' + U.steps[j].n : '');
+    b.appendChild(chainRow(bv, bo, true, [lvl >= 3 ? 'on' : null, null, null, null]));
+  }
+  tb.addEventListener('click', function(){ var v = parseFloat(inp.value); test = isNaN(v) ? null : v; paint(); });
+  inp.addEventListener('keydown', function(e){ if(e.key === 'Enter') tb.click(); });
+  paint();
+  return {
+    play: function(){
+      lvl = 0; test = null; paint();
+      return (function next(){ if(lvl >= 4) return; return api.wait(900).then(function(){ lvl++; paint(); return next(); }); })();
+    },
+    step: function(){ test = null; if(lvl < 4) lvl++; paint(); },
+    reset: function(){ lvl = 0; test = null; inp.value = ''; paint(); },
+    answer: function(on){ if(on){ test = null; lvl = 4; paint(); } }
+  };
+}
+
+/* ---------- Step 4: Two Ways Back ---------- */
+function stepTwo(root, api){
+  var T = 6, lvl = 0;
+  var main = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene wide' }, main));
+  var seg = h('div', { class: 'seg' });
+  var inp = h('input', { type: 'number', min: 1, max: 999, value: T, 'aria-label': 'N after one round' });
+  [6, 7, 8].forEach(function(v){ seg.appendChild(h('button', { type: 'button', 'data-v': v, onclick: function(){ T = v; inp.value = v; lvl = 0; paint(); } }, String(v))); });
+  inp.addEventListener('change', function(){ T = Math.max(1, Math.min(999, parseInt(inp.value, 10) || 1)); inp.value = T; lvl = 0; paint(); });
+  var ways = h('div', { class: 'ways' }), sum = h('div', { class: 'ansblock' });
+  main.appendChild(h('div', { class: 'ctl' },
+    h('div', { class: 'rule', style: 'font-size:19px;text-align:left' }, 'Even: halve N  ·  Odd: add 5'),
+    h('span', { class: 'field' }, 'After one round, N ='), seg, h('label', { class: 'field' }, inp)));
+  main.appendChild(h('p', { class: 'prompt', id: 'tq' }));
+  main.appendChild(ways); main.appendChild(sum);
+  function paint(){
+    [].forEach.call(seg.children, function(b){ b.classList.toggle('on', +b.dataset.v === T); });
+    main.querySelector('#tq').textContent = 'What was N before ' + T + '?';
+    var W = M.waysBack(T); clear(ways);
+    W.forEach(function(w, i){
+      var base = i * 2, card = h('div', { class: 'way' });
+      card.appendChild(h('h3', null, w.way === 'even' ? 'If N was even' : 'If N was odd'));
+      if(lvl > base){
+        card.appendChild(h('div', null, w.way === 'even' ? T + ' × 2 = ' : T + ' − 5 = ', h('span', { class: 'val' }, w.valid === false ? 'none' : w.n)));
+      }
+      if(lvl > base + 1){
+        if(w.valid === false){ card.className = 'way no'; card.appendChild(h('div', null, 'Too small ✗')); }
+        else {
+          var parity = w.n % 2 === 0 ? 'even' : 'odd';
+          card.appendChild(h('div', null, w.n + ' is ' + parity + (w.isRight ? ' ✓' : ' ✗')));
+          card.appendChild(h('div', null, 'Forwards: ' + w.n + ' → ' + w.forward + (w.ok ? ' ✓' : ' ✗ not ' + T)));
+          card.className = 'way ' + (w.ok ? 'ok' : 'no');
+        }
+      }
+      ways.appendChild(card);
+    });
+    var good = W.filter(function(w){ return w.ok; }).map(function(w){ return w.n; });
+    clear(sum).appendChild(h('div', { class: 'rule good' }, 'N before ' + T + ' = ' + good.join(' or ')));
+  }
+  paint();
+  return {
+    play: function(){
+      lvl = 0; paint();
+      return (function next(){ if(lvl >= 4) return; return api.wait(800).then(function(){ lvl++; paint(); return next(); }); })();
+    },
+    step: function(){ if(lvl < 4){ lvl++; paint(); } },
+    reset: function(){ T = 6; inp.value = 6; lvl = 0; paint(); },
+    answer: function(on){ if(on){ lvl = 4; paint(); } }
+  };
+}
+
+/* ---------- Step 5: Build Your Own ---------- */
+function stepBuild(root, api){
+  var mode = 'build';
+  var blocks = [{ t: 'op', op: '*', n: 3 }, { t: 'op', op: '+', n: 1 }, { t: 'test', yes: { op: '/', n: 2 }, no: { op: '+', n: 5 } }];
+  var startV = 4, rounds = 3, hi = -1, shownRows = 0;
+  var seed = 7, P = M.puzzle(seed);
+  var top = h('div', { class: 'seg' });
+  var main = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene wide' }, h('div', { class: 'side' }, top, main)));
+  [['build', 'Build'], ['find', 'Find the start']].forEach(function(o){
+    top.appendChild(h('button', { type: 'button', 'data-k': o[0], onclick: function(){ api.cancel(); mode = o[0]; draw(); } }, o[1]));
+  });
+  function opSel(o, cb){
+    var sel = h('select', { 'aria-label': 'Operation' });
+    ['+', '-', '*', '/'].forEach(function(k){ var op = h('option', { value: k }, sym(k)); if(k === o.op) op.selected = true; sel.appendChild(op); });
+    var n = h('input', { type: 'number', value: o.n, min: 1, max: 99, 'aria-label': 'Number' });
+    sel.addEventListener('change', function(){ o.op = sel.value; cb(); });
+    n.addEventListener('change', function(){ o.n = Math.max(1, Math.min(99, parseInt(n.value, 10) || 1)); n.value = o.n; cb(); });
+    return [sel, n];
+  }
+  var tbody, blkEls = [];
+  function draw(){
+    [].forEach.call(top.children, function(b){ b.classList.toggle('on', b.dataset.k === mode); });
+    clear(main); hi = -1; shownRows = 0;
+    if(mode === 'build') drawBuild(); else drawFind();
+  }
+  function drawBuild(){
+    var sIn = h('input', { type: 'number', value: startV, 'aria-label': 'Start number' });
+    var rIn = h('input', { type: 'number', value: rounds, min: 1, max: 12, 'aria-label': 'Rounds' });
+    sIn.addEventListener('change', function(){ startV = parseFloat(sIn.value) || 0; shownRows = 0; table(); });
+    rIn.addEventListener('change', function(){ rounds = Math.max(1, Math.min(12, parseInt(rIn.value, 10) || 1)); rIn.value = rounds; shownRows = 0; table(); });
+    main.appendChild(h('div', { class: 'ctl' }, h('label', { class: 'field' }, 'Start', sIn), h('label', { class: 'field' }, 'Rounds', rIn)));
+    var list = h('div', { class: 'blocks' });
+    blkEls = [];
+    blocks.forEach(function(b, i){
+      var row = h('div', { class: 'blk' }, h('span', { class: 'tag' }, (i + 1) + '.'));
+      var ch = function(){ shownRows = 0; table(); };
+      if(b.t === 'test'){
+        row.appendChild(h('span', { style: 'font-weight:800' }, 'Is N even?'));
+        row.appendChild(h('span', { style: 'display:inline-flex;gap:6px;align-items:center' }, h('span', { class: 'badge good' }, 'Yes'), opSel(b.yes, ch)));
+        row.appendChild(h('span', { style: 'display:inline-flex;gap:6px;align-items:center' }, h('span', { class: 'badge warn' }, 'No'), opSel(b.no, ch)));
+      } else {
+        row.appendChild(h('span', { style: 'font-weight:800' }, 'N = N')); opSel(b, ch).forEach(function(e){ row.appendChild(e); });
+      }
+      row.appendChild(h('button', { class: 'x', type: 'button', 'aria-label': 'Remove', onclick: function(){ blocks.splice(i, 1); draw(); } }, '×'));
+      list.appendChild(row); blkEls.push(row);
+    });
+    main.appendChild(list);
+    var pal = h('div', { class: 'pal' });
+    ['+', '-', '*', '/'].forEach(function(k){
+      pal.appendChild(h('button', { class: 'btn', type: 'button', onclick: function(){ if(blocks.length < 6){ blocks.push({ t: 'op', op: k, n: 2 }); draw(); } } }, sym(k) + ' block'));
+    });
+    pal.appendChild(h('button', { class: 'btn', type: 'button', onclick: function(){ if(blocks.length < 6){ blocks.push({ t: 'test', yes: { op: '/', n: 2 }, no: { op: '+', n: 5 } }); draw(); } } }, 'Yes / No block'));
+    main.appendChild(pal);
+    tbody = h('tbody');
+    main.appendChild(h('div', { class: 'tbl-wrap' }, h('table', { class: 'st' }, h('thead', null, h('tr', null, h('th', null, 'Round'), h('th', null, 'N'))), tbody)));
+    table();
+  }
+  function history(){
+    var x = startV, rows = [{ r: 'Start', x: x }];
+    for(var r = 1; r <= rounds; r++){ x = M.chainOut(blocks, x); rows.push({ r: 'Round ' + r, x: x }); if(!isFinite(x) || Math.abs(x) > 1e9) break; }
+    return rows;
+  }
+  function table(){
+    if(!tbody) return;
+    clear(tbody);
+    var rows = history();
+    rows.slice(0, shownRows + 1).forEach(function(r, i){
+      tbody.appendChild(h('tr', { class: i === shownRows ? 'cur' : '' }, h('th', null, r.r), h('td', null, Math.abs(r.x) > 1e9 ? 'too big' : fmt(r.x))));
+    });
+    blkEls.forEach(function(e, i){ e.classList.toggle('on', i === hi); });
+  }
+  function playBuild(){
+    shownRows = 0; hi = -1; table();
+    var rows = history(), r = 0;
+    return (function nextRound(){
+      if(r >= rows.length - 1){ hi = -1; table(); return; }
+      var b = 0;
+      return (function nextBlock(){
+        if(b >= blocks.length){ r++; shownRows = r; hi = -1; table(); return api.wait(250).then(nextRound); }
+        hi = b; table(); b++;
+        return api.wait(420).then(nextBlock);
+      })();
+    })();
+  }
+  /* find the start */
+  function drawFind(){
+    var vals = ['?'], ops = [];
+    P.blocks.forEach(function(b, i){ ops.push(sym(b.op) + ' ' + b.n); vals.push(i === P.blocks.length - 1 ? P.out : ''); });
+    main.appendChild(h('p', { class: 'prompt' }, 'Find the start number'));
+    main.appendChild(chainRow(vals, ops, false));
+    var inp = h('input', { type: 'number', 'aria-label': 'Start number' });
+    var msg = h('div', { class: 'msg' }), chk = h('button', { class: 'btn navy', type: 'button' }, 'Check');
+    var res = h('div');
+    chk.addEventListener('click', function(){
+      var v = parseFloat(inp.value); if(isNaN(v)) return;
+      var r = M.runChain(P.blocks, v), got = r[r.length - 1].x, ok = Math.abs(got - P.out) < 1e-9;
+      clear(res).appendChild(chainRow([v].concat(r.map(function(x){ return fmt(x.x); })), ops, false, r.map(function(){ return null; }).concat([ok ? 'ok' : 'no']).slice(-1 - r.length)));
+      msg.textContent = ok ? 'Yes! ' + v + ' gives ' + P.out : v + ' gives ' + fmt(got) + ', not ' + P.out;
+      msg.className = 'msg ' + (ok ? 'good' : 'bad');
+    });
+    inp.addEventListener('keydown', function(e){ if(e.key === 'Enter') chk.click(); });
+    main.appendChild(h('div', { class: 'ctl' }, h('label', { class: 'field' }, 'Start', inp), chk,
+      h('button', { class: 'btn', type: 'button', onclick: function(){ seed = (seed * 48271 + 11) % 2147483647; P = M.puzzle(seed); draw(); } }, 'New puzzle'), msg));
+    main.appendChild(res);
+    var U = M.undo(P.blocks, P.out);
+    var bvals = [U.start].concat(U.steps.map(function(s2){ return s2.from; }));
+    var bops = U.steps.map(function(s2){ return sym(s2.op) + ' ' + s2.n; });
+    main.appendChild(h('div', { class: 'ansblock side' }, h('div', { class: 'rowlab' }, 'Backwards'), chainRow(bvals, bops, true), h('div', { class: 'rule good' }, 'Start = ' + U.start)));
+  }
+  draw();
+  return {
+    play: function(){ if(mode === 'build') return playBuild(); },
+    step: function(){ if(mode === 'build'){ var n = history().length - 1; if(shownRows < n){ shownRows++; table(); } } },
+    reset: function(){
+      blocks = [{ t: 'op', op: '*', n: 3 }, { t: 'op', op: '+', n: 1 }, { t: 'test', yes: { op: '/', n: 2 }, no: { op: '+', n: 5 } }];
+      startV = 4; rounds = 3; draw();
+    }
+  };
+}
+
+K.Lab({ title: 'Forwards and Backwards', icon: ICON, steps: [
+  { name: 'Run the Loop', make: stepRun },
+  { name: 'Far Rounds', make: stepFar },
+  { name: 'Undo It', make: stepUndo },
+  { name: 'Two Ways Back', make: stepTwo },
+  { name: 'Build Your Own', make: stepBuild }
+]});
+})();
+
+</script>
+</body>
+</html>

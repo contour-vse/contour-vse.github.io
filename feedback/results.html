@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Feedback Results</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F6FC; --panel:#FFFFFF; --ink:#12203D; --muted:#46557A; --line:#D3DDEC; --wash:#F6F9FE;
+  --navy:#0B3D91; --navy-soft:#E4ECF8;
+  --blue:#007AFF; --blue-ink:#0060C7; --blue-soft:#E5F1FF;
+  --green:#2FB76A; --green-ink:#17793F; --green-soft:#E2F5EA;
+  --orange:#E88100; --orange-ink:#9A5400; --orange-soft:#FFF0DC;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button,select,input{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:16px}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.mark{width:38px;height:38px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.top h1{margin:0;font-weight:850;font-size:28px;letter-spacing:-.025em;color:var(--navy)}
+.drop{background:var(--panel);border:2px dashed #AFC2E3;border-radius:18px;padding:22px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.drop.over{background:var(--blue-soft);border-color:var(--blue)}
+.drop p{margin:0;max-width:640px}
+.drop b{color:var(--navy)}
+.btn{border:2px solid var(--blue);background:var(--blue);color:#fff;border-radius:12px;padding:10px 16px;font-weight:800;cursor:pointer}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar select{border:2px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;font-weight:700;max-width:100%}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.tabs button{flex:none;border:2px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-weight:750;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.tabs button span{font-family:var(--mono);margin-left:6px;opacity:.8}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:12px 14px}
+.kpi b{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy)}
+.kpi span{font-family:var(--mono);font-weight:850;font-size:28px;color:var(--navy)}
+.kpi small{display:block;color:var(--muted);font-size:13.5px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:16px 18px;min-width:0}
+.panel.full{grid-column:1 / -1}
+.panel h2{margin:0 0 4px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy)}
+.panel .sub{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:7px 8px;border-bottom:2px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy)}
+td.n,th.n{text-align:center;font-family:var(--mono);font-weight:800}
+.heat td.n{border:2px solid #fff;border-radius:6px}
+.tierbadge{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;color:#fff;font-weight:900}
+.t-S{background:var(--orange)}.t-A{background:var(--green-ink)}.t-B{background:var(--blue)}.t-C{background:#5B6E96}.t-D{background:#8C99B5}
+.stk{display:flex;height:30px;border-radius:9px;overflow:hidden;background:var(--wash)}
+.stk div{display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:13.5px;color:var(--muted)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.rowl{display:grid;grid-template-columns:minmax(120px,38%) 1fr;gap:10px;align-items:center;margin-bottom:8px;font-size:14.5px;font-weight:650}
+.hb{height:24px;border-radius:7px;background:var(--blue);min-width:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;color:#fff;font-family:var(--mono);font-size:12.5px;font-weight:800}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.list li{background:var(--wash);border-radius:10px;padding:8px 11px;font-size:15px}
+.list li small{color:var(--muted);margin-left:6px}
+.pg{font-family:var(--mono);font-weight:800;color:var(--orange-ink);margin-right:8px}
+.empty{color:var(--muted);font-size:14.5px;margin:0}
+.over{color:var(--orange-ink);font-weight:800}.under{color:var(--blue-ink);font-weight:800}.on{color:var(--green-ink);font-weight:800}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 8.5 12"/><path d="M12 8a4 4 0 1 0 3.8 5.2"/></svg></div>
+    <h1>Feedback Results</h1>
+  </header>
+  <label class="drop" id="drop">
+    <p><b>Open the Feedback sheet export.</b> In the Google Sheet, open the Feedback tab, then File, Download, Comma separated values (.csv). Drop the file here. Nothing leaves this computer.</p>
+    <span class="btn">Choose CSV</span>
+    <input type="file" id="file" accept=".csv,text/csv" hidden>
+  </label>
+  <div id="out" hidden>
+    <div class="bar"><select id="campus" aria-label="Campus"></select><span id="meta" class="empty"></span></div>
+    <div class="tabs" id="tabs" style="margin-top:12px"></div>
+    <div id="view" style="display:flex;flex-direction:column;gap:14px;margin-top:12px"></div>
+  </div>
+</div>
+<script src="resources.js"></script>
+<script>
+(function(){
+"use strict";
+var LIST = window.FEEDBACK_RESOURCES || {};
+var TIERS = ["S","A","B","C","D"], TS = {S:5,A:4,B:3,C:2,D:1};
+var ROWS = [], CUR = null;
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+function parseCSV(t){
+  var rows = [], row = [], f = "", q = false;
+  t = t.replace(/^﻿/, "");
+  for (var i=0;i<t.length;i++){
+    var c = t[i];
+    if (q) { if (c === '"') { if (t[i+1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === ",") { row.push(f); f = ""; }
+    else if (c === "\n" || c === "\r") { if (c === "\r" && t[i+1] === "\n") i++; row.push(f); rows.push(row); row = []; f = ""; }
+    else f += c;
+  }
+  if (f.length || row.length) { row.push(f); rows.push(row); }
+  return rows.filter(function(r){ return r.some(function(x){ return x !== ""; }); });
+}
+function load(text){
+  var g = parseCSV(text); if (!g.length) return;
+  var h = g[0].map(function(x){ return x.trim().toLowerCase(); });
+  function col(re){ for (var i=0;i<h.length;i++) if (re.test(h[i])) return i; return -1; }
+  var ci = {ts:col(/time|date|received/), res:col(/resource/), role:col(/role/), campus:col(/campus/), ans:col(/answer|json|payload/)};
+  if (ci.ans < 0) { // find the column that holds JSON objects
+    for (var j=0;j<h.length && ci.ans<0;j++) if (/^\s*\{/.test((g[1]||[])[j]||"")) ci.ans = j;
+  }
+  var seen = {}; ROWS = [];
+  g.slice(1).forEach(function(r){
+    var a = {}; try{ a = JSON.parse(r[ci.ans] || "{}"); }catch(e){ return; }
+    if (a.sid) { if (seen[a.sid]) return; seen[a.sid] = 1; }
+    ROWS.push({ts:r[ci.ts]||"", res:(r[ci.res]||"unknown").trim(), role:(r[ci.role]||"student").trim().toLowerCase(), campus:(r[ci.campus]||"").trim(), a:a});
+  });
+  var campuses = {}; ROWS.forEach(function(x){ if (x.campus) campuses[x.campus]=1; });
+  var sel = document.getElementById("campus");
+  sel.innerHTML = '<option value="">All campuses</option>' + Object.keys(campuses).sort().map(function(c){ return '<option>'+esc(c)+'</option>'; }).join("");
+  sel.onchange = draw;
+  document.getElementById("out").hidden = false;
+  document.getElementById("meta").textContent = ROWS.length + " responses";
+  draw();
+}
+function draw(){
+  var camp = document.getElementById("campus").value;
+  var rows = ROWS.filter(function(r){ return !camp || r.campus === camp; });
+  var by = {}; rows.forEach(function(r){ (by[r.res] = by[r.res] || []).push(r); });
+  var ids = Object.keys(by).sort(function(a,b){ return by[b].length - by[a].length; });
+  if (!CUR || !by[CUR]) CUR = ids[0];
+  document.getElementById("tabs").innerHTML = ids.map(function(id){ var t = LIST[id] ? LIST[id].title : id; return '<button type="button" class="'+(id===CUR?"on":"")+'" data-id="'+esc(id)+'">'+esc(t)+'<span>'+by[id].length+'</span></button>'; }).join("");
+  document.getElementById("tabs").onclick = function(e){ var b = e.target.closest("[data-id]"); if (b) { CUR = b.getAttribute("data-id"); draw(); } };
+  document.getElementById("view").innerHTML = CUR ? view(CUR, by[CUR]) : '<p class="empty">No responses.</p>';
+}
+function avg(xs){ xs = xs.filter(function(x){ return typeof x === "number" && !isNaN(x); }); return xs.length ? xs.reduce(function(s,x){return s+x;},0)/xs.length : null; }
+function f1(x){ return x == null ? "n/a" : (Math.round(x*10)/10).toFixed(1); }
+function count(arr){ var c = {}; arr.forEach(function(x){ c[x] = (c[x]||0)+1; }); return Object.keys(c).map(function(k){ return [k, c[k]]; }).sort(function(a,b){ return b[1]-a[1]; }); }
+function stack(parts, total){
+  if (!total) return '<p class="empty">No answers yet.</p>';
+  return '<div class="stk">' + parts.filter(function(p){ return p[1]; }).map(function(p){ var pc = Math.round(p[1]/total*100); return '<div style="width:'+pc+'%;background:'+p[2]+'" title="'+esc(p[0])+': '+p[1]+'">'+(pc>=12?pc+"%":"")+'</div>'; }).join("") + '</div><div class="legend">' + parts.map(function(p){ return '<span><i style="background:'+p[2]+'"></i>'+esc(p[0])+' '+p[1]+'</span>'; }).join("") + '</div>';
+}
+function hbars(pairs){
+  if (!pairs.length) return '<p class="empty">Nothing yet.</p>';
+  var mx = pairs[0][1];
+  return pairs.slice(0,10).map(function(p){ return '<div class="rowl"><span>'+esc(p[0])+'</span><div class="hb" style="width:'+Math.max(6, p[1]/mx*100)+'%">'+p[1]+'</div></div>'; }).join("");
+}
+function view(id, rows){
+  var R = LIST[id] || {};
+  var S = rows.filter(function(r){ return r.role !== "tutor"; }).map(function(r){ return r.a; });
+  var T = rows.filter(function(r){ return r.role === "tutor"; });
+  var secs = (R.sections || []).slice();
+  S.forEach(function(a){ Object.keys(a.tiers||{}).forEach(function(s){ if (secs.indexOf(s)<0) secs.push(s); }); });
+  T.forEach(function(r){ Object.keys(r.a.timing||{}).forEach(function(s){ if (secs.indexOf(s)<0) secs.push(s); }); });
+  var vibe = avg(S.map(function(a){ return a.vibe; })), diff = avg(S.map(function(a){ return a.difficulty; }));
+  var tsecs = avg(S.map(function(a){ return a.secs; })), tov = avg(T.map(function(r){ return r.a.overall; }));
+  var finished = S.filter(function(a){ return !(a.skipped||[]).length; }).length;
+  var h = '<div class="kpis">'
+    + '<div class="kpi"><b>Students</b><span>'+S.length+'</span><small>'+finished+' answered every screen</small></div>'
+    + '<div class="kpi"><b>Average vibe</b><span>'+f1(vibe)+'</span><small>out of 5</small></div>'
+    + '<div class="kpi"><b>Difficulty</b><span>'+f1(diff)+'</span><small>3 is just right, 5 too hard</small></div>'
+    + '<div class="kpi"><b>Time to answer</b><span>'+(tsecs==null?"n/a":Math.round(tsecs)+"s")+'</span><small>student average</small></div>'
+    + '<div class="kpi"><b>Tutors</b><span>'+T.length+'</span><small>average rating '+f1(tov)+' / 5</small></div>'
+    + '</div><div class="grid">';
+
+  // tier heat map
+  var hm = '<div class="scroll"><table class="heat"><thead><tr><th>Section</th>' + TIERS.map(function(t){ return '<th class="n"><span class="tierbadge t-'+t+'">'+t+'</span></th>'; }).join("") + '<th class="n">Avg</th><th class="n">Votes</th></tr></thead><tbody>';
+  var maxCell = 1, tab = {};
+  secs.forEach(function(s){ tab[s] = {S:0,A:0,B:0,C:0,D:0}; });
+  S.forEach(function(a){ Object.keys(a.tiers||{}).forEach(function(s){ if (tab[s] && tab[s][a.tiers[s]] != null) { tab[s][a.tiers[s]]++; maxCell = Math.max(maxCell, tab[s][a.tiers[s]]); } }); });
+  secs.forEach(function(s){
+    var n = 0, sum = 0; TIERS.forEach(function(t){ n += tab[s][t]; sum += tab[s][t]*TS[t]; });
+    var av = n ? sum/n : null, letter = av == null ? "" : TIERS[Math.min(4, Math.max(0, Math.round(5-av)))];
+    hm += '<tr><td>'+esc(s)+'</td>' + TIERS.map(function(t){ var v = tab[s][t], o = v ? .12 + .88*v/maxCell : 0; return '<td class="n" style="background:rgba(11,61,145,'+o.toFixed(2)+');color:'+(o>.5?"#fff":"var(--navy)")+'">'+(v||"")+'</td>'; }).join("") + '<td class="n">'+(letter?'<span class="tierbadge t-'+letter+'">'+letter+'</span>':"")+'</td><td class="n">'+n+'</td></tr>';
+  });
+  h += '<section class="panel full"><h2>Tier list heat map</h2><p class="sub">How many students put each section in each tier. Dark cells are where most votes landed.</p>' + hm + '</tbody></table></div></section>';
+
+  // pace and difficulty
+  var pc = {slow:0,right:0,fast:0}; S.forEach(function(a){ if (pc[a.pace] != null) pc[a.pace]++; });
+  var dc = [0,0,0,0,0]; S.forEach(function(a){ if (a.difficulty) dc[a.difficulty-1]++; });
+  h += '<section class="panel"><h2>Pace</h2><p class="sub">“We moved…”</p>' + stack([["Too slow",pc.slow,"#2FB76A"],["Just right",pc.right,"#007AFF"],["Too fast",pc.fast,"#E88100"]], pc.slow+pc.right+pc.fast)
+     + '<h2 style="margin-top:18px">Difficulty</h2><p class="sub">Too easy to too hard.</p>' + stack([["Way too easy",dc[0],"#17793F"],["Bit easy",dc[1],"#2FB76A"],["Just right",dc[2],"#007AFF"],["Bit hard",dc[3],"#E88100"],["Way too hard",dc[4],"#9A5400"]], dc.reduce(function(s,x){return s+x;},0)) + '</section>';
+
+  // confidence
+  var skills = (R.skills||[]).slice(); S.forEach(function(a){ Object.keys(a.confidence||{}).forEach(function(k){ if (skills.indexOf(k)<0) skills.push(k); }); });
+  h += '<section class="panel"><h2>Confidence</h2><p class="sub">“I could now do this on my own.”</p>' + (skills.length ? skills.map(function(k){
+    var c = {yes:0,"kind of":0,no:0}; S.forEach(function(a){ var v = (a.confidence||{})[k]; if (c[v] != null) c[v]++; });
+    return '<div style="margin-bottom:12px"><div style="font-weight:700;font-size:14.5px;margin-bottom:4px">'+esc(k)+'</div>' + stack([["Yes",c.yes,"#17793F"],["Kind of",c["kind of"],"#007AFF"],["Not yet",c.no,"#E88100"]], c.yes+c["kind of"]+c.no) + '</div>';
+  }).join("") : '<p class="empty">Nothing yet.</p>') + '</section>';
+
+  // chips + change text
+  var chips = []; S.forEach(function(a){ (a.chips||[]).forEach(function(c){ chips.push(c); }); });
+  var texts = rows.filter(function(r){ return r.role !== "tutor" && r.a.change; });
+  h += '<section class="panel"><h2>One thing to change</h2><p class="sub">Quick taps.</p>' + hbars(count(chips)) + '</section>';
+  h += '<section class="panel"><h2>In their words</h2><p class="sub">'+texts.length+' written answers.</p>' + (texts.length ? '<ul class="list">' + texts.map(function(r){ return '<li>'+esc(r.a.change)+'<small>'+esc([r.a.name, r.campus].filter(Boolean).join(" · "))+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">Nothing yet.</p>') + '</section>';
+
+  // tutor timing
+  var tt = '<div class="scroll"><table><thead><tr><th>Section</th><th class="n">Under</th><th class="n">On time</th><th class="n">Over</th><th class="n">Avg over</th><th class="n">Avg under</th><th class="n">Didn’t land</th></tr></thead><tbody>';
+  secs.forEach(function(s){
+    var u=0,o=0,on=0,om=[],um=[],fl=0;
+    T.forEach(function(r){ var t = (r.a.timing||{})[s]; if (t) { if (t.s==="under"){u++;um.push(t.m);} else if (t.s==="over"){o++;om.push(t.m);} else on++; } if ((r.a.flat||[]).indexOf(s)>=0) fl++; });
+    var ao = avg(om), au = avg(um);
+    tt += '<tr><td>'+esc(s)+'</td><td class="n under">'+(u||"")+'</td><td class="n on">'+(on||"")+'</td><td class="n over">'+(o||"")+'</td><td class="n">'+(ao==null?"":"+"+Math.round(ao)+" min")+'</td><td class="n">'+(au==null?"":Math.round(au)+" min less")+'</td><td class="n">'+(fl||"")+'</td></tr>';
+  });
+  h += '<section class="panel full"><h2>Tutor timing</h2><p class="sub">'+T.length+' tutor responses. Counts per section, with the average minutes over or under.</p>' + tt + '</tbody></table></div></section>';
+
+  // errors
+  var errs = []; T.forEach(function(r){ (r.a.errors||[]).forEach(function(e){ errs.push({p:e.page, t:e.text, who:[r.a.name, r.campus].filter(Boolean).join(" · ")}); }); });
+  errs.sort(function(a,b){ return (parseInt(a.p,10)||9999) - (parseInt(b.p,10)||9999); });
+  h += '<section class="panel"><h2>Errors found</h2><p class="sub">Sorted by page.</p>' + (errs.length ? '<ul class="list">' + errs.map(function(e){ return '<li><span class="pg">p'+esc(e.p||"?")+'</span>'+esc(e.t)+'<small>'+esc(e.who)+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">None reported.</p>') + '</section>';
+
+  // struggles
+  var st = []; T.forEach(function(r){ (r.a.struggles||[]).forEach(function(c){ st.push(c); }); });
+  var notes = T.filter(function(r){ return r.a.struggle_note || r.a.note || r.a.flat_note; });
+  h += '<section class="panel"><h2>Students struggled with</h2><p class="sub">Tutor taps.</p>' + hbars(count(st)) + '</section>';
+  h += '<section class="panel"><h2>Tutor notes</h2><p class="sub">Free text.</p>' + (notes.length ? '<ul class="list">' + notes.map(function(r){ return '<li>'+[r.a.flat_note,r.a.struggle_note,r.a.note].filter(Boolean).map(esc).join("<br>")+'<small>'+esc([r.a.name, r.campus].filter(Boolean).join(" · "))+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">Nothing yet.</p>') + '</section>';
+
+  // order suggestions
+  var ords = T.filter(function(r){ return r.a.order && r.a.order.length; });
+  h += '<section class="panel"><h2>Suggested order</h2><p class="sub">'+ords.length+' tutor'+(ords.length===1?"":"s")+' would reorder.</p>' + (ords.length ? '<ul class="list">' + ords.map(function(r){ return '<li>'+r.a.order.map(esc).join(" → ")+'<small>'+esc(r.a.name||"")+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">Everyone kept the order.</p>') + '</section>';
+
+  // rewards
+  var tk = rows.filter(function(r){ return r.a.golden || r.a.pass; });
+  h += '<section class="panel full"><h2>Rewards issued</h2><p class="sub">Golden Tickets and Class Passes, so tutors can check a code against a name.</p>' + (tk.length ? '<ul class="list">' + tk.map(function(r){ return '<li><span class="pg">'+esc(r.a.golden ? "GOLD "+r.a.golden : "PASS "+r.a.pass)+'</span>'+esc(r.a.name || "No name")+'<small>'+esc([r.campus, r.ts].filter(Boolean).join(" · "))+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">None yet.</p>') + '</section>';
+
+  return h + '</div>';
+}
+
+var fi = document.getElementById("file"), drop = document.getElementById("drop");
+function read(f){ if (!f) return; var r = new FileReader(); r.onload = function(){ load(String(r.result)); }; r.readAsText(f); }
+fi.onchange = function(){ read(fi.files[0]); };
+["dragenter","dragover"].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add("over"); }); });
+["dragleave","drop"].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove("over"); }); });
+drop.addEventListener("drop", function(e){ read(e.dataTransfer.files[0]); });
+window.__loadCSV = load;
+})();
+</script>
+</body>
+</html>

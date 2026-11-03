@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Order exam questions into Round 1 and Round 2 to get the most marks.">
+<title>Now or Later · Contour</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F6FC; --panel:#FFFFFF; --ink:#12203D; --muted:#46557A; --line:#D3DDEC; --wash:#F6F9FE;
+  --navy:#0B3D91; --navy-soft:#E4ECF8;
+  --blue:#007AFF; --blue-ink:#0060C7; --blue-soft:#E5F1FF;
+  --green:#2FB76A; --green-ink:#17793F; --green-soft:#E2F5EA;
+  --orange:#E88100; --orange-ink:#9A5400; --orange-soft:#FFF0DC;
+  --red:#D0342C; --red-ink:#B42318; --red-soft:#FDE8E6;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.4;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+.wrap{max-width:1280px;margin:0 auto;padding:14px 20px 28px;display:flex;flex-direction:column;gap:12px}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.brand h1{font-weight:850;font-size:30px;letter-spacing:-.025em;margin:0;color:var(--navy);line-height:1}
+.keys{font-size:14px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+kbd{font-family:var(--mono);font-size:13px;border:2px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;color:var(--navy);background:#fff}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tabs button{flex:1 0 auto;min-height:46px;border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 16px;font-size:17px;font-weight:750;color:var(--muted);white-space:nowrap}
+.tabs button .n{font-family:var(--mono);margin-right:8px;opacity:.8}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.stage{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-height:540px}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ctl .sp{flex:1}
+.btn{min-height:46px;border:2px solid var(--line);background:var(--panel);border-radius:12px;padding:6px 16px;font-weight:750;font-size:17px;line-height:1.15;color:var(--ink)}
+.btn:hover{border-color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-ink);border-color:var(--blue-ink)}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.orange{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn.ans{border-color:var(--orange);color:var(--orange-ink)}
+.btn.ans.on{background:var(--orange);color:#fff}
+.btn.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.scene{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:20px;align-items:start}
+.scene.wide{grid-template-columns:minmax(0,1fr)}
+.vis{min-width:0}
+.vis svg{display:block;width:100%;height:auto;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.prompt{font-weight:850;font-size:clamp(22px,2.4vw,30px);line-height:1.15;color:var(--navy);margin:0;letter-spacing:-.015em}
+.stat{border:2px solid var(--line);border-radius:14px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff}
+.stat .l{font-size:16px;font-weight:750;color:var(--muted)}
+.stat .v{font-family:var(--mono);font-weight:850;font-size:36px;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1.1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.badge{display:inline-block;border-radius:999px;padding:3px 12px;font-size:17px;font-weight:800;vertical-align:middle}
+.badge.odd{background:var(--red-soft);color:var(--red-ink);border:2px solid var(--red)}
+.badge.even{background:var(--blue-soft);color:var(--blue-ink);border:2px solid var(--blue)}
+.badge.good{background:var(--green-soft);color:var(--green-ink);border:2px solid var(--green)}
+.badge.warn{background:var(--orange-soft);color:var(--orange-ink);border:2px solid var(--orange)}
+.big{font-family:var(--mono);font-weight:850;font-size:40px;color:var(--navy)}
+.note{font-size:16px;color:var(--muted);font-weight:650}
+.rule{background:var(--blue-soft);border:2px solid var(--blue);border-radius:14px;padding:10px 14px;font-weight:850;font-size:22px;color:var(--navy);text-align:center}
+.rule.bad{background:var(--red-soft);border-color:var(--red);color:var(--red-ink)}
+.rule.good{background:var(--green-soft);border-color:var(--green);color:var(--green-ink)}
+.tbl-wrap{overflow-x:auto;max-width:100%}
+table.st{border-collapse:collapse;font-size:20px;min-width:100%}
+table.st th,table.st td{border:2px solid var(--line);padding:6px 10px;text-align:center;font-variant-numeric:tabular-nums}
+table.st tr>th:first-child{position:sticky;left:0;z-index:1}
+table.st th{background:var(--navy-soft);color:var(--navy);font-size:16px;font-weight:800;white-space:nowrap}
+table.st td{font-family:var(--mono);font-weight:800;color:var(--navy);min-width:44px}
+table.st td.new{background:var(--orange-soft)}
+table.st tr.cur td{background:var(--blue-soft)}
+.ansv{border-radius:8px}
+.stage:not(.ans-on) .ansv{color:transparent!important;background:var(--wash);outline:2px dashed var(--line);position:relative;user-select:none}
+.stage:not(.ans-on) .ansv::after{content:"?";position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-family:var(--sans)}
+.stage:not(.ans-on) .ansblock{display:none!important}
+.stage.ans-on .ansoff{display:none!important}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;flex-wrap:wrap}
+.seg button{min-height:42px;border:0;background:#fff;padding:4px 14px;font-weight:750;font-size:17px;color:var(--muted)}
+.seg button+button{border-left:2px solid var(--line)}
+.seg button.on{background:var(--navy);color:#fff}
+.field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:750;color:var(--navy)}
+.field input[type=number],.field select{width:96px;min-height:44px;border:2px solid var(--line);border-radius:10px;padding:4px 10px;font-size:20px;font-weight:800;background:#fff}
+.field input[type=range]{width:220px;accent-color:var(--blue)}
+.msg{min-height:30px;font-size:20px;font-weight:800;color:var(--navy)}
+.msg.good{color:var(--green-ink)} .msg.bad{color:var(--red-ink)}
+.svgtxt{font-family:var(--sans);font-weight:800}
+.mono{font-family:var(--mono)}
+.tap{cursor:pointer}
+@media (max-width:900px){
+  .scene{grid-template-columns:minmax(0,1fr)}
+  .stage{min-height:0}
+}
+@media (max-width:640px){
+  body{font-size:17px}
+  .wrap{padding:10px 12px 24px;gap:10px}
+  .brand h1{font-size:24px}.mark{width:34px;height:34px}
+  .keys{display:none}
+  .tabs button{font-size:15px;padding:6px 12px}
+  .stage{padding:12px 12px;border-radius:16px}
+  .btn{padding:6px 11px;font-size:16px}
+  .ctl{gap:6px}
+  .stage>.ctl .sp{display:none}
+  .stage>.ctl .btn{padding:6px 10px}
+  .stat .v{font-size:30px}
+  .rule{font-size:19px}
+  table.st{font-size:17px}
+  table.st th,table.st td{padding:5px 6px}
+  .field input[type=range]{width:160px}
+}
+
+.lane{border:2px dashed var(--line);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--wash)}
+.lane h3{margin:0 4px;font-size:16px;font-weight:850;color:var(--navy);display:flex;justify-content:space-between}
+.lane.r2 h3{color:var(--green-ink)}
+.lane .cards{display:flex;flex-wrap:wrap;gap:8px;min-height:84px;align-items:stretch}
+.card{touch-action:none;user-select:none;-webkit-user-select:none;border:2px solid var(--blue);background:#fff;border-radius:12px;padding:6px 10px;min-width:92px;display:flex;flex-direction:column;gap:2px;cursor:grab;position:relative}
+.lane.r2 .card{border-color:var(--green)}
+.card.fixed{cursor:default}
+.card b{font-size:24px;color:var(--navy);line-height:1.1}
+.card .tp{font-size:13px;color:var(--muted);font-weight:700;white-space:nowrap}
+.card .cl{display:flex;gap:4px;align-items:center;font-size:13px;font-weight:800;color:var(--orange-ink)}
+.card .cl i{width:9px;height:9px;border-radius:50%;background:var(--navy);display:inline-block}
+.card .tm{font-family:var(--mono);font-weight:850;font-size:17px;color:var(--navy)}
+.card .tm.secret{color:var(--muted)}
+.card.dragging{z-index:5;box-shadow:0 10px 26px rgba(11,29,64,.25);cursor:grabbing;transition:none}
+.card.picked{outline:3px solid var(--orange);outline-offset:2px}
+.drop{width:6px;border-radius:3px;background:var(--orange);align-self:stretch}
+.tl{position:relative;height:74px;border:3px solid var(--navy);border-radius:10px;background:#fff;overflow:hidden}
+.tl .blk{position:absolute;top:0;bottom:0;border-right:3px solid var(--navy);display:grid;place-items:center;font-weight:850;font-size:18px;color:var(--navy);overflow:hidden;white-space:nowrap;background:var(--blue-soft)}
+.tl .blk.r2{background:var(--green-soft)}
+.tl .blk.cut{background:repeating-linear-gradient(45deg,var(--orange-soft),var(--orange-soft) 8px,#fff 8px,#fff 14px);color:var(--orange-ink)}
+.tl .head{position:absolute;top:-2px;bottom:-2px;width:4px;background:var(--orange);margin-left:-2px}
+.ticks{position:relative;height:26px;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--navy)}
+.ticks span{position:absolute;transform:translateX(-50%);top:2px}
+.ticks span::before{content:"";position:absolute;left:50%;top:-6px;height:6px;border-left:2px solid var(--navy)}
+.gl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:34px}
+.gl span{border:2px solid var(--orange);background:var(--orange-soft);color:var(--orange-ink);border-radius:999px;padding:2px 10px;font-weight:800;font-size:16px}
+.tlwrap{display:flex;flex-direction:column;gap:4px}
+.tlwrap .lab{font-weight:850;color:var(--navy);font-size:17px}
+@media (max-width:640px){.card{min-width:76px;padding:5px 8px}.card b{font-size:20px}.tl .blk{font-size:14px}.ticks{font-size:12px}}
+
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+(function(){
+'use strict';
+var RM = false;
+try { RM = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+var NS = 'http://www.w3.org/2000/svg';
+function setAttrs(n, a, isSvg){
+  if(!a) return;
+  for(var k in a){
+    var v = a[k];
+    if(v == null || v === false) continue;
+    if(k === 'text') n.textContent = v;
+    else if(k === 'html') n.innerHTML = v;
+    else if(k.slice(0,2) === 'on' && typeof v === 'function') n.addEventListener(k.slice(2), v);
+    else if(k === 'class' && !isSvg) n.className = v;
+    else n.setAttribute(k, v === true ? '' : v);
+  }
+}
+function add(n, kids){
+  kids.forEach(function(c){
+    if(c == null || c === false) return;
+    if(Array.isArray(c)) add(n, c);
+    else n.appendChild(typeof c === 'object' ? c : document.createTextNode(String(c)));
+  });
+}
+function h(tag, a){ var n = document.createElement(tag); setAttrs(n, a, false); add(n, [].slice.call(arguments, 2)); return n; }
+function s(tag, a){ var n = document.createElementNS(NS, tag); setAttrs(n, a, true); add(n, [].slice.call(arguments, 2)); return n; }
+function clear(n){ while(n.firstChild) n.removeChild(n.firstChild); return n; }
+function Cancel(){}
+function fmt(x){ return String(Math.round(x * 100) / 100); }
+
+function Lab(cfg){
+  var app = document.getElementById('app');
+  var state = { i: 0, tok: 0, busy: false };
+  var tabs = h('nav', { class: 'tabs', role: 'tablist', 'aria-label': 'Steps' });
+  var stage = h('main', { class: 'stage', id: 'stage' });
+  var playBtn = h('button', { class: 'btn primary', type: 'button', id: 'playBtn' }, 'Play');
+  var stepBtn = h('button', { class: 'btn', type: 'button', id: 'stepBtn' }, 'Step');
+  var resetBtn = h('button', { class: 'btn', type: 'button', id: 'resetBtn' }, 'Reset');
+  var ansBtn = h('button', { class: 'btn ans', type: 'button', id: 'ansBtn', 'aria-pressed': 'false' }, 'Show answer');
+  var ctl = h('div', { class: 'ctl' }, playBtn, stepBtn, resetBtn, h('span', { class: 'sp' }), ansBtn);
+  var body = h('div', { class: 'body' });
+  stage.appendChild(ctl); stage.appendChild(body);
+  var head = h('header', { class: 'top' },
+    h('div', { class: 'brand' },
+      h('div', { class: 'mark', 'aria-hidden': 'true', html: cfg.icon || '' }),
+      h('h1', null, cfg.title)),
+    h('div', { class: 'keys' }, h('kbd', null, '←'), h('kbd', null, '→'), 'step', h('kbd', null, 'Space'), 'play', h('kbd', null, 'R'), 'reset'));
+  app.appendChild(head); app.appendChild(tabs); app.appendChild(stage);
+
+  var cur = null;
+  var api = {
+    RM: RM,
+    wait: function(ms){
+      var t = state.tok;
+      return new Promise(function(res, rej){
+        setTimeout(function(){ if(t !== state.tok) rej(new Cancel()); else res(); }, RM ? Math.min(ms, 60) : ms);
+      });
+    },
+    cancel: function(){ state.tok++; setBusy(false); },
+    ans: function(){ return stage.classList.contains('ans-on'); },
+    setAns: function(on){ setAns(on); },
+    go: function(fn){ return runTask(fn); },
+    labels: function(play, step){ playBtn.dataset.lab = play || 'Play'; playBtn.textContent = state.busy ? 'Stop' : playBtn.dataset.lab; stepBtn.textContent = step || 'Step'; },
+    refresh: function(){ if(cur && cur.update) cur.update(); }
+  };
+  function setBusy(b){ state.busy = b; playBtn.textContent = b ? 'Stop' : (playBtn.dataset.lab || 'Play'); }
+  function runTask(fn){
+    api.cancel();
+    var t = state.tok;
+    setBusy(true);
+    return Promise.resolve().then(fn).catch(function(e){ if(!(e instanceof Cancel)) console.error(e); })
+      .then(function(){ if(t === state.tok) setBusy(false); });
+  }
+  function setAns(on){
+    stage.classList.toggle('ans-on', on);
+    ansBtn.classList.toggle('on', on);
+    ansBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    ansBtn.textContent = on ? 'Hide answer' : 'Show answer';
+    if(cur && cur.answer) cur.answer(on);
+  }
+  cfg.steps.forEach(function(st, i){
+    var b = h('button', { type: 'button', role: 'tab', 'aria-selected': 'false', onclick: function(){ go(i); } },
+      h('span', { class: 'n' }, String(i + 1)), st.name);
+    tabs.appendChild(b);
+  });
+  function go(i){
+    if(i < 0 || i >= cfg.steps.length) return;
+    api.cancel();
+    state.i = i;
+    [].forEach.call(tabs.children, function(b, j){ b.classList.toggle('on', j === i); b.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+    tabs.children[i].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    clear(body);
+    stage.classList.remove('ans-on'); ansBtn.classList.remove('on'); ansBtn.textContent = 'Show answer';
+    playBtn.dataset.lab = 'Play'; stepBtn.textContent = 'Step';
+    cur = cfg.steps[i].make(body, api) || {};
+    stepBtn.disabled = !cur.step; playBtn.disabled = !cur.play;
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch(e){}
+  }
+  playBtn.addEventListener('click', function(){
+    if(state.busy){ api.cancel(); if(cur.stop) cur.stop(); return; }
+    if(cur.play) runTask(function(){ return cur.play(); });
+  });
+  stepBtn.addEventListener('click', function(){ if(cur.step){ api.cancel(); cur.step(); } });
+  resetBtn.addEventListener('click', function(){ api.cancel(); setAns(false); if(cur.reset) cur.reset(); });
+  ansBtn.addEventListener('click', function(){ setAns(!stage.classList.contains('ans-on')); });
+  document.addEventListener('keydown', function(e){
+    var t = e.target, tag = t && t.tagName;
+    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.key === 'ArrowRight'){ e.preventDefault(); go(state.i + 1); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); go(state.i - 1); }
+    else if(e.key === ' ' || e.code === 'Space'){ e.preventDefault(); playBtn.click(); }
+    else if(e.key === 'r' || e.key === 'R'){ e.preventDefault(); resetBtn.click(); }
+  });
+  var start = parseInt((location.hash || '').slice(1), 10);
+  go(start >= 1 && start <= cfg.steps.length ? start - 1 : 0);
+  window.__lab = { go: go, api: api };
+}
+window.LabKit = { h: h, s: s, clear: clear, Lab: Lab, fmt: fmt, RM: RM };
+})();
+
+</script>
+<script id="model">
+var Model = (function(){
+  var GUESS = 0.25; // 1 in 4 chance on a four option question
+  // list: [{id, t}] in the order they are attempted; limit in minutes
+  function simulate(list, limit){
+    var clock = 0, rows = [], done = 0, guesses = 0;
+    list.forEach(function(q){
+      if(clock >= limit){ rows.push({ id: q.id, t: q.t, start: null, end: null, status: 'guess' }); guesses++; return; }
+      var end = clock + q.t;
+      if(end <= limit + 1e-9){ rows.push({ id: q.id, t: q.t, start: clock, end: end, status: 'done' }); done++; }
+      else { rows.push({ id: q.id, t: q.t, start: clock, end: limit, status: 'cut' }); guesses++; }
+      clock = Math.min(end, limit);
+    });
+    return { rows: rows, done: done, guesses: guesses, marks: done + GUESS * guesses, left: Math.max(0, limit - clock) };
+  }
+  function best(list){ return list.slice().sort(function(a, b){ return a.t - b.t || (a.id > b.id ? 1 : -1); }); }
+  var mia = { limit: 4, qs: [{ id: 'Q1', t: 3 }, { id: 'Q2', t: 1 }, { id: 'Q3', t: 1 }, { id: 'Q4', t: 1 }] };
+  // the sprint: 10 questions in 12 minutes; time = clue based guess plus a secret twist
+  var sprint = { limit: 12, qs: [
+    { id: 'Q1', topic: 'Cycles', steps: 2, diagram: false, twist: 0 },
+    { id: 'Q2', topic: 'Parity', steps: 1, diagram: false, twist: 0 },
+    { id: 'Q3', topic: 'Cube Rolls', steps: 3, diagram: true, twist: 0 },
+    { id: 'Q4', topic: 'Growth Patterns', steps: 2, diagram: false, twist: 0 },
+    { id: 'Q5', topic: 'Fold and Punch', steps: 2, diagram: true, twist: 0 },
+    { id: 'Q6', topic: 'How Many Ways', steps: 3, diagram: false, twist: 0 },
+    { id: 'Q7', topic: 'Worst Case', steps: 2, diagram: false, twist: 0 },
+    { id: 'Q8', topic: 'Flowcharts', steps: 4, diagram: true, twist: 0 },
+    { id: 'Q9', topic: 'Which Pieces', steps: 1, diagram: true, twist: 0 },
+    { id: 'Q10', topic: 'Handshakes', steps: 3, diagram: false, twist: 0.5 }
+  ]};
+  function timeOf(q){ return Math.max(0.5, 0.5 * q.steps + (q.diagram ? 1 : 0) + q.twist); }
+  function withTimes(qs){ return qs.map(function(q){ var c = {}; for(var k in q) c[k] = q[k]; c.t = timeOf(q); return c; }); }
+  function reshuffle(qs, rnd){
+    rnd = rnd || Math.random;
+    return qs.map(function(q){ var c = {}; for(var k in q) c[k] = q[k]; c.twist = [-0.5, 0, 0, 0.5, 1][Math.floor(rnd() * 5)]; return c; });
+  }
+  return { GUESS: GUESS, simulate: simulate, best: best, mia: mia, sprint: sprint, timeOf: timeOf, withTimes: withTimes, reshuffle: reshuffle };
+})();
+if(typeof module !== 'undefined') module.exports = Model;
+
+</script>
+<script>
+(function(){
+var K = LabKit, h = K.h, clear = K.clear, M = Model;
+var ICON = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 13V9M10 2h4"/></svg>';
+function mins(t){ return (t % 1 ? t.toFixed(1) : String(t)) + ' min'; }
+function stat(label){ var v = h('span', { class: 'v' }, ''); return { el: h('div', { class: 'stat' }, h('span', { class: 'l' }, label), v), v: v }; }
+
+/* ---------- timeline ---------- */
+function Timeline(host, limit, label){
+  var bar = h('div', { class: 'tl' }), ticks = h('div', { class: 'ticks' }), gl = h('div', { class: 'gl' });
+  for(var m = 0; m <= limit; m++) ticks.appendChild(h('span', { style: 'left:' + (100 * m / limit) + '%' }, String(m)));
+  var wrap = h('div', { class: 'tlwrap' }, label ? h('div', { class: 'lab' }, label) : null, bar, ticks, h('div', { class: 'note' }, 'minutes'), gl);
+  host.appendChild(wrap);
+  return {
+    wrap: wrap,
+    draw: function(sim, upto, laneOf){
+      clear(bar); clear(gl);
+      if(upto == null) upto = limit;
+      sim.rows.forEach(function(r){
+        if(r.start == null || r.start >= upto - 1e-9) return;
+        var end = Math.min(r.end, upto), cut = r.status === 'cut' && upto >= r.end - 1e-9;
+        var b = h('div', { class: 'blk' + (laneOf && laneOf(r.id) === 2 ? ' r2' : '') + (cut ? ' cut' : ''), style: 'left:' + (100 * r.start / limit) + '%;width:' + (100 * (end - r.start) / limit) + '%' });
+        var done = r.status === 'done' && upto >= r.end - 1e-9;
+        b.textContent = r.id + (done ? ' ✓' : cut ? ' ?' : '');
+        bar.appendChild(b);
+      });
+      if(upto < limit) bar.appendChild(h('div', { class: 'head', style: 'left:' + (100 * upto / limit) + '%' }));
+      var over = upto >= Math.min(limit, sim.rows.reduce(function(a, r){ return r.end != null ? Math.max(a, r.end) : a; }, 0)) - 1e-9;
+      if(over){
+        var gs = sim.rows.filter(function(r){ return r.status !== 'done'; });
+        if(gs.length){ gl.appendChild(h('b', { style: 'color:var(--orange-ink)' }, 'Time up:')); gs.forEach(function(r){ gl.appendChild(h('span', null, r.id + ' a guess')); }); }
+      }
+    }
+  };
+}
+function animate(api, tl, sim, limit, laneOf, perMin, onTick){
+  var endT = Math.min(limit, sim.rows.reduce(function(a, r){ return r.end != null ? Math.max(a, r.end) : a; }, 0));
+  var t = 0, dt = 0.1;
+  return (function next(){
+    tl.draw(sim, t, laneOf); if(onTick) onTick(t);
+    if(t >= endT){ tl.draw(sim, limit, laneOf); if(onTick) onTick(limit); return; }
+    t = Math.min(endT, Math.round((t + dt) * 100) / 100);
+    return api.wait(perMin * dt).then(next);
+  })();
+}
+function results(host){
+  var f = stat('Finished'), g = stat('Guesses'), m = stat('Marks (expected)');
+  var note = h('div', { class: 'note' });
+  var box = h('div', { class: 'side' }, h('div', { class: 'stats' }, f.el, g.el, m.el), note);
+  host.appendChild(box);
+  return { box: box, set: function(sim){
+    f.v.textContent = sim.done; g.v.textContent = sim.guesses; m.v.textContent = K.fmt(sim.marks);
+    note.textContent = sim.done + ' right + ' + sim.guesses + ' × a quarter for each guess';
+  } };
+}
+
+/* ---------- cards and lanes with drag ---------- */
+function Lanes(host, lanes, info, opts){
+  opts = opts || {};
+  var root = h('div', { class: 'side' });
+  host.appendChild(root);
+  var picked = null;
+  function render(){
+    clear(root);
+    lanes.forEach(function(L, li){
+      var cards = h('div', { class: 'cards', 'data-lane': li });
+      L.ids.forEach(function(id){ cards.appendChild(card(id, li)); });
+      root.appendChild(h('div', { class: 'lane' + (li === 1 ? ' r2' : '') }, L.label ? h('h3', null, h('span', null, L.label), h('span', { class: 'note' }, L.ids.length + ' questions')) : null, cards));
+    });
+  }
+  function card(id, li){
+    var q = info(id);
+    var c = h('div', { class: 'card' + (opts.fixed ? ' fixed' : '') + (picked === id ? ' picked' : ''), tabindex: opts.fixed ? null : 0, role: opts.fixed ? null : 'button', 'aria-label': id });
+    c.appendChild(h('b', null, id));
+    if(q.topic) c.appendChild(h('span', { class: 'tp' }, q.topic));
+    if(q.steps){
+      var cl = h('span', { class: 'cl', title: 'Steps' });
+      for(var i = 0; i < q.steps; i++) cl.appendChild(h('i'));
+      if(q.diagram) cl.appendChild(document.createTextNode(' Diagram'));
+      c.appendChild(cl);
+    }
+    c.appendChild(h('span', { class: 'tm' + (q.shown ? '' : ' secret') }, q.shown ? mins(q.t) : '? min'));
+    if(!opts.fixed) wire(c, id);
+    return c;
+  }
+  function where(id){ for(var i = 0; i < lanes.length; i++){ var j = lanes[i].ids.indexOf(id); if(j >= 0) return [i, j]; } return null; }
+  function move(id, li, idx){
+    var w = where(id); lanes[w[0]].ids.splice(w[1], 1);
+    idx = Math.max(0, Math.min(idx, lanes[li].ids.length));
+    lanes[li].ids.splice(idx, 0, id); render(); opts.onchange && opts.onchange();
+  }
+  function wire(c, id){
+    var sx, sy, drag = false, pid = null;
+    c.addEventListener('pointerdown', function(e){ if(e.button > 0) return; pid = e.pointerId; sx = e.clientX; sy = e.clientY; drag = false; c.setPointerCapture(pid); });
+    c.addEventListener('pointermove', function(e){
+      if(pid !== e.pointerId) return;
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if(!drag && Math.hypot(dx, dy) > 6){ drag = true; c.classList.add('dragging'); }
+      if(drag) c.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+    });
+    function end(e){
+      if(pid !== e.pointerId) return; pid = null;
+      if(!drag){ tap(id); return; }
+      c.classList.remove('dragging'); c.style.transform = '';
+      var t = target(e.clientX, e.clientY, c);
+      if(t) move(id, t[0], t[1]); else render();
+    }
+    c.addEventListener('pointerup', end);
+    c.addEventListener('pointercancel', function(e){ pid = null; c.classList.remove('dragging'); c.style.transform = ''; });
+    c.addEventListener('keydown', function(e){
+      var w = where(id);
+      if(e.key === 'ArrowLeft'){ e.preventDefault(); e.stopPropagation(); move(id, w[0], w[1] - 1); focus(id); }
+      else if(e.key === 'ArrowRight'){ e.preventDefault(); e.stopPropagation(); move(id, w[0], w[1] + 1); focus(id); }
+      else if((e.key === 'ArrowUp' || e.key === 'ArrowDown') && lanes.length > 1){ e.preventDefault(); e.stopPropagation(); move(id, e.key === 'ArrowUp' ? 0 : 1, 99); focus(id); }
+      else if(e.key === 'Enter'){ e.preventDefault(); tap(id); focus(id); }
+    });
+  }
+  function focus(id){ var n = [].filter.call(root.querySelectorAll('.card'), function(x){ return x.getAttribute('aria-label') === id; })[0]; if(n) n.focus(); }
+  function tap(id){
+    if(lanes.length > 1){ var w = where(id); move(id, 1 - w[0], 99); return; }
+    if(picked == null){ picked = id; render(); return; }
+    if(picked === id){ picked = null; render(); return; }
+    var L = lanes[0].ids, a = L.indexOf(picked), b = L.indexOf(id);
+    L[a] = id; L[b] = picked; picked = null; render(); opts.onchange && opts.onchange();
+  }
+  function target(x, y, self){
+    var laneEls = root.querySelectorAll('.cards'), best = null;
+    [].forEach.call(laneEls, function(le){
+      var r = le.parentNode.getBoundingClientRect();
+      var d = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0;
+      if(best == null || d < best.d) best = { d: d, le: le };
+    });
+    if(!best) return null;
+    var li = +best.le.dataset.lane, idx = 0;
+    [].forEach.call(best.le.children, function(cc){
+      if(cc === self) return;
+      var r = cc.getBoundingClientRect(), cy = (r.top + r.bottom) / 2;
+      if(r.bottom < y || (Math.abs(cy - y) < r.height / 2 + 4 && (r.left + r.right) / 2 < x)) idx++;
+    });
+    return [li, idx];
+  }
+  render();
+  return { render: render, order: function(){ return lanes.reduce(function(a, L){ return a.concat(L.ids); }, []); }, laneOf: function(id){ var w = where(id); return w ? w[0] + 1 : 0; } };
+}
+
+/* ---------- Step 1: Mia's First Try ---------- */
+function stepMia(root, api){
+  var qs = M.mia.qs, lim = M.mia.limit, played = false;
+  var main = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene wide' }, main));
+  main.appendChild(h('p', { class: 'prompt' }, 'Mia: 4 questions, 4 minutes, in order'));
+  var info = function(id){ var q = qs.filter(function(x){ return x.id === id; })[0]; return { t: q.t, shown: true }; };
+  Lanes(main, [{ label: '', ids: qs.map(function(q){ return q.id; }) }], info, { fixed: true });
+  var tl = Timeline(main, lim);
+  var resHost = h('div'); main.appendChild(resHost);
+  var R = results(resHost);
+  var sim = M.simulate(qs, lim);
+  function paint(){ resHost.className = played ? '' : 'ansblock'; R.set(sim); }
+  tl.draw({ rows: [] }, 0); paint();
+  return {
+    play: function(){ played = false; paint(); return animate(api, tl, sim, lim, null, 900).then(function(){ played = true; paint(); }); },
+    step: function(){ tl.draw(sim, lim); played = true; paint(); },
+    reset: function(){ played = false; tl.draw({ rows: [] }, 0); paint(); }
+  };
+}
+
+/* ---------- Step 2: Fix the Order ---------- */
+function stepFix(root, api){
+  var qs = M.mia.qs, lim = M.mia.limit, played = false;
+  api.labels('Go');
+  var main = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene wide' }, main));
+  main.appendChild(h('p', { class: 'prompt' }, 'Drag the questions into a better order'));
+  var lanes = [{ label: '', ids: qs.map(function(q){ return q.id; }) }];
+  var byId = {}; qs.forEach(function(q){ byId[q.id] = q; });
+  var L = Lanes(main, lanes, function(id){ return { t: byId[id].t, shown: true }; }, { onchange: function(){ played = false; tl.draw({ rows: [] }, 0); paint(); } });
+  main.appendChild(h('div', { class: 'note' }, 'Drag, or tap two to swap'));
+  var tl = Timeline(main, lim);
+  var resHost = h('div'); main.appendChild(resHost);
+  var R = results(resHost);
+  var ans = h('div', { class: 'ansblock side' }); main.appendChild(ans);
+  var bestList = M.best(qs), bestSim = M.simulate(bestList, lim);
+  var tb = Timeline(ans, lim, 'Best: ' + bestList.map(function(q){ return q.id; }).join(', ') + ' (' + bestSim.done + ' right + ' + bestSim.guesses + ' guess, ' + K.fmt(bestSim.marks) + ' marks)');
+  tb.draw(bestSim, lim);
+  function cur(){ return M.simulate(L.order().map(function(id){ return byId[id]; }), lim); }
+  function paint(){ resHost.hidden = !played; R.set(cur()); }
+  tl.draw({ rows: [] }, 0); paint();
+  return {
+    play: function(){ played = false; paint(); var sim = cur(); return animate(api, tl, sim, lim, null, 800).then(function(){ played = true; paint(); }); },
+    step: function(){ tl.draw(cur(), lim); played = true; paint(); },
+    reset: function(){ lanes[0].ids = qs.map(function(q){ return q.id; }); L.render(); played = false; tl.draw({ rows: [] }, 0); paint(); }
+  };
+}
+
+/* ---------- Step 3: Your Sprint ---------- */
+function stepSprint(root, api){
+  var lim = M.sprint.limit, base = M.sprint.qs, qs = M.withTimes(base), shown = {}, played = false;
+  api.labels('Go');
+  var main = h('div', { class: 'side' });
+  root.appendChild(h('div', { class: 'scene wide' }, main));
+  main.appendChild(h('div', { class: 'ctl' }, h('p', { class: 'prompt', style: 'flex:1' }, '10 questions, 12 minutes'),
+    h('button', { class: 'btn', type: 'button', onclick: function(){ api.cancel(); qs = M.withTimes(M.reshuffle(base)); setup(); } }, 'New times')));
+  var byId = {};
+  var lanes = [{ label: 'Round 1', ids: [] }, { label: 'Round 2', ids: [] }];
+  var laneHost = h('div'); main.appendChild(laneHost);
+  main.appendChild(h('div', { class: 'note' }, 'Dots = steps. Tap a card to switch rounds, drag to reorder.'));
+  var tl = Timeline(main, lim);
+  var resHost = h('div'); main.appendChild(resHost);
+  var R = results(resHost);
+  var ans = h('div', { class: 'ansblock side' }); main.appendChild(ans);
+  var L;
+  function info(id){ var q = byId[id]; return { topic: q.topic, steps: q.steps, diagram: q.diagram, t: q.t, shown: shown[id] || api.ans() }; }
+  function setup(){
+    byId = {}; qs.forEach(function(q){ byId[q.id] = q; });
+    lanes[0].ids = qs.map(function(q){ return q.id; }); lanes[1].ids = [];
+    shown = {}; played = false;
+    clear(laneHost); L = Lanes(laneHost, lanes, info, { onchange: function(){ played = false; tl.draw({ rows: [] }, 0); paint(); } });
+    tl.draw({ rows: [] }, 0); paint();
+  }
+  function cur(){ return M.simulate(L.order().map(function(id){ return byId[id]; }), lim); }
+  function paint(){
+    resHost.hidden = !played; R.set(cur());
+    clear(ans);
+    var bl = M.best(qs), bs = M.simulate(bl, lim);
+    var tb = Timeline(ans, lim, 'Best: quickest first (' + bs.done + ' right + ' + bs.guesses + ' guesses, ' + K.fmt(bs.marks) + ' marks)');
+    tb.draw(bs, lim);
+  }
+  setup();
+  return {
+    play: function(){
+      played = false; shown = {}; L.render(); paint();
+      var sim = cur(), started = {};
+      return animate(api, tl, sim, lim, L.laneOf, 450, function(t){
+        var ch = false;
+        sim.rows.forEach(function(r){ if(r.start != null && r.start <= t && !started[r.id]){ started[r.id] = 1; } if(r.status === 'done' && r.end <= t + 1e-9 && !shown[r.id]){ shown[r.id] = 1; ch = true; } });
+        if(ch) L.render();
+      }).then(function(){ played = true; paint(); });
+    },
+    step: function(){ var sim = cur(); sim.rows.forEach(function(r){ if(r.status === 'done') shown[r.id] = 1; }); L.render(); tl.draw(sim, lim, L.laneOf); played = true; paint(); },
+    reset: function(){ qs = M.withTimes(base); setup(); },
+    answer: function(){ L.render(); }
+  };
+}
+
+K.Lab({ title: 'Now or Later', icon: ICON, steps: [
+  { name: "Mia's First Try", make: stepMia },
+  { name: 'Fix the Order', make: stepFix },
+  { name: 'Your Sprint', make: stepSprint }
+]});
+})();
+
+</script>
+</body>
+</html>

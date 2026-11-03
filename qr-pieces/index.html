@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Fit pieces into a shape by counting squares, filling the awkward square first and spotting flipped pieces.">
+<title>Which Pieces · Contour</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F6FC; --panel:#FFFFFF; --ink:#12203D; --muted:#46557A; --line:#D3DDEC; --wash:#F6F9FE;
+  --navy:#0B3D91; --navy-soft:#E4ECF8;
+  --blue:#007AFF; --blue-ink:#0060C7; --blue-soft:#E5F1FF;
+  --green:#2FB76A; --green-ink:#17793F; --green-soft:#E2F5EA;
+  --orange:#E88100; --orange-ink:#9A5400; --orange-soft:#FFF0DC;
+  --red:#D62C2C; --red-soft:#FDE7E7;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.4;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:12px 18px 24px;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.brand h1{font-weight:850;font-size:28px;letter-spacing:-.02em;margin:0;color:var(--navy);line-height:1}
+.keys{font-family:var(--mono);font-size:13px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.keys b{background:var(--panel);border:1.5px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--navy)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tabs button{flex:1 0 auto;min-height:44px;border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 16px;font-size:17px;font-weight:750;color:var(--muted);white-space:nowrap}
+.tabs button .n{font-family:var(--mono);margin-right:7px;color:var(--blue-ink)}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tabs button.on .n{color:#AFC8F0}
+.stage{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;min-height:560px}
+.vis{position:relative;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.side{display:flex;flex-direction:column;gap:9px;min-width:0}
+.q{font-weight:850;font-size:24px;line-height:1.15;color:var(--navy);letter-spacing:-.01em;margin:0}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap}
+.btn{min-height:44px;border:2px solid var(--line);background:var(--panel);border-radius:12px;padding:8px 14px;font-weight:750;font-size:17px;line-height:1.1;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:var(--navy)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-ink);border-color:var(--blue-ink)}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.on{background:var(--navy-soft);border-color:var(--navy);color:var(--navy)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn .k{font-family:var(--mono);font-size:12px;opacity:.75}
+.ans-t{width:100%;border:2px dashed var(--orange);background:var(--orange-soft);color:var(--orange-ink)}
+.ans-t[aria-pressed="true"]{border-style:solid;background:var(--orange);color:#fff}
+.ans{border:2px solid var(--orange);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:#fff}
+.big{font-size:44px;font-weight:900;color:var(--blue-ink);line-height:1;letter-spacing:-.02em}
+.mid{font-size:26px;font-weight:850;color:var(--navy);line-height:1.15}
+.rule{font-size:19px;font-weight:750;color:var(--navy)}
+.rule em{font-style:normal;color:var(--blue-ink)}
+.lbl{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:2px solid var(--line);border-radius:12px;padding:4px 10px;font-weight:800;font-size:18px;background:#fff;color:var(--navy);min-width:44px;text-align:center}
+.chip small{display:block;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.chip.hot{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-ink)}
+.chip.good{border-color:var(--green);background:var(--green-soft);color:var(--green-ink)}
+.chip.bad{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:16px;font-weight:700}
+.ok{color:var(--green-ink)} .no{color:var(--red)}
+@media (max-width:860px){
+  .stage{display:flex;flex-direction:column;padding:12px;min-height:0;gap:12px}
+  .side{display:contents}
+  .q{order:-1}
+  .brand h1{font-size:23px}
+  .keys{display:none}
+  .q{font-size:21px}
+  .tabs button{font-size:15px;padding:6px 12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.pb{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+.board{display:block;touch-action:none;max-width:100%;height:auto}
+.tray{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.tp{border:2px solid var(--line);background:#fff;border-radius:14px;padding:6px 8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:72px;min-height:44px;touch-action:none;user-select:none;-webkit-user-select:none}
+.tp svg{display:block;pointer-events:none}
+.tp b{font-size:20px;color:var(--navy);line-height:1.1}
+.tp small{font-size:13px;font-weight:800;color:var(--muted)}
+.tp.sel{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 0 0 3px rgba(0,122,255,.18)}
+.tp.used{opacity:.35}
+.tp.flipped b::after{content:" flipped";font-size:12px;color:var(--red);font-weight:800}
+.ghost{position:fixed;left:0;top:0;pointer-events:none;z-index:50;opacity:.85}
+.optlist{display:flex;flex-direction:column;gap:6px}
+.ob{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:12px;background:#fff;min-height:44px;padding:6px 12px;font-weight:800;font-size:18px;color:var(--navy);text-align:left}
+.ob .L{font-family:var(--mono);color:var(--blue-ink);width:22px}
+.ob .sum{margin-left:auto;font-size:15px;color:var(--muted)}
+.ob.pick{border-color:var(--blue);background:var(--blue-soft)}
+.ob.out{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted);border-color:var(--red);background:var(--red-soft)}
+.ob.right{border-color:var(--green);background:var(--green-soft);color:var(--green-ink)}
+.ob.flip{border-color:var(--orange);background:var(--orange-soft)}
+.rowb{display:flex;gap:8px;flex-wrap:wrap}
+.status{font-weight:850;font-size:20px;color:var(--navy);min-height:28px;text-align:center}
+.turnrow{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+.cand{border:3px solid transparent;border-radius:16px;padding:6px 8px;background:#fff;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:44px}
+.cand b{font-size:24px;color:var(--navy)}
+.cand small{font-size:14px;font-weight:850;min-height:18px}
+.cand.circ{border-color:var(--blue)}
+.cand.turned{border-color:var(--green);background:var(--green-soft)} .cand.turned small{color:var(--green-ink)}
+.cand.flipped{border-color:var(--orange);background:var(--orange-soft)} .cand.flipped small{color:var(--orange-ink)}
+.cand.match{animation:pop .5s}
+@keyframes pop{50%{transform:scale(1.12)}}
+.qbox{display:flex;flex-direction:column;align-items:center;gap:4px;padding-right:18px;border-right:3px solid var(--line)}
+.qbox svg g{transition:transform .6s ease}
+.shake{animation:sh .35s}
+@keyframes sh{30%{transform:translateX(-6px)}60%{transform:translateX(6px)}}
+.seg{display:flex;border:2px solid var(--navy);border-radius:12px;overflow:hidden;width:max-content;max-width:100%}
+.seg button{border:0;background:#fff;min-height:42px;padding:6px 14px;font-weight:800;color:var(--navy)}
+.seg button.on{background:var(--navy);color:#fff}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M3 3h6v6h6v6H9v6H3z"/><path d="M15 9h6v12h-6"/></svg></div>
+      <h1 id="title">Which Pieces</h1>
+    </div>
+    <div class="keys"><span><b>&larr;</b> <b>&rarr;</b> step</span><span><b>Space</b> play</span><span><b>R</b> reset</span></div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <main class="stage">
+    <section class="vis" id="vis"></section>
+    <aside class="side">
+      <p class="q" id="q"></p>
+      <div class="ctrls">
+        <button class="btn primary" id="playBtn" type="button">Play <span class="k">Space</span></button>
+        <button class="btn" id="stepBtn" type="button">Step</button>
+        <button class="btn" id="resetBtn" type="button">Reset <span class="k">R</span></button>
+      </div>
+      <div id="extra"></div>
+      <button class="btn ans-t" id="ansBtn" type="button" aria-pressed="false">Show answer</button>
+      <div class="ans" id="ans" hidden></div>
+    </aside>
+  </main>
+</div>
+<script id="model">
+/* which pieces model: cells are [row, col] */
+(function(root){
+  function norm(s){ var mr = Math.min.apply(0, s.map(function(p){ return p[0]; })), mc = Math.min.apply(0, s.map(function(p){ return p[1]; }));
+    return s.map(function(p){ return [p[0] - mr, p[1] - mc]; }).sort(function(a, b){ return a[0] - b[0] || a[1] - b[1]; }); }
+  function rot(s){ return norm(s.map(function(p){ return [p[1], -p[0]]; })); }      // quarter turn
+  function flip(s){ return norm(s.map(function(p){ return [p[0], -p[1]]; })); }     // face down (mirror left to right)
+  function key(s){ return norm(s).map(function(p){ return p.join(','); }).join(';'); }
+  function same(a, b){ return key(a) === key(b); }
+  function turns(s){ var out = [], cur = norm(s), seen = {}; for(var i = 0; i < 4; i++){ var k = key(cur); if(!seen[k]){ seen[k] = 1; out.push(cur); } cur = rot(cur); } return out; }
+  function orientations(s, allowFlip){ var out = turns(s); if(allowFlip){ var seen = {}; out.forEach(function(o){ seen[key(o)] = 1; });
+    turns(flip(s)).forEach(function(o){ if(!seen[key(o)]){ seen[key(o)] = 1; out.push(o); } }); } return out; }
+  function isTurnOf(a, b){ return turns(b).some(function(o){ return same(o, a); }); }
+  function cellSet(s){ var o = {}; s.forEach(function(p){ o[p.join(',')] = 1; }); return o; }
+  function placements(shape, piece, allowFlip){
+    var S = cellSet(shape), out = [];
+    orientations(piece, allowFlip).forEach(function(o, oi){
+      shape.forEach(function(anchor){ var dr = anchor[0] - o[0][0], dc = anchor[1] - o[0][1];
+        var cells = o.map(function(p){ return [p[0] + dr, p[1] + dc]; });
+        if(cells.every(function(p){ return S[p.join(',')]; })) out.push({ cells:cells, flipped: !turns(piece).some(function(t){ return same(t, o); }) }); });
+    });
+    return out;
+  }
+  // all exact covers of the shape using each listed piece once
+  function tilings(shape, pieces, allowFlip){
+    var total = pieces.reduce(function(a, p){ return a + p.length; }, 0); if(total !== shape.length) return [];
+    var pl = pieces.map(function(p){ return placements(shape, p, allowFlip); }), res = [];
+    var order = shape.slice().sort(function(a, b){ return a[0] - b[0] || a[1] - b[1]; });
+    function go(used, covered, chosen){
+      var first = null; for(var i = 0; i < order.length; i++){ if(!covered[order[i].join(',')]){ first = order[i].join(','); break; } }
+      if(!first){ res.push(chosen.slice()); return; }
+      pieces.forEach(function(p, pi){ if(used[pi]) return;
+        pl[pi].forEach(function(q){ var ks = q.cells.map(function(c){ return c.join(','); });
+          if(ks.indexOf(first) < 0 || ks.some(function(k){ return covered[k]; })) return;
+          used[pi] = 1; ks.forEach(function(k){ covered[k] = 1; }); chosen.push({ piece:pi, cells:q.cells, flipped:q.flipped });
+          go(used, covered, chosen);
+          chosen.pop(); ks.forEach(function(k){ delete covered[k]; }); used[pi] = 0; }); });
+    }
+    go({}, {}, []);
+    return res;
+  }
+  function neighbours(shape){ var S = cellSet(shape);
+    return shape.map(function(p){ return [[1,0],[-1,0],[0,1],[0,-1]].filter(function(d){ return S[(p[0] + d[0]) + ',' + (p[1] + d[1])]; }).length; }); }
+  function awkward(shape){ var n = neighbours(shape), m = Math.min.apply(0, n); return shape.filter(function(p, i){ return n[i] === m; }); }
+  function reaches(shape, piece, cell, allowFlip){ return placements(shape, piece, allowFlip).some(function(q){ return q.cells.some(function(c){ return c[0] === cell[0] && c[1] === cell[1]; }); }); }
+  function minus(shape, cells){ var C = cellSet(cells); return shape.filter(function(p){ return !C[p.join(',')]; }); }
+  function solve(pz){   // which option pairs make the shape (turns only), and which only work flipped
+    return pz.options.map(function(o){
+      var ps = o.map(function(n){ return pz.pieces[n]; });
+      var squares = ps.reduce(function(a, p){ return a + p.length; }, 0);
+      var t = tilings(pz.shape, ps, false), tf = tilings(pz.shape, ps, true);
+      return { names:o, squares:squares, countOk: squares === pz.shape.length, fits: t.length > 0, fitsFlipped: t.length === 0 && tf.length > 0, tiling: t[0] || null, flippedTiling: tf[0] || null };
+    });
+  }
+  var BOOK = {
+    shape: [[0,0],[1,0],[1,1],[1,2],[1,3],[2,1],[2,2],[2,3]],
+    pieces: { P:[[0,1],[1,0],[1,1]], Q:[[0,0],[1,0],[1,1],[1,2],[2,1]], R:[[0,1],[1,0],[1,1],[2,1],[2,2]], S:[[0,0],[0,1],[0,2]] },
+    options: [['P','R'],['P','Q'],['Q','S'],['P','S']] };
+  var Q = BOOK.pieces.Q;
+  var api = { norm:norm, rot:rot, flip:flip, key:key, same:same, turns:turns, orientations:orientations, isTurnOf:isTurnOf, placements:placements,
+    tilings:tilings, neighbours:neighbours, awkward:awkward, reaches:reaches, minus:minus, solve:solve, BOOK:BOOK,
+    // Turned or Flipped: the four pieces from the booklet figure
+    TURN: [rot(Q), flip(Q), rot(rot(Q)), rot(flip(Q))],
+    // two extra puzzles, made by gen_pieces.js and checked by brute force
+    EXTRA: /*EXTRA*/[{"shape":[[0,1],[1,1],[1,2],[2,0],[2,1],[2,2],[3,0],[3,1],[3,2]],"pieces":{"P":[[0,1],[1,1],[1,2],[2,0],[2,1]],"Q":[[0,1],[1,0],[1,1],[2,1],[2,2]],"R":[[0,0],[0,1],[1,1],[2,1]],"S":[[0,0],[0,1],[1,1]]},"options":[["Q","R"],["Q","S"],["P","S"],["P","R"]],"answer":["P","R"]},{"shape":[[0,0],[0,1],[0,2],[0,3],[1,0],[1,1],[1,3],[1,4]],"pieces":{"P":[[0,0],[0,1],[1,1]],"Q":[[0,0],[0,1],[0,2],[0,3]],"R":[[0,0],[1,0],[1,1],[2,1],[3,1]],"S":[[0,1],[1,0],[1,1],[2,0],[3,0]]},"options":[["P","S"],["P","R"],["Q","R"],["Q","S"]],"answer":["P","S"]}] };
+  if(typeof module !== 'undefined' && module.exports) module.exports = api; else root.PieceModel = api;
+})(this);
+
+</script>
+<script>
+/* shared lab shell: tabs, controls, keyboard, answer toggle, tweening */
+var Lab = (function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cfg, cur = -1, inst = null, gen = 0, showAns = false;
+  var $ = function(id){ return document.getElementById(id); };
+  function el(tag, cls, html){ var e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; }
+  function sleep(ms, g){ return new Promise(function(res, rej){ setTimeout(function(){ g === gen ? res() : rej('x'); }, RM ? 0 : ms); }); }
+  function tween(ms, fn, g){
+    return new Promise(function(res, rej){
+      if(RM || ms <= 0){ fn(1); res(); return; }
+      var t0 = performance.now();
+      function f(now){
+        if(g !== gen){ rej('x'); return; }
+        var t = Math.min(1, (now - t0) / ms);
+        fn(t);
+        if(t < 1) requestAnimationFrame(f); else res();
+      }
+      requestAnimationFrame(f);
+    });
+  }
+  function ease(t){ return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
+  function setAns(v){
+    showAns = v;
+    var b = $('ansBtn'); b.setAttribute('aria-pressed', v ? 'true' : 'false');
+    b.textContent = v ? 'Hide answer' : 'Show answer';
+    $('ans').hidden = !v || !$('ans').innerHTML;
+    if(inst && inst.answer) inst.answer(v);
+  }
+  function go(i){
+    if(i < 0 || i >= cfg.steps.length) return;
+    gen++; cur = i;
+    if(inst && inst.destroy) inst.destroy();
+    var s = cfg.steps[i];
+    [].forEach.call($('tabs').children, function(b, j){ b.classList.toggle('on', j === i); b.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+    $('q').textContent = s.q || '';
+    $('q').hidden = !s.q;
+    $('vis').innerHTML = ''; $('extra').innerHTML = ''; $('ans').innerHTML = '';
+    $('playBtn').hidden = s.play === false; $('stepBtn').hidden = s.step === false;
+    $('ansBtn').hidden = s.answer === false;
+    $('stepBtn').textContent = s.stepLabel || 'Step';
+    if(s.playLabel) $('playBtn').firstChild.nodeValue = s.playLabel + ' '; else $('playBtn').firstChild.nodeValue = 'Play ';
+    showAns = false;
+    inst = s.mount({ vis: $('vis'), extra: $('extra'), ans: $('ans'), gen: gen, el: el,
+      alive: function(g){ return g === gen; } }) || {};
+    setAns(false);
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch(e) {}
+  }
+  function guard(p){ if(p && p.catch) p.catch(function(){}); }
+  function init(c){
+    cfg = c;
+    document.title = c.title + ' · Contour';
+    $('title').textContent = c.title;
+    c.steps.forEach(function(s, i){
+      var b = el('button', '', '<span class="n">' + (i + 1) + '</span>' + s.name);
+      b.type = 'button'; b.setAttribute('role', 'tab');
+      b.onclick = function(){ go(i); };
+      $('tabs').appendChild(b);
+    });
+    $('playBtn').onclick = function(){ if(inst.play) guard(inst.play()); };
+    $('stepBtn').onclick = function(){ if(inst.step) guard(inst.step()); };
+    $('resetBtn').onclick = function(){ reset(); };
+    $('ansBtn').onclick = function(){ setAns(!showAns); };
+    document.addEventListener('keydown', function(e){
+      if(e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+      if(e.altKey || e.ctrlKey || e.metaKey) return;
+      if(inst && inst.key && inst.key(e)) { e.preventDefault(); return; }
+      if(e.key === 'ArrowRight'){ go(cur + 1); e.preventDefault(); }
+      else if(e.key === 'ArrowLeft'){ go(cur - 1); e.preventDefault(); }
+      else if(e.key === ' '){ if(!$('playBtn').hidden && inst.play) guard(inst.play()); e.preventDefault(); }
+      else if(e.key === 'r' || e.key === 'R'){ reset(); }
+      else if(e.key === 'a' || e.key === 'A'){ if(!$('ansBtn').hidden) setAns(!showAns); }
+    });
+    var h = parseInt((location.hash || '').slice(1), 10);
+    go(h >= 1 && h <= c.steps.length ? h - 1 : 0);
+  }
+  function reset(){ gen++; var keep = showAns; if(inst && inst.reset) inst.reset(); else go(cur); if(keep) setAns(true); }
+  function refreshAns(){ $('ans').hidden = !showAns || !$('ans').innerHTML; }
+  return { init: init, tween: tween, sleep: sleep, ease: ease, el: el, RM: RM,
+    gen: function(){ return gen; }, bump: function(){ return ++gen; }, showing: function(){ return showAns; },
+    refreshAns: refreshAns, go: go, guard: guard };
+})();
+
+</script>
+<script>
+(function(){
+var M = PieceModel, el = Lab.el;
+var COL = { P:'#CFE2FA', Q:'#2E6DB4', R:'#E88100', S:'url(#hatch)' };
+var INK = '#12203D', K = function(c){ return c.join(','); };
+// shared hatch pattern for S
+(function(){ var d = document.createElement('div'); d.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+  d.innerHTML = '<svg width="0" height="0"><defs><pattern id="hatch" width="0.34" height="0.34" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="0.34" height="0.34" fill="#fff"/><line x1="0" y1="0" x2="0" y2="0.34" stroke="#12203D" stroke-width="0.08"/></pattern>' +
+  '<pattern id="hatchf" width="0.3" height="0.3" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="0.3" stroke="#D62C2C" stroke-width="0.06"/></pattern></defs></svg>';
+  document.body.appendChild(d); })();
+
+function outline(cells, ox, oy, stroke, w){
+  var S = {}; cells.forEach(function(c){ S[K(c)] = 1; }); var s = '';
+  cells.forEach(function(c){ var x = c[1] + ox, y = c[0] + oy;
+    if(!S[K([c[0] - 1, c[1]])]) s += 'M' + x + ',' + y + 'h1';
+    if(!S[K([c[0] + 1, c[1]])]) s += 'M' + x + ',' + (y + 1) + 'h1';
+    if(!S[K([c[0], c[1] - 1])]) s += 'M' + x + ',' + y + 'v1';
+    if(!S[K([c[0], c[1] + 1])]) s += 'M' + (x + 1) + ',' + y + 'v1'; });
+  return '<path d="' + s + '" stroke="' + stroke + '" stroke-width="' + w + '" stroke-linecap="square" fill="none"/>';
+}
+function cellsSVG(cells, fill, ox, oy, extra){
+  var s = '';
+  cells.forEach(function(c){ s += '<rect x="' + (c[1] + ox) + '" y="' + (c[0] + oy) + '" width="1" height="1" fill="' + fill + '" stroke="' + INK + '" stroke-width="0.04"' + (extra || '') + '/>'; });
+  return s + outline(cells, ox, oy, INK, 0.09);
+}
+function dims(cells){ return [Math.max.apply(0, cells.map(function(c){ return c[0]; })) + 1, Math.max.apply(0, cells.map(function(c){ return c[1]; })) + 1]; }
+function pieceSVG(cells, name, u, flipped){
+  var d = dims(cells), w = d[1] + 0.3, h = d[0] + 0.3;
+  return '<svg width="' + w*u + '" height="' + h*u + '" viewBox="-0.15 -0.15 ' + w + ' ' + h + '">' + cellsSVG(cells, COL[name] || '#CFE2FA', 0, 0) +
+    (flipped ? cells.map(function(c){ return '<rect x="' + c[1] + '" y="' + c[0] + '" width="1" height="1" fill="url(#hatchf)"/>'; }).join('') : '') + '</svg>';
+}
+
+/* ---------- board + tray ---------- */
+function PieceBoard(host, pz, o){
+  this.pz = pz; this.o = o || {}; var self = this;
+  this.wrap = el('div', 'pb'); host.appendChild(this.wrap);
+  this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); this.svg.setAttribute('class', 'board'); this.wrap.appendChild(this.svg);
+  this.status = el('div', 'status', ''); this.wrap.appendChild(this.status);
+  this.tray = el('div', 'tray'); this.wrap.appendChild(this.tray);
+  if(this.o.noTray) this.tray.hidden = true;
+  var d = dims(pz.shape); this.rows = d[0]; this.cols = d[1];
+  this.svg.setAttribute('viewBox', [-0.3, -0.3, this.cols + 0.6, this.rows + 0.6].join(' '));
+  this.names = Object.keys(pz.pieces);
+  this.reset();
+  this.svg.addEventListener('pointermove', function(e){ if(!self.drag) self.hover(self.cellAt(e)); });
+  this.svg.addEventListener('pointerleave', function(){ self.ghostCells = null; self.draw(); });
+  this.svg.addEventListener('click', function(e){ self.tapBoard(self.cellAt(e)); });
+}
+PieceBoard.prototype.reset = function(){
+  var self = this; this.orient = {}; this.flipped = {}; this.placed = {}; this.sel = null; this.ghostCells = null; this.marks = {}; this.nums = null; this.leftover = null;
+  this.names.forEach(function(n){ self.orient[n] = M.norm(self.pz.pieces[n]); self.flipped[n] = false; });
+  this.size(); this.draw(); this.drawTray(); this.changed();
+};
+PieceBoard.prototype.size = function(){
+  var w = this.wrap.parentNode ? this.wrap.parentNode.clientWidth || 700 : 700, h = window.innerHeight;
+  this.u = Math.max(40, Math.min(this.o.maxU || 84, Math.floor((w - 20) / (this.cols + 0.6)), Math.floor(h * (this.o.hf || 0.42) / (this.rows + 0.6))));
+  this.svg.setAttribute('width', (this.cols + 0.6) * this.u); this.svg.setAttribute('height', (this.rows + 0.6) * this.u);
+  this.tu = Math.max(16, Math.min(30, Math.floor(this.u * 0.4)));
+};
+PieceBoard.prototype.occupied = function(){ var o = {}, self = this; Object.keys(this.placed).forEach(function(n){ self.placed[n].forEach(function(c){ o[K(c)] = n; }); }); return o; };
+PieceBoard.prototype.draw = function(){
+  var s = '', self = this, occ = this.occupied(), S = {};
+  this.pz.shape.forEach(function(c){ S[K(c)] = 1;
+    var hi = self.marks[K(c)];
+    s += '<rect x="' + c[1] + '" y="' + c[0] + '" width="1" height="1" fill="' + (hi || '#D9D9D9') + '" stroke="' + INK + '" stroke-width="0.035"/>'; });
+  if(this.leftover) this.leftover.forEach(function(c){ s += '<rect x="' + (c[1] + 0.06) + '" y="' + (c[0] + 0.06) + '" width="0.88" height="0.88" fill="none" stroke="#E88100" stroke-width="0.09" stroke-dasharray="0.16 0.1"/>'; });
+  s += outline(this.pz.shape, 0, 0, INK, 0.1);
+  Object.keys(this.placed).forEach(function(n){ var cs = self.placed[n];
+    s += '<g data-piece="' + n + '" style="cursor:pointer">' + cellsSVG(cs, COL[n] || '#CFE2FA', 0, 0) +
+      (self.flipped[n] ? cs.map(function(c){ return '<rect x="' + c[1] + '" y="' + c[0] + '" width="1" height="1" fill="url(#hatchf)"/>'; }).join('') : '') + '</g>';
+    var cx = cs.reduce(function(a, c){ return a + c[1]; }, 0) / cs.length + 0.5, cy = cs.reduce(function(a, c){ return a + c[0]; }, 0) / cs.length + 0.5;
+    var best = cs.slice().sort(function(a, b){ return Math.hypot(a[1] + .5 - cx, a[0] + .5 - cy) - Math.hypot(b[1] + .5 - cx, b[0] + .5 - cy); })[0];
+    s += '<text x="' + (best[1] + 0.5) + '" y="' + (best[0] + 0.55) + '" text-anchor="middle" dominant-baseline="middle" font-size="0.5" font-weight="900" fill="' + (n === 'Q' ? '#fff' : n === 'S' ? INK : INK) + '" stroke="' + (n === 'S' ? '#fff' : 'none') + '" stroke-width="0.12" paint-order="stroke" pointer-events="none">' + n + '</text>'; });
+  if(this.nums) this.nums.forEach(function(t){ s += '<text x="' + (t.c[1] + 0.5) + '" y="' + (t.c[0] + 0.55) + '" text-anchor="middle" dominant-baseline="middle" font-size="0.48" font-weight="900" fill="' + (t.col || '#0060C7') + '" pointer-events="none">' + t.v + '</text>'; });
+  if(this.ring){ var r = this.ring; s += '<rect x="' + (r[1] - 0.08) + '" y="' + (r[0] - 0.08) + '" width="1.16" height="1.16" rx="0.12" fill="none" stroke="#007AFF" stroke-width="0.14"><animate attributeName="stroke-opacity" values="1;0.25;1" dur="1.2s" repeatCount="indefinite"/></rect>'; }
+  if(this.ghostCells){ var ok = this.ghostOk;
+    this.ghostCells.forEach(function(c){ s += '<rect x="' + c[1] + '" y="' + c[0] + '" width="1" height="1" fill="' + (ok ? 'rgba(47,183,106,.35)' : 'rgba(214,44,44,.3)') + '" stroke="' + (ok ? '#17793F' : '#D62C2C') + '" stroke-width="0.06" pointer-events="none"/>'; }); }
+  this.svg.innerHTML = s;
+  this.svg.querySelectorAll('[data-piece]').forEach(function(g){ g.addEventListener('click', function(e){ e.stopPropagation(); self.lift(g.dataset.piece); }); });
+};
+PieceBoard.prototype.drawTray = function(){
+  var self = this; this.tray.innerHTML = '';
+  this.names.forEach(function(n){
+    var b = el('div', 'tp' + (self.sel === n ? ' sel' : '') + (self.placed[n] ? ' used' : '') + (self.flipped[n] ? ' flipped' : ''),
+      pieceSVG(self.orient[n], n, self.tu, self.flipped[n]) + '<b>' + n + '</b>' + (self.o.showCount ? '<small>' + self.pz.pieces[n].length + ' squares</small>' : ''));
+    b.setAttribute('role', 'button'); b.tabIndex = 0;
+    if(!self.o.locked) self.dragable(b, n);
+    self.tray.appendChild(b);
+  });
+};
+PieceBoard.prototype.select = function(n){ this.sel = this.sel === n ? null : n; this.drawTray(); this.changed(); };
+PieceBoard.prototype.cellAt = function(e){
+  var r = this.svg.getBoundingClientRect(), W = this.cols + 0.6, H = this.rows + 0.6;
+  var x = (e.clientX - r.left) / r.width * W - 0.3, y = (e.clientY - r.top) / r.height * H - 0.3;
+  return [Math.floor(y), Math.floor(x)];
+};
+// cells for the selected orientation with piece cell i on board cell c
+PieceBoard.prototype.fitAt = function(n, c, i){
+  var o = this.orient[n], a = o[i], cells = o.map(function(p){ return [p[0] - a[0] + c[0], p[1] - a[1] + c[1]]; });
+  var S = {}; this.pz.shape.forEach(function(x){ S[K(x)] = 1; }); var occ = this.occupied();
+  var ok = cells.every(function(x){ return S[K(x)] && (!occ[K(x)] || occ[K(x)] === n); });
+  return { cells:cells, ok:ok };
+};
+PieceBoard.prototype.bestFit = function(n, c){ var o = this.orient[n], first = null;
+  for(var i = 0; i < o.length; i++){ var f = this.fitAt(n, c, i); if(!first) first = f; if(f.ok) return f; } return first; };
+PieceBoard.prototype.hover = function(c){ if(!this.sel || this.o.locked){ return; } var f = this.bestFit(this.sel, c); this.ghostCells = f.cells; this.ghostOk = f.ok; this.draw(); };
+PieceBoard.prototype.tapBoard = function(c){
+  if(this.o.locked || !this.sel) return;
+  var f = this.bestFit(this.sel, c);
+  if(f.ok) this.place(this.sel, f.cells); else this.shake();
+};
+PieceBoard.prototype.place = function(n, cells){ this.placed[n] = cells; this.sel = null; this.ghostCells = null; this.draw(); this.drawTray(); this.changed(); };
+PieceBoard.prototype.lift = function(n){ if(this.o.locked) return; delete this.placed[n]; this.sel = n; this.draw(); this.drawTray(); this.changed(); };
+PieceBoard.prototype.shake = function(){ var w = this.svg; w.classList.remove('shake'); void w.getBoundingClientRect(); w.classList.add('shake'); };
+PieceBoard.prototype.turn = function(){ var n = this.sel; if(!n) return; delete this.placed[n]; this.orient[n] = M.rot(this.orient[n]); this.draw(); this.drawTray(); this.changed(); };
+PieceBoard.prototype.flip = function(){ var n = this.sel; if(!n) return; delete this.placed[n]; this.orient[n] = M.flip(this.orient[n]); this.flipped[n] = !this.flipped[n]; this.draw(); this.drawTray(); this.changed(); };
+PieceBoard.prototype.changed = function(){
+  var occ = this.occupied(), filled = Object.keys(occ).length, total = this.pz.shape.length, self = this;
+  var used = Object.keys(this.placed);
+  if(filled === total){
+    var fl = used.filter(function(n){ return self.flipped[n]; });
+    this.status.innerHTML = fl.length ? '<span class="no">' + fl.join(', ') + ' is flipped: not allowed</span>' : '<span class="ok">Done! ' + used.sort().join(' and ') + '</span>';
+  } else this.status.innerHTML = this.sel ? 'Tap the shape to place ' + this.sel : (this.o.locked ? '&nbsp;' : 'Pick a piece');
+  if(this.onChange) this.onChange();
+};
+PieceBoard.prototype.dragable = function(b, n){
+  var self = this;
+  b.addEventListener('pointerdown', function(e){
+    if(e.button !== 0) return;
+    var sx = e.clientX, sy = e.clientY, dragging = false, ghost = null, grab = 0;
+    var rect = b.querySelector('svg').getBoundingClientRect(), o = self.orient[n];
+    var px = (e.clientX - rect.left) / self.tu - 0.15, py = (e.clientY - rect.top) / self.tu - 0.15;
+    grab = o.map(function(c, i){ return [Math.hypot(c[1] + .5 - px, c[0] + .5 - py), i]; }).sort(function(a, z){ return a[0] - z[0]; })[0][1];
+    function move(ev){
+      if(!dragging && Math.hypot(ev.clientX - sx, ev.clientY - sy) > 7){ dragging = true; self.drag = true;
+        self.sel = n; delete self.placed[n]; self.drawTray(); self.draw();
+        ghost = el('div', 'ghost', pieceSVG(o, n, self.u, self.flipped[n])); document.body.appendChild(ghost); }
+      if(dragging){ var g = o[grab];
+        ghost.style.transform = 'translate(' + (ev.clientX - (g[1] + 0.65) * self.u) + 'px,' + (ev.clientY - (g[0] + 0.65) * self.u) + 'px)';
+        var r = self.svg.getBoundingClientRect();
+        if(ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom){ var f = self.fitAt(n, self.cellAt(ev), grab); self.ghostCells = f.cells; self.ghostOk = f.ok; } else self.ghostCells = null;
+        self.draw(); }
+    }
+    function up(ev){
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
+      if(!dragging){ self.select(n); return; }
+      self.drag = false; if(ghost) ghost.remove();
+      var r = self.svg.getBoundingClientRect();
+      if(ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom){
+        var f = self.fitAt(n, self.cellAt(ev), grab); if(f.ok){ self.place(n, f.cells); return; } self.shake(); }
+      self.ghostCells = null; self.draw(); self.drawTray(); self.changed();
+    }
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+  });
+};
+function onResize(fn){ var t; var h = function(){ clearTimeout(t); t = setTimeout(fn, 80); }; window.addEventListener('resize', h); return function(){ window.removeEventListener('resize', h); }; }
+function toolsHTML(){ return '<div class="rowb"><button class="btn" type="button" id="pturn">Turn &#8635;</button><button class="btn" type="button" id="pflip">Flip &#8644;</button></div>'; }
+function wireTools(x, pb){ x.querySelector('#pturn').onclick = function(){ pb.turn(); }; x.querySelector('#pflip').onclick = function(){ pb.flip(); }; }
+function optionList(pz, picks, mark){
+  var sol = M.solve(pz);
+  return '<div class="optlist">' + pz.options.map(function(o, i){
+    var s = sol[i], cls = picks && picks[i] ? ' pick' : '';
+    if(mark){ cls = s.fits ? ' right' : !s.countOk ? ' out' : s.fitsFlipped ? ' flip' : ' out'; }
+    var sum = mark || (picks && picks.sums) ? s.squares + (s.countOk ? ' = ' : ' &ne; ') + pz.shape.length : '';
+    return '<button type="button" class="ob' + cls + '" data-i="' + i + '"><span class="L">' + 'ABCD'[i] + '</span>' + o.join(' and ') + '<span class="sum">' + sum + '</span></button>'; }).join('') + '</div>';
+}
+
+/* ---------- steps ---------- */
+function stepCount(ctx){
+  var pz = M.BOOK, pb = new PieceBoard(ctx.vis, pz, { locked:true, showCount:false, hf:0.34 }); pb.status.hidden = true;
+  var picks = {}, counted = false;
+  function side(){ ctx.extra.innerHTML = '<div class="lbl">Options</div>' + optionList(pz, Object.assign({ sums: counted }, picks), false);
+    ctx.extra.querySelectorAll('.ob').forEach(function(b){ b.onclick = function(){ picks[b.dataset.i] = !picks[b.dataset.i]; side(); }; }); }
+  var sol = M.solve(pz), left = sol.filter(function(s){ return s.countOk; }).length;
+  function ans(){
+    ctx.ans.innerHTML = '<div class="rule">Shape: <em>' + pz.shape.length + ' squares</em></div>' +
+      sol.filter(function(s){ return !s.countOk; }).map(function(s){ return '<div class="rule"><span class="no">' + s.names.join(' and ') + ' = ' + s.squares + '</span> &ne; ' + pz.shape.length + '</div>'; }).join('') +
+      '<div class="rule"><em>' + left + '</em> options left</div>';
+    Lab.refreshAns();
+    pb.o.showCount = counted || Lab.showing(); pb.drawTray();
+    if(Lab.showing() && !pb.nums) number(pz.shape.length);
+  }
+  function number(k){ pb.nums = pz.shape.slice(0, k).map(function(c, i){ return { c:c, v:i + 1 }; }); pb.draw(); }
+  function rst(){ Lab.bump(); counted = false; pb.nums = null; pb.o.showCount = false; pb.draw(); pb.drawTray(); side(); ans(); }
+  side(); ans();
+  var off = onResize(function(){ pb.size(); pb.draw(); pb.drawTray(); });
+  var k = 0;
+  return {
+    play: function(){ var g = Lab.bump(); counted = false; pb.nums = []; pb.draw(); var p = Lab.sleep(150, g);
+      pz.shape.forEach(function(c, i){ p = p.then(function(){ number(i + 1); return Lab.sleep(320, g); }); });
+      return p.then(function(){ counted = true; pb.o.showCount = true; pb.drawTray(); side(); }); },
+    step: function(){ if(!pb.nums || pb.nums.length >= pz.shape.length){ pb.nums = []; k = 0; }
+      k = pb.nums.length + 1; number(k); if(k === pz.shape.length){ counted = true; pb.o.showCount = true; pb.drawTray(); side(); } },
+    reset: rst, answer: ans, destroy: off };
+}
+
+function stepAwkward(ctx){
+  var pz = M.BOOK, pb = new PieceBoard(ctx.vis, pz, { hf:0.36 });
+  var aw = M.awkward(pz.shape)[0], nb = M.neighbours(pz.shape);
+  var reach = pb.names.filter(function(n){ return M.reaches(pz.shape, pz.pieces[n], aw, false); });
+  ctx.extra.innerHTML = toolsHTML() + '<div class="lbl" style="margin-top:6px">Fill the awkward square with</div><div class="rowb" id="ptry">' +
+    reach.map(function(n){ return '<button class="btn" type="button" data-n="' + n + '">Try ' + n + '</button>'; }).join('') + '</div><div id="pleft" class="rule"></div>';
+  wireTools(ctx.extra, pb);
+  var leftEl = ctx.extra.querySelector('#pleft');
+  function tryPiece(n){
+    pb.reset(); pb.ring = aw;
+    var opts = M.placements(pz.shape, pz.pieces[n], false).filter(function(q){ return q.cells.some(function(c){ return K(c) === K(aw); }); });
+    // prefer the placement whose leftover can be finished, so the tutor sees the best try for this piece
+    var others = pb.names.filter(function(m){ return m !== n; });
+    var best = opts.filter(function(q){ var left = M.minus(pz.shape, q.cells); return others.some(function(m){ return M.tilings(left, [pz.pieces[m]], false).length; }); })[0] || opts[0];
+    var left = M.minus(pz.shape, best.cells);
+    pb.orient[n] = M.norm(best.cells); pb.place(n, best.cells); pb.leftover = left; pb.draw();
+    var fits = others.filter(function(m){ return M.tilings(left, [pz.pieces[m]], false).length; });
+    leftEl.innerHTML = left.length + ' squares left';
+    leftEl.dataset.n = n; leftEl.dataset.fits = fits.join(',');
+    ans();
+  }
+  ctx.extra.querySelectorAll('#ptry button').forEach(function(b){ b.onclick = function(){ tryPiece(b.dataset.n); }; });
+  function ans(){
+    var t = leftEl.dataset.n ? '<div class="rule">If ' + leftEl.dataset.n + ' fills it: ' + (leftEl.dataset.fits ? '<span class="ok">' + leftEl.dataset.fits + ' fits</span>' : '<span class="no">nothing fits</span>') + '</div>' : '';
+    ctx.ans.innerHTML = '<div class="rule">Touches only <em>' + nb[pz.shape.findIndex(function(c){ return K(c) === K(aw); })] + '</em> square</div>' +
+      '<div class="rule">Reaches it: <em>' + reach.join(' or ') + '</em></div>' + t + '<div class="rule">The shape = <em>' + M.solve(pz).filter(function(s){ return s.fits; })[0].names.join(' and ') + '</em></div>';
+    Lab.refreshAns();
+  }
+  function showNums(k){ pb.nums = pz.shape.slice(0, k).map(function(c){ var i = pz.shape.indexOf(c); return { c:c, v:nb[i], col: nb[i] === 1 ? '#D62C2C' : '#0060C7' }; }); pb.draw(); }
+  ans();
+  var off = onResize(function(){ pb.size(); pb.draw(); pb.drawTray(); });
+  return {
+    play: function(){ var g = Lab.bump(); pb.reset(); pb.nums = []; leftEl.innerHTML = ''; delete leftEl.dataset.n; var p = Lab.sleep(150, g);
+      pz.shape.forEach(function(c, i){ p = p.then(function(){ showNums(i + 1); return Lab.sleep(260, g); }); });
+      return p.then(function(){ pb.ring = aw; pb.draw(); }); },
+    step: function(){ var k = pb.nums ? pb.nums.length : 0; if(k >= pz.shape.length){ pb.ring = aw; pb.draw(); return; } showNums(k + 1); },
+    reset: function(){ Lab.bump(); pb.reset(); pb.ring = null; leftEl.innerHTML = ''; delete leftEl.dataset.n; ans(); },
+    answer: ans, destroy: off };
+}
+
+function stepTurn(ctx){
+  var Q = M.norm(M.BOOK.pieces.Q), C = M.TURN, vis = ctx.vis;
+  var u = function(){ return Math.max(18, Math.min(34, Math.floor(((vis.clientWidth || 800) - 80) / 20))); };
+  var row = el('div', 'turnrow'); vis.appendChild(row);
+  var status = el('div', 'status', '&nbsp;'); vis.appendChild(status);
+  var circ = {}, qg, cands = [];
+  function sq(cells, fill, U){ return '<svg width="' + 3.3*U + '" height="' + 3.3*U + '" viewBox="-0.15 -0.15 3.3 3.3">' + '<g>' + cellsSVG(cells, fill, 0, 0) + '</g></svg>'; }
+  function build(){
+    var U = u(); row.innerHTML = '';
+    var qb = el('div', 'qbox', sq(Q, '#2E6DB4', U * 1.1) + '<b style="font-size:24px;color:var(--navy)">Q</b>'); row.appendChild(qb);
+    qg = qb.querySelector('g'); qg.style.transformOrigin = '1.5px 1.5px'; qg.style.transformBox = 'view-box';
+    cands = C.map(function(c, i){ var b = el('button', 'cand' + (circ[i] ? ' circ' : ''), sq(c, '#fff', U) + '<b>' + (i + 1) + '</b><small></small>'); b.type = 'button';
+      b.onclick = function(){ circ[i] = !circ[i]; b.classList.toggle('circ', !!circ[i]); };
+      row.appendChild(b); return b; });
+    marks();
+  }
+  var seen = {};
+  function marks(){
+    cands.forEach(function(b, i){ var t = M.isTurnOf(C[i], Q), show = !!(Lab.showing() || seen[i]);
+      b.classList.toggle('turned', show && t); b.classList.toggle('flipped', show && !t);
+      b.querySelector('small').textContent = show ? (t ? 'Turned' : 'Flipped') : ''; });
+  }
+  ctx.extra.innerHTML = '<div class="muted">Tap to circle Q turned</div>';
+  var turnedIdx = C.map(function(c, i){ return M.isTurnOf(c, Q) ? i + 1 : 0; }).filter(Boolean);
+  var rIdx = C.map(function(c, i){ return M.same(c, M.BOOK.pieces.R) ? i + 1 : 0; }).filter(Boolean)[0];
+  ctx.ans.innerHTML = '<div class="rule">Q turned: <em>' + turnedIdx.join(' and ') + '</em></div><div class="rule">R = piece <em>' + rIdx + '</em>, Q flipped</div><div class="rule">Fits only flipped = <em>ruled out</em></div>';
+  build();
+  var off = onResize(build);
+  var ang = 0, fl = 1;
+  function setT(){ qg.style.transform = 'rotate(' + ang + 'deg) scaleX(' + fl + ')'; }
+  function check(cells){ C.forEach(function(c, i){ if(M.same(c, cells)){ seen[i] = 1; cands[i].classList.remove('match'); void cands[i].offsetWidth; cands[i].classList.add('match'); } }); marks(); }
+  var stepsList = [];
+  for(var i = 1; i <= 3; i++) stepsList.push({ t:'turn' });
+  stepsList.push({ t:'turn', back:true }); stepsList.push({ t:'flip' });
+  for(i = 1; i <= 3; i++) stepsList.push({ t:'turn' });
+  var k = 0, cur = Q;
+  function doStep(g){
+    var a = stepsList[k++]; if(!a) return Promise.resolve();
+    if(a.t === 'turn'){ ang += 90; cur = M.rot(cur); }
+    else { fl = -fl; cur = M.flip(cur); }
+    setT(); status.innerHTML = a.t === 'flip' ? '<span style="color:var(--orange-ink)">Flip Q over</span>' : (fl < 0 ? 'Flipped Q, turned' : 'Q turned') + ' ' + (((ang % 360) + 360) % 360) + '&deg;';
+    return Lab.sleep(Lab.RM ? 0 : 650, g).then(function(){ check(cur); });
+  }
+  function rst(){ Lab.bump(); ang = 0; fl = 1; k = 0; cur = Q; seen = {}; if(qg) setT(); status.innerHTML = '&nbsp;'; marks(); }
+  return {
+    play: function(){ rst(); var g = Lab.gen(); var p = Lab.sleep(200, g); stepsList.forEach(function(){ p = p.then(function(){ return doStep(g); }).then(function(){ return Lab.sleep(350, g); }); }); return p; },
+    step: function(){ var g = Lab.bump(); if(k >= stepsList.length){ rst(); return; } return doStep(g); },
+    reset: rst, answer: marks, destroy: off };
+}
+
+function stepFree(ctx){
+  var vis = ctx.vis, puzzles = [M.BOOK].concat(M.EXTRA || []), cur = 0, pb = null, picks = {};
+  var pick = el('div', 'seg'); vis.appendChild(pick);
+  var holder = el('div'); holder.style.width = '100%'; vis.appendChild(holder);
+  function mount(i){
+    cur = i; holder.innerHTML = ''; picks = {};
+    pb = new PieceBoard(holder, puzzles[i], { showCount:true, hf:0.36, maxU:70 });
+    pb.onChange = side;
+    pick.innerHTML = puzzles.map(function(p, j){ return '<button type="button" class="' + (j === i ? 'on' : '') + '" data-j="' + j + '">' + (j === 0 ? 'Booklet' : 'Puzzle ' + (j + 1)) + '</button>'; }).join('');
+    pick.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ mount(+b.dataset.j); }; });
+    side(); ans();
+  }
+  function side(){
+    if(!pb) return;
+    var occ = Object.keys(pb.occupied()).length;
+    ctx.extra.innerHTML = toolsHTML() +
+      '<div class="stats" style="display:flex;gap:8px;margin-top:8px"><div class="chip"><small>Shape</small>' + pb.pz.shape.length + '</div><div class="chip"><small>Placed</small>' + occ + '</div></div>' +
+      '<div class="lbl" style="margin-top:8px">Options</div>' + optionList(pb.pz, picks, Lab.showing());
+    wireTools(ctx.extra, pb);
+    ctx.extra.querySelectorAll('.ob').forEach(function(b){ b.onclick = function(){ picks[b.dataset.i] = !picks[b.dataset.i]; side(); }; });
+  }
+  function ans(){
+    var sol = M.solve(pb.pz), right = sol.filter(function(s){ return s.fits; })[0];
+    ctx.ans.innerHTML = '<div class="rule">Answer: <em>' + right.names.join(' and ') + '</em></div>' +
+      sol.filter(function(s){ return s.fitsFlipped; }).map(function(s){ return '<div class="rule">' + s.names.join(' and ') + ': only flipped</div>'; }).join('');
+    Lab.refreshAns();
+    if(Lab.showing()){ // place the solution
+      pb.reset(); right.tiling.forEach(function(t){ var n = right.names[t.piece]; pb.orient[n] = M.norm(t.cells); pb.placed[n] = t.cells; });
+      pb.draw(); pb.drawTray(); pb.changed();
+    }
+    side();
+  }
+  mount(0);
+  ctx.extra.style.minWidth = '0';
+  var off = onResize(function(){ pb.size(); pb.draw(); pb.drawTray(); });
+  return { reset: function(){ pb.reset(); picks = {}; side(); }, answer: ans, destroy: off };
+}
+
+Lab.init({ title: 'Which Pieces', steps: [
+  { name:'Count Squares', q:'Which two pieces make the shape?', mount: stepCount },
+  { name:'Awkward Square', q:'Which square is the hardest to fill?', mount: stepAwkward },
+  { name:'Turn or Flip', q:'Which pieces are Q turned?', mount: stepTurn },
+  { name:'Free Play', q:'', play:false, step:false, mount: stepFree }
+]});
+})();
+
+</script>
+</body>
+</html>

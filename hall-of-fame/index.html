@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="The weekly Contour Hall of Fame: winning teams, Sprint champions and campus leaderboard.">
+<meta name="description" content="The weekly Contour Hall of Fame: winning teams, Sprint and Quiz champions, and the campus leaderboard.">
 <title>Contour Hall of Fame</title>
 <link rel="stylesheet" href="../team-challenge/live.css">
 <style>
@@ -11,6 +11,7 @@
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .pick{display:flex;align-items:center;gap:8px}
 .pick label{font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.picks{display:flex;gap:12px;flex-wrap:wrap}
 .pick select{border:2px solid var(--line);border-radius:12px;padding:9px 12px;font:inherit;font-weight:750;color:var(--navy);background:#fff;max-width:72vw}
 .hero{background:var(--navy);color:#fff;border-radius:22px;padding:24px 26px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center}
 .hero .wk{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
@@ -57,7 +58,8 @@
       <h1>Hall of Fame</h1>
       <span class="chip orange" id="demoChip" hidden>Demo</span>
     </div>
-    <div class="pick"><label for="wk">Week</label><select id="wk"></select></div>
+    <div class="picks"><div class="pick"><label for="yr">Year</label><select id="yr"><option value="">All</option></select></div>
+    <div class="pick"><label for="wk">Week</label><select id="wk"></select></div></div>
   </header>
   <section class="hero" id="hero"></section>
   <div class="grid">
@@ -65,31 +67,40 @@
     <div class="side">
       <section class="panel"><h3>Campus leaderboard</h3><p class="sub">Average winning team score, so small campuses compete fairly</p><div id="campuses"></div></section>
       <section class="panel"><h3>Sprint champions</h3><p class="sub">Most right in the Exam Sprint, fastest finish breaks ties</p><ol class="list" id="sprint"></ol></section>
+      <section class="panel"><h3>Quiz champions</h3><p class="sub">Most right in the end of class Quiz, fastest finish breaks ties</p><ol class="list" id="quiz"></ol></section>
     </div>
   </div>
 </div>
 <script src="../config.js"></script>
 <script src="../feedback/resources.js"></script>
+<script src="../team-challenge/questions.js"></script>
 <script src="../team-challenge/engine.js"></script>
 <script src="../team-challenge/api.js"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, esc = Live.esc;
-  var params = new URLSearchParams(location.search), week = params.get("week") || "";
+  var params = new URLSearchParams(location.search), week = params.get("week") || "", year = params.get("year") || "";
+  function yearOf(id) { var m = /:y(\d+)-/.exec(id || ""); return m ? m[1] : ""; }
+  function qcount(r) { var st = (window.QUESTIONS || {})[r.resource]; return st && st[r.type] ? st[r.type].length : (r.type === "quiz" ? 12 : 10); }
   $("demoChip").hidden = !Live.demo;
   function label(id) { var l = Live.weekLabel(id); return l.week + (l.dates ? " · " + l.dates : "") + (l.title ? " · " + l.title : ""); }
 
   function render(h) {
     if (!h.ok) { $("hero").innerHTML = "<div><h2>Can't load the Hall of Fame</h2><p>Check the connection and refresh.</p></div>"; return; }
     week = h.week;
-    $("wk").innerHTML = h.weeks.length ? h.weeks.map(function (w) { return '<option value="' + esc(w) + '"' + (w === h.week ? " selected" : "") + ">" + esc(label(w)) + "</option>"; }).join("") : "<option>No weeks yet</option>";
-    var r = Engine.rankClasses(h.rows), sprint = h.rows.filter(function (x) { return x.type === "sprint"; });
-    sprint.sort(function (a, b) { return (b.score - a.score) || (a.ms - b.ms); });
+    var years = []; h.weeks.forEach(function (w) { var y = yearOf(w); if (y && years.indexOf(y) < 0) years.push(y); });
+    years.sort();
+    $("yr").innerHTML = '<option value="">All</option>' + years.map(function (y) { return '<option value="' + y + '"' + (y === year ? " selected" : "") + ">Year " + y + "</option>"; }).join("");
+    var shown = h.weeks.filter(function (w) { return !year || yearOf(w) === year; });
+    $("wk").innerHTML = shown.length ? shown.map(function (w) { return '<option value="' + esc(w) + '"' + (w === h.week ? " selected" : "") + ">" + esc(label(w)) + "</option>"; }).join("") : "<option>No weeks yet</option>";
+    var r = Engine.rankClasses(h.rows);
+    function champs(type) { var l = h.rows.filter(function (x) { return x.type === type; }); l.sort(function (a, b) { return (b.score - a.score) || (a.ms - b.ms); }); return l; }
+    var sprint = champs("sprint"), quiz = champs("quiz");
     var l = Live.weekLabel(h.week);
     $("hero").innerHTML = '<div><div class="wk">' + esc(l.week || "This week") + (l.dates ? " · " + esc(l.dates) : "") + "</div><h2>" +
       (r.classes.length ? "Top class: " + esc(r.classes[0].cls) : "No winners yet") + "</h2><p>" +
       (r.classes.length ? esc(r.classes[0].campus) + " · " + esc(r.classes[0].teams.map(function (t) { return t.team; }).join(" and ")) : "Winners appear here when a tutor finishes the Team Challenge.") + (l.title ? " · " + esc(l.title) : "") + "</p></div>" +
-      '<div class="nums"><div class="n"><b>' + r.classes.length + "</b><span>Classes</span></div><div class=\"n\"><b>" + r.campuses.length + "</b><span>Campuses</span></div><div class=\"n\"><b>" + sprint.length + "</b><span>Champions</span></div></div>";
+      '<div class="nums"><div class="n"><b>' + r.classes.length + "</b><span>Classes</span></div><div class=\"n\"><b>" + r.campuses.length + "</b><span>Campuses</span></div><div class=\"n\"><b>" + (sprint.length + quiz.length) + "</b><span>Champions</span></div></div>";
 
     $("classes").innerHTML = r.classes.length ? r.classes.map(function (c) {
       return '<li class="cl' + (c.rank === 1 ? " first" : "") + '"><span class="rk">' + c.rank + "</span><div>" +
@@ -105,12 +116,25 @@
       Array.prototype.forEach.call(document.querySelectorAll(".camp .bar"), function (b) { b.style.width = b.dataset.w + "%"; });
     }); });
 
-    $("sprint").innerHTML = sprint.length ? sprint.map(function (s, i) {
-      return '<li class="cl' + (i === 0 ? " first" : "") + '"><span class="rk">' + (i + 1) + '</span><div><div class="team">' + esc(s.names) + '</div><div class="where">' + esc(s.team) + " · " + esc(s.cls) + " · " + esc(s.campus) + '</div></div><span class="sc">' + s.score + "/10<small>" + Live.clock(s.ms) + "</small></span></li>";
-    }).join("") : '<li class="empty"><b>Nothing yet</b>Champions appear when a tutor ends the Sprint.</li>';
+    function champList(list, what) {
+      return list.length ? list.map(function (x, i) {
+        return '<li class="cl' + (i === 0 ? " first" : "") + '"><span class="rk">' + (i + 1) + '</span><div><div class="team">' + esc(x.names) + '</div><div class="where">' + (x.team ? esc(x.team) + " · " : "") + esc(x.cls) + " · " + esc(x.campus) + '</div></div><span class="sc">' + x.score + "/" + qcount(x) + "<small>" + Live.clock(x.ms) + "</small></span></li>";
+      }).join("") : '<li class="empty"><b>Nothing yet</b>Champions appear when a tutor ends the ' + what + ".</li>";
+    }
+    $("sprint").innerHTML = champList(sprint, "Sprint");
+    $("quiz").innerHTML = champList(quiz, "Quiz");
   }
 
   function load() { Live.hallOfFame(week).then(render); }
+  $("yr").onchange = function () {
+    year = this.value;
+    var opts = Array.prototype.map.call($("wk").options, function (o) { return o.value; });
+    Live.hallOfFame("").then(function (h) {
+      var first = h.weeks.filter(function (w) { return !year || yearOf(w) === year; })[0] || "";
+      week = first; history.replaceState(null, "", "?week=" + encodeURIComponent(week) + (year ? "&year=" + year : ""));
+      load();
+    });
+  };
   $("wk").onchange = function () { week = this.value; history.replaceState(null, "", "?week=" + encodeURIComponent(week)); load(); };
   load();
   setInterval(load, 30000);

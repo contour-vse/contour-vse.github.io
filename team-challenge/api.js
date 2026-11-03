@@ -12,9 +12,13 @@ var Live = (function () {
   window.addEventListener("storage", function (e) { if (e.key === DB_KEY) changed(); });
 
   function ctx() {
-    var Q = window.QUESTIONS, bank = {};
-    for (var r in Q) bank[r] = Q[r].map(function (q) { return q.id; });
-    return { bank: bank, keys: window.DEMO_KEYS || {}, points: { warmup: 1, challenge: 3, sprint: 1 }, sprintMs: 12 * 60 * 1000, now: Date.now(), rand: Math.random };
+    var sets = {}, K = window.DEMO_KEYS || {}, E = window.DEMO_EXPLAIN || {};
+    for (var res in window.QUESTIONS) {
+      var Q = window.QUESTIONS[res], bank = {};
+      ["warmup", "challenge", "sprint", "quiz"].forEach(function (p) { bank[p] = (Q[p] || []).map(function (q) { return q.id; }); });
+      sets[res] = { bank: bank, keys: K[res] || {}, explain: E[res] || {} };
+    }
+    return { sets: sets, points: { warmup: 1, challenge: 3, sprint: 1, quiz: 1 }, sprintMs: 12 * 60 * 1000, now: Date.now(), rand: Math.random };
   }
   function readDb() { try { return JSON.parse(localStorage.getItem(DB_KEY) || "{}") || {}; } catch (e) { return {}; } }
   function writeDb(db) { try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch (e) {} }
@@ -69,7 +73,8 @@ var Live = (function () {
     var mon = new Date(jan4 + ((w - 1) * 7 - (d4 - 1)) * 86400000), sun = new Date(mon.getTime() + 6 * 86400000);
     var M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     var dates = mon.getUTCDate() + (mon.getUTCMonth() !== sun.getUTCMonth() ? " " + M[mon.getUTCMonth()] : "") + " to " + sun.getUTCDate() + " " + M[sun.getUTCMonth()];
-    var R = window.FEEDBACK_RESOURCES || {}, title = R[m[3]] ? R[m[3]].title : m[3];
+    var R = window.FEEDBACK_RESOURCES || {}, QS = window.QUESTIONS || {};
+    var title = QS[m[3]] && QS[m[3]].title ? QS[m[3]].title : (R[m[3]] ? R[m[3]].title : m[3]);
     return { week: "Week " + w, dates: dates, title: title };
   }
 
@@ -100,9 +105,21 @@ var Live = (function () {
     var st; try { st = demo ? sessionStorage : localStorage; } catch (e) { return null; }
     try { if (v === undefined) return st.getItem(k); if (v === null) st.removeItem(k); else st.setItem(k, v); } catch (e) { return null; }
   }
+  /* The question set of the current room (call useSet with the room's resource). */
+  var curSet = null;
+  function useSet(res) { if (window.QUESTIONS[res]) curSet = res; return Q(); }
+  function Q() {
+    var all = window.QUESTIONS;
+    if (!curSet || !all[curSet]) curSet = all["y8-qr-1-1-wb"] ? "y8-qr-1-1-wb" : Object.keys(all)[0];
+    var st = all[curSet];
+    ["warmup", "challenge", "sprint", "quiz"].forEach(function (p) { if (!st[p]) st[p] = []; });
+    return st;
+  }
+  /* Short label for a solo question: its workbook number if it has one, else Q1, Q2... */
+  function qnum(q, i) { return q && q.label ? q.label.replace(/^Workbook /, "") : "Q" + (i + 1); }
   function byId(id) {
-    var Q = window.QUESTIONS;
-    for (var r in Q) for (var i = 0; i < Q[r].length; i++) if (Q[r][i].id === id) return Q[r][i];
+    var st = Q();
+    for (var r in st) if (Array.isArray(st[r])) for (var i = 0; i < st[r].length; i++) if (st[r][i].id === id) return st[r][i];
     return null;
   }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -115,5 +132,5 @@ var Live = (function () {
     ms = Math.max(0, ms); var s = Math.ceil(ms / 1000);
     return Math.floor(s / 60) + ":" + ("0" + (s % 60)).slice(-2);
   }
-  return { demo: demo, call: call, state: state, hallOfFame: hallOfFame, weekLabel: weekLabel, poll: poll, uid: uid, ls: ls, mine: mine, byId: byId, esc: esc, imgs: imgs, clock: clock, LETTERS: ["A", "B", "C", "D"] };
+  return { demo: demo, call: call, state: state, hallOfFame: hallOfFame, weekLabel: weekLabel, useSet: useSet, Q: Q, qnum: qnum, poll: poll, uid: uid, ls: ls, mine: mine, byId: byId, esc: esc, imgs: imgs, clock: clock, LETTERS: ["A", "B", "C", "D"] };
 })();

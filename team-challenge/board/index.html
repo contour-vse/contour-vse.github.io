@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Contour Live tutor board: live scoreboard for the team challenge and exam sprint.">
+<meta name="description" content="Contour Live tutor board: live scoreboard for the team challenge, exam sprint and end of class quiz.">
 <meta name="robots" content="noindex">
 <title>Contour Live Board</title>
 <link rel="stylesheet" href="../live.css">
@@ -106,6 +106,11 @@ body{font-size:18px}
 .f label{font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .f input,.f select{border:2px solid var(--line);border-radius:12px;padding:11px 14px;font:inherit;font-size:19px;background:#fff;color:var(--ink);min-width:0;width:100%}
 .f input:focus,.f select:focus{border-color:var(--blue);outline:none}
+.parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.parts label{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-weight:800;color:var(--navy);font-size:17px;text-transform:none;letter-spacing:0;cursor:pointer}
+.parts label small{display:block;font-weight:600;color:var(--muted);font-size:13px}
+.parts input{width:22px;height:22px;accent-color:var(--navy);flex:none}
+.parts label:has(input:checked){border-color:var(--navy);background:var(--navy-soft)}
 .err{color:var(--orange-ink);font-weight:700;min-height:1.4em;margin:0 0 8px}
 .classchip{font-weight:800;font-size:15px;color:var(--navy);background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:5px 12px;white-space:nowrap}
 .hofline{display:flex;gap:12px;align-items:center;background:var(--navy);color:#fff;border-radius:14px;padding:12px 14px;font-weight:800;font-size:18px;margin-top:16px}
@@ -172,30 +177,73 @@ body{font-size:18px}
     $("controls").hidden = true; $("topRight").innerHTML = "";
     var camps = window.CAMPUSES || Engine.CAMPUSES, R = window.FEEDBACK_RESOURCES || {};
     var lastCampus = Live.ls("cl-campus") || "";
+    var lastParts = (Live.ls("cl-parts") || "warmup,challenge,sprint,quiz").split(",");
     $("main").innerHTML = '<section class="panel setup"><h2>Start a class game</h2>' +
       '<p class="small lead" style="font-size:18px;margin:0 0 18px">' + esc(msg || "Students join with the code. Winners go up in the weekly Hall of Fame.") + "</p>" +
       '<div class="f"><label for="campus">Campus</label><select id="campus"><option value="">Pick a campus</option>' +
       camps.map(function (c) { return "<option" + (c === lastCampus ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("") + "</select></div>" +
       '<div class="f"><label for="cls">Class</label><input id="cls" maxlength="40" placeholder="e.g. Sat 10am Y8 QR" value="' + esc(Live.ls("cl-class") || "") + '"></div>' +
-      '<div class="f"><label for="res">Resource</label><input id="res" maxlength="40" list="resList" value="' + esc(Live.ls("cl-res") || "y8-qr-1-1-wb") + '"><datalist id="resList">' +
-      Object.keys(R).map(function (k) { return '<option value="' + esc(k) + '">' + esc(R[k].title) + "</option>"; }).join("") + "</datalist></div>" +
+      '<div class="f"><label for="res">Resource</label><select id="res">' + Object.keys(window.QUESTIONS).map(function (k) {
+        var st = window.QUESTIONS[k];
+        return '<option value="' + esc(k) + '"' + (k === (Live.ls("cl-res") || "y8-qr-1-1-wb") ? " selected" : "") + ">" + esc((st.year ? "Year " + st.year + " · " : "") + (st.title || k)) + "</option>";
+      }).join("") + "</select></div>" +
+      '<div class="f"><label>This class runs</label><div class="parts" id="parts">' + PARTS.map(function (p) {
+        return '<label><input type="checkbox" value="' + p[0] + '"' + (lastParts.indexOf(p[0]) >= 0 ? " checked" : "") + "><span>" + p[1] + "<small>" + p[2] + "</small></span></label>";
+      }).join("") + "</div></div>" +
       '<div class="f"><label for="prz">Tutor\'s prize</label><input id="prz" maxlength="90" placeholder="e.g. first pick of the prize jar" value="' + esc(Live.ls("cl-prize") || "") + '"></div>' +
       '<p class="err" id="err"></p><button class="btn primary big block" id="mk" type="button">Create room</button></section>';
+    function syncParts() {
+      var st = window.QUESTIONS[$("res").value] || {};
+      Array.prototype.forEach.call($("parts").querySelectorAll("input"), function (i) {
+        var n = (st[i.value] || []).length;
+        i.disabled = !n; if (!n) i.checked = false; else if (i.dataset.off) { i.checked = true; }
+        i.dataset.off = n ? "" : "1";
+        i.parentNode.style.opacity = n ? "" : ".45";
+      });
+    }
+    $("res").onchange = syncParts; syncParts();
     $("mk").onclick = function () {
-      var body = { campus: $("campus").value, cls: $("cls").value.trim(), resource: $("res").value.trim() || "y8-qr-1-1-wb", prize: $("prz").value.trim() };
+      var body = { campus: $("campus").value, cls: $("cls").value.trim(), resource: $("res").value || "y8-qr-1-1-wb", prize: $("prz").value.trim(),
+        parts: Array.prototype.filter.call($("parts").querySelectorAll("input"), function (i) { return i.checked; }).map(function (i) { return i.value; }) };
       if (!body.campus) { $("err").textContent = "Pick the campus"; return; }
       if (!body.cls) { $("err").textContent = "Type the class, e.g. Sat 10am Y8 QR"; return; }
+      if (!body.parts.length) { $("err").textContent = "Tick at least one part"; return; }
       if (!body.prize) { $("err").textContent = "Type the tutor's prize"; $("prz").focus(); return; }
       this.disabled = true;
       Live.call("room.create", body).then(function (r) {
         if (!r.ok) { renderEmpty(r.message || "Could not create a room"); return; }
-        Live.ls("cl-campus", body.campus); Live.ls("cl-class", body.cls); Live.ls("cl-res", body.resource); Live.ls("cl-prize", body.prize);
+        Live.ls("cl-campus", body.campus); Live.ls("cl-class", body.cls); Live.ls("cl-res", body.resource); Live.ls("cl-prize", body.prize); Live.ls("cl-parts", body.parts.join(","));
         B.room = r.code; B.tk = r.tk;
         Live.ls("cl-tk-" + r.code, r.tk); Live.ls("cl-board-room", r.code);
         history.replaceState(null, "", "?room=" + r.code);
         B.lastMain = ""; poller.now();
       });
     };
+  }
+  var PARTS = [["warmup", "Warm Up", "Teams · easy questions"], ["challenge", "Challenge", "Teams · First Try questions"], ["sprint", "Exam Sprint", "Solo · 12 min"], ["quiz", "Quiz", "Solo · end of class · 12 min"]];
+  var SOLO = { sprint: { name: "Exam Sprint", champ: "Sprint champion" }, quiz: { name: "Quiz", sub: "End of class quiz", champ: "Quiz champion" } };
+  /* "Workbook Q34 to Q43" when the set's questions carry workbook labels. */
+  function soloSub(kind) {
+    if (SOLO[kind].sub) return SOLO[kind].sub;
+    var l = Q[kind] || [], a = l[0], z = l[l.length - 1];
+    return a && a.label && z.label ? a.label + " to " + z.label.replace(/^Workbook /, "") : SOLO[kind].name;
+  }
+  function has(v, p) { return v.parts.indexOf(p) >= 0; }
+  /* The order a class runs: warm up, challenge, team results, sprint, quiz (only the parts it picked). */
+  function flow(v) {
+    var f = [];
+    if (has(v, "warmup")) f.push("warmup");
+    if (has(v, "challenge")) f.push("challenge");
+    if (v.teamMode) f.push("teamDone");
+    if (has(v, "sprint")) f.push("sprint");
+    if (has(v, "quiz")) f.push("quiz");
+    return f;
+  }
+  function stepButton(step, label) {
+    if (!step) return "";
+    if (step === "warmup" || step === "challenge") return '<button class="btn primary big" data-op="round" data-round="' + step + '" type="button">' + (label || (step === "warmup" ? "Start Round 1: Warm Up" : "Start Round 2: Challenge")) + "</button>";
+    if (step === "teamDone") return '<button class="btn primary big" data-op="teamEnd" type="button">Finish Team Challenge</button>';
+    return '<button class="btn primary big" data-op="' + step + 'Ready" type="button">Go to ' + SOLO[step].name + "</button>";
   }
   function lc(t) { t = String(t || ""); return /^[A-Z][a-z]/.test(t) ? t.charAt(0).toLowerCase() + t.slice(1) : t; }
   function hofUrl(v) { return "../../hall-of-fame/?week=" + encodeURIComponent(v.weekId); }
@@ -205,12 +253,14 @@ body{font-size:18px}
   function stage(html, v) {
     if (!$("stage")) {
       $("main").innerHTML = '<div class="grid"><section class="panel" id="stage"></section><section class="panel" id="side">' +
-        '<p class="eyebrow">Team scores</p><div class="board" id="sb"></div>' +
+        '<p class="eyebrow" id="sbHead">Team scores</p><div class="board" id="sb"></div>' +
+        '<p class="eyebrow" style="margin-top:4px">Up for grabs</p>' +
         '<div class="hofline">' + trophy() + '<span id="hofLine"></span></div>' +
         '<div class="prize" style="margin-top:10px"><label for="prizeTutor">Tutor\'s prize</label><input id="prizeTutor" maxlength="90" placeholder="e.g. first pick of the prize jar"></div></section></div>';
       wirePrize();
     }
     $("stage").innerHTML = html;
+    $("sbHead").hidden = $("sb").hidden = !v.teamMode;
     $("hofLine").textContent = v.hof;
     var pe = $("prizeTutor"); if (document.activeElement !== pe) pe.value = v.prize.tutor || "";
     updateScoreboard(v);
@@ -252,11 +302,12 @@ body{font-size:18px}
     }).join("");
     stage('<div class="lobby"><div class="qr" id="qr"></div><div>' +
       '<p class="eyebrow">Join on your phone</p><div class="bigcode">' + esc(B.room) + '</div><p class="url">' + esc(url.replace(/^https?:\/\//, "")) + "</p>" +
-      '<ol class="steps"><li><b>1</b>Scan the code</li><li><b>2</b>Type your first name</li><li><b>3</b>Tap your team</li></ol></div></div>' +
+      '<ol class="steps"><li><b>1</b>Scan the code</li><li><b>2</b>Type your first name</li>' + (v.teamMode ? "<li><b>3</b>Tap your team</li>" : "") + "</ol></div></div>" +
+      (!v.teamMode ? '<p class="rankline">' + v.players + " joined · today: " + flow(v).map(function (f) { return SOLO[f].name; }).join(" then ") + "</p>" :
       '<div style="margin-top:22px"><p class="eyebrow">Teams <span class="small" style="text-transform:none;letter-spacing:0;font-family:var(--sans)">(4 to 8, tap a name to edit)</span></p><div class="tset" id="tset">' + teams + "</div>" +
-      '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" id="addT" type="button"' + (v.teams.length >= 8 ? " disabled" : "") + '>Add team</button><button class="btn" id="rmT" type="button"' + (v.teams.length <= 4 ? " disabled" : "") + '>Remove last</button><button class="btn navy" id="saveT" type="button">Save names</button></div></div>' +
-      "", v);
+      '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" id="addT" type="button"' + (v.teams.length >= 8 ? " disabled" : "") + '>Add team</button><button class="btn" id="rmT" type="button"' + (v.teams.length <= 4 ? " disabled" : "") + '>Remove last</button><button class="btn navy" id="saveT" type="button">Save names</button></div></div>'), v);
     $("qr").innerHTML = QR.svg(url, { dark: "#0B3D91" });
+    if (!v.teamMode) return;
     function names() { return Array.prototype.map.call($("tset").querySelectorAll("input"), function (i) { return i.value.trim(); }); }
     function save(list) {
       Live.call("room.setTeams", { room: B.room, tk: B.tk, teams: list }).then(function (r) { toast(r.ok ? "Teams saved" : (r.message || "Try again")); B.lastMain = ""; poller.now(); });
@@ -283,7 +334,7 @@ body{font-size:18px}
     stage('<div class="qtop"><span class="eyebrow" style="margin:0">' + (v.round === "warmup" ? "Round 1 · Warm Up" : "Round 2 · Challenge") + "</span>" +
       '<span class="chip">Q' + (v.qi + 1) + " of " + total + " · " + pts + (pts === 1 ? " point" : " points") + "</span></div>" +
       '<div class="locks"><span class="small" style="font-weight:800">' + (v.revealed ? "Answers:" : v.locked.length + " of " + v.teams.length + " locked in") + "</span>" + locks + "</div>" +
-      '<p class="qtext">' + esc(q.text) + "</p>" + Live.imgs(q, "../") + '<p class="qask">' + esc(q.ask) + "</p>" +
+      (q.text ? '<p class="qtext">' + esc(q.text) + "</p>" : "") + Live.imgs(q, "../") + '<p class="qask">' + esc(q.ask) + "</p>" +
       '<div class="bopts">' + opts + "</div>", v);
     requestAnimationFrame(function () { requestAnimationFrame(function () {
       Array.prototype.forEach.call(document.querySelectorAll(".bopt .fill"), function (f) { f.style.width = f.dataset.w + "%"; });
@@ -308,22 +359,22 @@ body{font-size:18px}
   }
 
   function renderSprint(v) {
-    var sp = v.sprint, panel;
+    var kind = v.mode, K = SOLO[kind], sp = v[kind], panel;
     if (sp.status === "ended") {
       var top = (sp.top || []).map(function (r, i) {
-        return '<li style="animation-delay:' + ((4 - i) * 0.35) + 's"><span class="pos">' + ordinal(i + 1) + '</span><span class="who">' + esc(r.n) + "<small>" + esc(r.team) + '</small></span><span class="tm">' + Live.clock(r.ms) + '</span><span class="pts">' + r.score + "/" + sp.n + "</span></li>";
+        return '<li style="animation-delay:' + ((4 - i) * 0.35) + 's"><span class="pos">' + ordinal(i + 1) + '</span><span class="who">' + esc(r.n) + "<small>" + esc(r.team || v.cls) + '</small></span><span class="tm">' + Live.clock(r.ms) + '</span><span class="pts">' + r.score + "/" + sp.n + "</span></li>";
       }).join("");
       var others = Math.max(0, (sp.people || 0) - (sp.top || []).length);
-      panel = '<p class="eyebrow">Exam Sprint results</p><h2>Top 5</h2>' +
+      panel = '<p class="eyebrow">' + K.name + ' results</p><h2>Top 5</h2>' +
         (top ? '<ol class="podium">' + top + "</ol>" : '<p class="small">Nobody answered this time.</p>') +
         '<p class="small" style="margin-top:14px;font-size:18px;font-weight:700">' + sp.finished + " students finished" + (others ? " · " + others + " more took part" : "") + ". Ties go to the faster finish.</p>" +
-        (sp.top && sp.top.length ? '<p style="font-size:20px;font-weight:700;margin:12px 0 0">' + esc(sp.top[0].n) + " is the Sprint champion: " + esc(v.hof.charAt(0).toLowerCase() + v.hof.slice(1)) + (v.prize.tutor ? ", plus " + esc(lc(v.prize.tutor)) : "") + ".</p>" : "") + hofLink(v);
+        (sp.top && sp.top.length ? '<p style="font-size:20px;font-weight:700;margin:12px 0 0">' + esc(sp.top[0].n) + " is the " + K.champ + ": " + esc(v.hof.charAt(0).toLowerCase() + v.hof.slice(1)) + (v.prize.tutor ? ", plus " + esc(lc(v.prize.tutor)) : "") + ".</p>" : "") + hofLink(v);
     } else if (sp.status === "running") {
-      panel = '<p class="eyebrow">Exam Sprint · Workbook Q34 to Q43</p><div class="huge" id="tm">12:00</div>' +
+      panel = '<p class="eyebrow">' + K.name + " · " + soloSub(kind) + '</p><div class="huge" id="tm">12:00</div>' +
         '<div class="meter"><i style="width:' + (sp.people ? (sp.answered / (sp.people * sp.n) * 100) : 0) + '%"></i></div>' +
-        '<div class="stats"><div><b>' + (sp.answered || 0) + "</b><span>Answers locked</span></div><div><b>" + (sp.people || 0) + "</b><span>Students going</span></div><div><b>" + sp.finished + "</b><span>Finished</span></div></div>" ;
+        '<div class="stats"><div><b>' + (sp.answered || 0) + "</b><span>Answers locked</span></div><div><b>" + (sp.people || 0) + "</b><span>Students going</span></div><div><b>" + sp.finished + "</b><span>Finished</span></div></div>";
     } else {
-      panel = '<p class="eyebrow">Exam Sprint · Workbook Q34 to Q43</p><h2>10 questions · 12 minutes · just you</h2>' +
+      panel = '<p class="eyebrow">' + K.name + " · " + soloSub(kind) + "</p><h2>" + sp.n + " questions · 12 minutes · just you</h2>" +
         '<ol class="steps"><li><b>1</b>Each answer locks. No changing it.</li><li><b>2</b>Skip slow ones, come back to them later.</li><li><b>3</b>Most right wins. Ties go to the faster finish.</li></ol>' +
         '<div style="display:flex;gap:20px;align-items:center;margin-top:22px"><div class="qr" id="qr" style="width:180px"></div><div><p class="eyebrow">Late? Join with</p><div class="bigcode" style="font-size:64px">' + esc(B.room) + "</div></div></div>";
     }
@@ -332,22 +383,22 @@ body{font-size:18px}
   }
 
   function controls(v) {
-    var c = [], sp = v.sprint.status;
+    var c = [], f = flow(v), at = f.indexOf(v.mode === "team" ? v.round : v.mode), nextStep = f[at + 1];
     if (v.mode === "team") {
       var total = Q[v.round].length;
       c.push('<button class="btn" data-op="prev" type="button"' + (v.qi === 0 ? " disabled" : "") + ">Back<span class=\"k\">P</span></button>");
       c.push('<button class="btn orange big" data-op="reveal" type="button"' + (v.revealed ? " disabled" : "") + ">Reveal answer<span class=\"k\">R</span></button>");
       if (v.qi < total - 1) c.push('<button class="btn primary big" data-op="next" type="button">Next question<span class="k">N</span></button>');
-      else if (v.round === "warmup") c.push('<button class="btn primary big" data-op="round" data-round="challenge" type="button">Start Round 2</button>');
-      else c.push('<button class="btn primary big" data-op="teamEnd" type="button">Finish Team Challenge</button>');
+      else c.push(stepButton(nextStep));
     } else if (v.mode === "teamDone") {
-      c.push('<button class="btn primary big" data-op="sprintReady" type="button">Go to Exam Sprint</button>');
-    } else if (v.mode === "sprint") {
-      if (sp === "ready" || sp === "idle") c.push('<button class="btn green big" data-op="sprintStart" type="button">Start 12 minute timer</button>');
-      if (sp === "running") c.push('<button class="btn orange big" data-op="sprintEnd" type="button">End sprint now</button>');
-      if (sp === "ended") c.push('<button class="btn" data-op="sprintStart" data-restart="1" type="button">Run sprint again</button>');
+      c.push(stepButton(nextStep));
+    } else if (v.mode === "sprint" || v.mode === "quiz") {
+      var k = v.mode, sp = v[k].status, nm = SOLO[k].name;
+      if (sp === "ready" || sp === "idle") c.push('<button class="btn green big" data-op="' + k + 'Start" type="button">Start 12 minute timer</button>');
+      if (sp === "running") c.push('<button class="btn orange big" data-op="' + k + 'End" type="button">End ' + nm + " now</button>");
+      if (sp === "ended") { c.push('<button class="btn" data-op="' + k + 'Start" data-restart="1" type="button">Run ' + nm + " again</button>"); c.push(stepButton(nextStep)); }
     } else {
-      c.push('<button class="btn primary big" data-op="round" data-round="warmup" type="button">Start Round 1: Warm Up</button>');
+      c.push(stepButton(f[0]));
     }
     c.push('<span class="sep"></span><button class="btn" id="fs" type="button">Full screen<span class="k">F</span></button>');
     $("controls").innerHTML = c.join(""); $("controls").hidden = false;
@@ -359,8 +410,8 @@ body{font-size:18px}
     var b = e.target.closest("button[data-op]"); if (!b || b.disabled) return;
     var op = b.dataset.op, extra = {};
     if (b.dataset.round) extra.round = b.dataset.round;
-    if (b.dataset.restart) { if (!confirm("Clear the sprint results and run it again?")) return; extra.restart = true; }
-    if (op === "sprintEnd" && !confirm("End the sprint now?")) return;
+    if (b.dataset.restart) { if (!confirm("Clear these results and run it again?")) return; extra.restart = true; }
+    if (/End$/.test(op) && op !== "teamEnd" && !confirm("End the " + SOLO[op.replace("End", "")].name + " now?")) return;
     if (op === "teamEnd" && !confirm("Finish the Team Challenge and put the winners in the Hall of Fame?")) return;
     act(op, extra);
   });
@@ -375,21 +426,22 @@ body{font-size:18px}
   });
 
   function topRight(v) {
-    var tabs = [["lobby", "Lobby"], ["warmup", "Warm Up"], ["challenge", "Challenge"], ["teamDone", "Results"], ["sprint", "Sprint"]];
+    var names = { warmup: "Warm Up", challenge: "Challenge", teamDone: "Results", sprint: "Sprint", quiz: "Quiz" };
+    var tabs = [["lobby", "Lobby"]].concat(flow(v).map(function (f) { return [f, names[f]]; }));
     var cur = v.mode === "team" ? v.round : v.mode;
     $("topRight").innerHTML = '<span class="classchip">' + esc(v.cls) + " · " + esc(v.campus) + "</span>" + '<div class="modes" id="modes">' + tabs.map(function (t) { return '<button type="button" data-m="' + t[0] + '" class="' + (t[0] === cur ? "on" : "") + '">' + t[1] + "</button>"; }).join("") + "</div>" +
       '<span class="codechip" title="Room code">' + esc(B.room) + "</span>" + '<span class="chip">' + (v.players || 0) + " joined</span>";
     $("modes").onclick = function (e) {
       var b = e.target.closest("button"); if (!b || b.classList.contains("on")) return;
       var m = b.dataset.m;
-      if (m === "lobby") act("lobby"); else if (m === "teamDone") { if (confirm("Finish the Team Challenge and put the winners in the Hall of Fame?")) act("teamEnd"); } else if (m === "sprint") act("sprintReady"); else act("round", { round: m });
+      if (m === "lobby") act("lobby"); else if (m === "teamDone") { if (confirm("Finish the Team Challenge and put the winners in the Hall of Fame?")) act("teamEnd"); } else if (m === "sprint" || m === "quiz") act(m + "Ready"); else act("round", { round: m });
     };
   }
 
   var timerInt = null;
   function tickTimer() {
     var v = B.view, el = $("tm"); if (!v || !el) return;
-    var ms = v.sprint.endAt - now(); el.textContent = Live.clock(ms); el.classList.toggle("low", ms < 60000);
+    var ms = v[v.mode].endAt - now(); el.textContent = Live.clock(ms); el.classList.toggle("low", ms < 60000);
     if (ms <= 0) { B.lastMain = ""; poller.now(); }
   }
 
@@ -397,16 +449,17 @@ body{font-size:18px}
     if (!B.room) return;
     if (!v.ok) { if (v.error === "room") { Live.ls("cl-board-room", null); B.room = ""; renderEmpty("That room has closed. Make a new one."); } return; }
     if (!v.tutor) { renderEmpty("This screen is not the tutor board for room " + B.room + ". Make a new room here."); B.room = ""; return; }
-    B.view = v; B.offset = v.now - Date.now();
-    if (v.mode === "sprint" && v.sprint.status === "ended" && !v.sprint.closed && !B.busy) act("sprintEnd");
-    var key = [v.v, v.mode, v.round, v.qi, v.revealed, v.sprint.status, v.players, JSON.stringify(v.teams)].join("|");
+    B.view = v; B.offset = v.now - Date.now(); Q = Live.useSet(v.resource);
+    var solo = v.mode === "sprint" || v.mode === "quiz", sst = solo ? v[v.mode].status : "";
+    if (solo && sst === "ended" && !v[v.mode].closed && !B.busy) act(v.mode + "End");
+    var key = [v.v, v.mode, v.round, v.qi, v.revealed, sst, v.players, JSON.stringify(v.teams)].join("|");
     if (key !== B.lastMain) {
-      var structural = [v.mode, v.round, v.qi, v.revealed, v.sprint.status, v.teams.length].join("|");
+      var structural = [v.mode, v.round, v.qi, v.revealed, sst, v.teams.length].join("|");
       if (structural === B.lastStruct && document.activeElement && document.activeElement.tagName === "INPUT") { updateScoreboard(v); }
       else {
         var sy = window.scrollY;
         if (v.mode === "team" && v.qid) renderTeamQ(v);
-        else if (v.mode === "sprint") renderSprint(v);
+        else if (solo) renderSprint(v);
         else if (v.mode === "teamDone") renderTeamDone(v);
         else renderLobby(v);
         window.scrollTo(0, sy);
@@ -415,7 +468,7 @@ body{font-size:18px}
       controls(v); topRight(v);
     }
     clearInterval(timerInt); timerInt = null;
-    if (v.mode === "sprint" && v.sprint.status === "running") { timerInt = setInterval(tickTimer, 250); tickTimer(); }
+    if (solo && sst === "running") { timerInt = setInterval(tickTimer, 250); tickTimer(); }
   }
 
   var poller = Live.poll(function () { return B.room && B.tk ? { room: B.room, extra: { tk: B.tk } } : null; }, render);

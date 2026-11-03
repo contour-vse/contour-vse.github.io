@@ -1,6 +1,9 @@
 /* Contour Live engine: pure game rules shared by the browser (demo mode) and
    the Apps Script backend (_backend/Code.gs holds an exact copy of this block).
-   No DOM, no network, no clock: the caller passes ctx = {bank, keys, points, sprintMs, now, rand}.
+   No DOM, no network, no clock: the caller passes ctx = {sets, points, sprintMs, now, rand},
+   where sets[resource] = {bank, keys, explain}; each room uses the set of its resource.
+   Solo games ("sprint" and "quiz") share one set of rules: individual, each answer locks,
+   timer started by the tutor, results only after the tutor ends it.
    store = {load(code) -> snap|null, save(code, snap), exists(code) -> bool}. */
 var Engine = (function () {
   var ALPHA = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -8,6 +11,14 @@ var Engine = (function () {
   var DEFAULT_TEAMS = ["Comets", "Falcons", "Rockets", "Sharks", "Tigers", "Wolves"];
   var CAMPUSES = ["Glen Waverley", "Box Hill", "Narre Warren", "Springvale", "Bentleigh", "Epping", "CBD", "Point Cook", "Online"];
   var HOF_LINE = "Your names go up in the weekly Contour Hall of Fame";
+  var PARTS = ["warmup", "challenge", "sprint", "quiz"];
+  var SOLO = { sprint: { sp: "sp", a: "sa", fin: "fin", tab: "Sprint", name: "Exam Sprint" }, quiz: { sp: "qz", a: "qa", fin: "qfin", tab: "Quiz", name: "Quiz" } };
+  function soloOf(snap, kind) {
+    var k = SOLO[kind];
+    if (!snap[k.sp]) { snap[k.sp] = { status: "idle", startAt: 0, endAt: 0 }; snap[k.a] = {}; snap[k.fin] = {}; }
+    return { sp: snap[k.sp], a: snap[k.a], fin: snap[k.fin] };
+  }
+  function hasTeams(snap) { return !snap.parts || snap.parts.indexOf("warmup") >= 0 || snap.parts.indexOf("challenge") >= 0; }
 
   /* ISO week in Melbourne time (UTC+11 is close enough: no class runs Sunday 11pm). */
   function isoWeek(ms) {
@@ -34,10 +45,12 @@ var Engine = (function () {
       campus: info.campus || "", cls: info.cls || "", resource: resource, week: week, weekId: week + ":" + resource,
       teams: DEFAULT_TEAMS.slice(),
       prize: { tutor: info.prize || "" },
+      parts: info.parts || PARTS.slice(),
       mode: "lobby", round: null, qi: 0, revealed: false,
       rev: {}, players: {}, ta: {},
       sp: { status: "idle", startAt: 0, endAt: 0 },
-      sa: {}, fin: {}
+      sa: {}, fin: {},
+      qz: { status: "idle", startAt: 0, endAt: 0 }, qa: {}, qfin: {}
     };
   }
 
@@ -52,8 +65,8 @@ var Engine = (function () {
     return ctx.bank[snap.round][snap.qi] || null;
   }
 
-  function sprintStatus(snap, now) {
-    var sp = snap.sp || {};
+  function sprintStatus(snap, now, kind) {
+    var sp = soloOf(snap, kind || "sprint").sp;
     if (sp.status === "running" && now >= sp.endAt) return "ended";
     return sp.status || "idle";
   }
@@ -77,17 +90,18 @@ var Engine = (function () {
     return r;
   }
 
-  function sprintTable(snap, ctx, now) {
-    var ids = ctx.bank.sprint, sp = snap.sp, st = sprintStatus(snap, now);
+  function sprintTable(snap, ctx, now, kind) {
+    kind = kind || "sprint";
+    var S = soloOf(snap, kind), ids = ctx.bank[kind], sp = S.sp, st = sprintStatus(snap, now, kind);
     var end = st === "ended" ? Math.min(sp.endAt, now) : now;
     var rows = [];
-    for (var pid in snap.sa) {
-      var a = snap.sa[pid], score = 0, n = 0;
+    for (var pid in S.a) {
+      var a = S.a[pid], score = 0, n = 0;
       for (var j = 0; j < ids.length; j++) if (a[ids[j]]) { n++; if (a[ids[j]] === ctx.keys[ids[j]]) score++; }
       if (!n) continue;
       var p = snap.players[pid] || { n: "?", t: 0 };
-      var fin = snap.fin[pid] || end;
-      rows.push({ pid: pid, n: p.n, t: p.t, score: score, answered: n, ms: Math.max(0, fin - sp.startAt), done: !!snap.fin[pid] });
+      var fin = S.fin[pid] || end;
+      rows.push({ pid: pid, n: p.n, t: p.t, score: score, answered: n, ms: Math.max(0, fin - sp.startAt), done: !!S.fin[pid] });
     }
     rows.sort(function (x, y) { return (y.score - x.score) || (x.ms - y.ms) || (x.n < y.n ? -1 : 1); });
     return rows;
@@ -98,7 +112,7 @@ var Engine = (function () {
     for (var pid in snap.players) if (snap.players[pid].t === t) out.push(snap.players[pid].n);
     return out;
   }
-  /* Hall of Fame rows for this class: type "team" = winning team(s), "sprint" = champion. */
+  /* Hall of Fame rows for this class: type "team" = winning team(s), "sprint" / "quiz" = champion. */
   function hofRows(snap, ctx, type) {
     var base = { weekId: snap.weekId, week: snap.week, resource: snap.resource, campus: snap.campus, cls: snap.cls, type: type, room: snap.code, at: ctx.now };
     var rows = [];
@@ -109,8 +123,8 @@ var Engine = (function () {
         if (t.s === best) rows.push(Object.assign({}, base, { team: t.n, names: membersOf(snap, t.i).join(", "), score: t.s, ms: 0 }));
       });
     } else {
-      var top = sprintTable(snap, ctx, ctx.now)[0];
-      if (top && top.score > 0) rows.push(Object.assign({}, base, { team: snap.teams[top.t] || "", names: top.n, score: top.score, ms: top.ms }));
+      var top = sprintTable(snap, ctx, ctx.now, type)[0];
+      if (top && top.score > 0) rows.push(Object.assign({}, base, { team: hasTeams(snap) ? (snap.teams[top.t] || "") : "", names: top.n, score: top.score, ms: top.ms, of: ctx.bank[type].length }));
     }
     return rows;
   }
@@ -135,10 +149,12 @@ var Engine = (function () {
       return { ok: true, log: log };
     }
     if (a === "room.setPhase") {
-      var op = b.op, list;
+      var op = b.op, list, so = /^(sprint|quiz)(Ready|Start|End)$/.exec(op || "");
+      if (so && snap.parts.indexOf(so[1]) < 0) return err("part", "This class is not running the " + SOLO[so[1]].name);
       if (op === "lobby") { snap.mode = "lobby"; }
       else if (op === "round") {
-        if (!ctx.bank[b.round] || b.round === "sprint") return err("round");
+        if (b.round !== "warmup" && b.round !== "challenge") return err("round");
+        if (snap.parts.indexOf(b.round) < 0) return err("part", "This class is not running that round");
         snap.mode = "team"; snap.round = b.round; snap.qi = 0;
         snap.revealed = !!snap.rev[ctx.bank[b.round][0]];
       } else if (op === "next" || op === "prev") {
@@ -152,20 +168,23 @@ var Engine = (function () {
       } else if (op === "teamEnd") {
         snap.mode = "teamDone"; snap.teamEndAt = now;
         log.push({ tab: "HallOfFame", key: snap.code + "|team", rows: hofRows(snap, ctx, "team") });
-      } else if (op === "sprintReady") {
-        snap.mode = "sprint";
-        if (snap.sp.status === "idle") snap.sp.status = "ready";
-      } else if (op === "sprintStart") {
-        var st = sprintStatus(snap, now);
-        if (st === "running") return err("running");
-        if (st === "ended" && !b.restart) return err("ended", "Sprint already ended");
-        snap.mode = "sprint";
-        snap.sa = {}; snap.fin = {};
-        snap.sp = { status: "running", startAt: now, endAt: now + (ctx.sprintMs || 720000) };
-      } else if (op === "sprintEnd") {
-        if (snap.sp.status !== "running") return err("mode");
-        snap.sp.status = "ended"; snap.sp.endAt = Math.min(snap.sp.endAt, now);
-        log.push({ tab: "HallOfFame", key: snap.code + "|sprint", rows: hofRows(snap, ctx, "sprint") });
+      } else if (so) {
+        var kind = so[1], K = SOLO[kind], S = soloOf(snap, kind);
+        if (so[2] === "Ready") {
+          snap.mode = kind;
+          if (S.sp.status === "idle") S.sp.status = "ready";
+        } else if (so[2] === "Start") {
+          var st = sprintStatus(snap, now, kind);
+          if (st === "running") return err("running");
+          if (st === "ended" && !b.restart) return err("ended", K.name + " already ended");
+          snap.mode = kind;
+          snap[K.a] = {}; snap[K.fin] = {};
+          snap[K.sp] = { status: "running", startAt: now, endAt: now + (ctx.sprintMs || 720000) };
+        } else {
+          if (S.sp.status !== "running") return err("mode");
+          S.sp.status = "ended"; S.sp.endAt = Math.min(S.sp.endAt, now);
+          log.push({ tab: "HallOfFame", key: snap.code + "|" + kind, rows: hofRows(snap, ctx, kind) });
+        }
       } else return err("op");
       log.push({ tab: "Rooms", row: null });
       return { ok: true, log: log };
@@ -174,7 +193,7 @@ var Engine = (function () {
       var id = String(b.pid || "");
       if (!/^[A-Za-z0-9]{6,24}$/.test(id)) return err("pid");
       var name = clean(b.name, 20); if (!name) return err("name", "Type your first name");
-      var t = parseInt(b.team, 10);
+      var t = hasTeams(snap) ? parseInt(b.team, 10) : 0;
       if (!(t >= 0 && t < snap.teams.length)) return err("team", "Pick a team");
       snap.players[id] = { n: name, t: t, at: (snap.players[id] && snap.players[id].at) || now };
       log.push({ tab: "Teams", row: [new Date(now), snap.code, "player", id, name, t, snap.teams[t]] });
@@ -193,22 +212,25 @@ var Engine = (function () {
       log.push({ tab: "Answers", row: [new Date(now), snap.code, snap.round, cq, me.t, snap.teams[me.t], b.choice, b.pid, me.n, b.choice === ctx.keys[cq]] });
       return { ok: true, locked: { c: b.choice, by: me.n }, log: log };
     }
-    if (a === "sprint.answer" || a === "sprint.finish") {
-      if (sprintStatus(snap, now) !== "running" && !(snap.sp.status === "running" && now < snap.sp.endAt + 3000)) return err("closed", "The sprint is not running");
-      if (snap.fin[b.pid]) return err("finished", "You have finished");
-      var mine = snap.sa[b.pid] || (snap.sa[b.pid] = {});
-      if (a === "sprint.finish") {
-        snap.fin[b.pid] = now;
-        log.push({ tab: "Sprint", row: [new Date(now), snap.code, b.pid, me.n, snap.teams[me.t], "FINISH", "", ""] });
+    var sa = /^(sprint|quiz)\.(answer|finish)$/.exec(a || "");
+    if (sa) {
+      var kd = sa[1] === "quiz" || b.kind === "quiz" ? "quiz" : "sprint", KS = SOLO[kd], SS = soloOf(snap, kd);
+      if (sprintStatus(snap, now, kd) !== "running" && !(SS.sp.status === "running" && now < SS.sp.endAt + 3000)) return err("closed", "The " + KS.name + " is not running");
+      if (SS.fin[b.pid]) return err("finished", "You have finished");
+      var mine = SS.a[b.pid] || (SS.a[b.pid] = {});
+      var tn = hasTeams(snap) ? snap.teams[me.t] : "";
+      if (sa[2] === "finish") {
+        SS.fin[b.pid] = now;
+        log.push({ tab: KS.tab, row: [new Date(now), snap.code, b.pid, me.n, tn, "FINISH", "", ""] });
         return { ok: true, log: log };
       }
-      if (ctx.bank.sprint.indexOf(b.qid) < 0) return err("qid");
+      if (ctx.bank[kd].indexOf(b.qid) < 0) return err("qid");
       if (LETTERS.indexOf(b.choice) < 0) return err("choice");
       if (mine[b.qid]) return { ok: false, error: "locked", mine: mine };
       mine[b.qid] = b.choice;
       var count = 0; for (var k in mine) count++;
-      if (count >= ctx.bank.sprint.length) snap.fin[b.pid] = now;
-      log.push({ tab: "Sprint", row: [new Date(now), snap.code, b.pid, me.n, snap.teams[me.t], b.qid, b.choice, b.choice === ctx.keys[b.qid]] });
+      if (count >= ctx.bank[kd].length) SS.fin[b.pid] = now;
+      log.push({ tab: KS.tab, row: [new Date(now), snap.code, b.pid, me.n, tn, b.qid, b.choice, b.choice === ctx.keys[b.qid]] });
       return { ok: true, mine: mine, log: log };
     }
     return err("action");
@@ -222,6 +244,7 @@ var Engine = (function () {
       ok: true, v: snap.v, now: now, code: snap.code, mode: snap.mode, round: snap.round, qi: snap.qi,
       revealed: snap.revealed, prize: snap.prize, hof: HOF_LINE,
       campus: snap.campus, cls: snap.cls, resource: snap.resource, week: snap.week, weekId: snap.weekId,
+      parts: snap.parts, teamMode: hasTeams(snap),
       teams: scores.map(function (t) { return { n: t.n, s: t.s, p: t.p }; })
     };
     if (snap.mode === "teamDone") {
@@ -238,29 +261,33 @@ var Engine = (function () {
         v.picks = {}; for (var t3 in row) v.picks[t3] = row[t3].c;
       }
     }
-    var st = sprintStatus(snap, now), table = null;
-    v.sprint = { status: st, closed: snap.sp.status === "ended", startAt: snap.sp.startAt, endAt: snap.sp.endAt, n: ctx.bank.sprint.length, finished: Object.keys(snap.fin).length };
-    if (st === "running" || st === "ended") {
-      var answered = 0, people = 0;
-      for (var pid in snap.sa) { var c = Object.keys(snap.sa[pid]).length; if (c) { people++; answered += c; } }
-      v.sprint.answered = answered; v.sprint.people = people;
-    }
-    if (st === "ended") {
-      table = sprintTable(snap, ctx, now);
-      v.sprint.top = table.slice(0, 5).map(function (r) { return { n: r.n, team: snap.teams[r.t] || "", score: r.score, ms: r.ms }; });
-      v.sprint.keys = {}; ctx.bank.sprint.forEach(function (id) { v.sprint.keys[id] = ctx.keys[id]; });
-    }
-    var me = snap.players[b.pid];
+    var me = snap.players[b.pid], tables = {};
     if (me) {
-      v.me = { n: me.n, t: me.t, rank: rankOf(scores, me.t) };
+      v.me = { n: me.n, t: me.t, rank: rankOf(scores, me.t), solo: {} };
       if (q && snap.ta[q] && snap.ta[q][me.t]) v.me.lock = { c: snap.ta[q][me.t].c, by: snap.ta[q][me.t].by };
-      v.me.sprint = snap.sa[b.pid] || {};
-      v.me.fin = !!snap.fin[b.pid];
-      if (table) {
-        for (var i = 0; i < table.length; i++) if (table[i].pid === b.pid) { v.me.score = table[i].score; v.me.place = i + 1; v.me.ms = table[i].ms; }
-        v.me.of = table.length;
-      }
     }
+    ["sprint", "quiz"].forEach(function (kind) {
+      var S = soloOf(snap, kind), st = sprintStatus(snap, now, kind), table = null;
+      var o = v[kind] = { status: st, closed: S.sp.status === "ended", startAt: S.sp.startAt, endAt: S.sp.endAt, n: ctx.bank[kind].length, finished: Object.keys(S.fin).length };
+      if (st === "running" || st === "ended") {
+        var answered = 0, people = 0;
+        for (var pid in S.a) { var c = Object.keys(S.a[pid]).length; if (c) { people++; answered += c; } }
+        o.answered = answered; o.people = people;
+      }
+      if (st === "ended") {
+        table = sprintTable(snap, ctx, now, kind);
+        o.top = table.slice(0, 5).map(function (r) { return { n: r.n, team: hasTeams(snap) ? (snap.teams[r.t] || "") : "", score: r.score, ms: r.ms }; });
+        o.keys = {}; ctx.bank[kind].forEach(function (id) { o.keys[id] = ctx.keys[id]; });
+        if (ctx.explain) { o.explain = {}; ctx.bank[kind].forEach(function (id) { if (ctx.explain[id]) o.explain[id] = ctx.explain[id]; }); }
+      }
+      if (me) {
+        var m = v.me.solo[kind] = { ans: S.a[b.pid] || {}, fin: !!S.fin[b.pid] };
+        if (table) {
+          for (var i = 0; i < table.length; i++) if (table[i].pid === b.pid) { m.score = table[i].score; m.place = i + 1; m.ms = table[i].ms; }
+          m.of = table.length;
+        }
+      }
+    });
     if (tutor) {
       v.tutor = true;
       v.players = Object.keys(snap.players).length;
@@ -303,14 +330,32 @@ var Engine = (function () {
     return { ok: true, week: w, weeks: weeks, rows: all.filter(function (r) { return r.weekId === w; }) };
   }
 
-  function handle(b, store, ctx) {
+  /* ctx for one resource's question set (null if that set does not exist). */
+  function withSet(ctx, res) {
+    if (!ctx.sets) return ctx;
+    var st = ctx.sets[res]; if (!st) return null;
+    var o = {}; for (var k in ctx) o[k] = ctx[k];
+    o.bank = st.bank; o.keys = st.keys; o.explain = st.explain || {};
+    return o;
+  }
+
+  function handle(b, store, ctx0) {
     b = b || {};
-    var a = b.action;
+    var a = b.action, ctx = ctx0;
     if (a === "room.create") {
       var info = { campus: clean(b.campus, 40), cls: clean(b.cls, 40), resource: clean(b.resource, 40).replace(/[^A-Za-z0-9-]/g, "") || "y8-qr-1-1-wb", prize: clean(b.prize, 90) };
+      if (b.parts) {
+        info.parts = PARTS.filter(function (p) { return b.parts.indexOf(p) >= 0; });
+        if (!info.parts.length) return err("parts", "Pick at least one part");
+      }
       if (!info.campus) return err("campus", "Pick the campus");
       if (!info.cls) return err("cls", "Type the class");
       if (!info.prize) return err("prize", "Type the tutor's prize");
+      ctx = withSet(ctx0, info.resource);
+      if (!ctx) return err("resource", "No questions for " + info.resource);
+      if (!info.parts) info.parts = PARTS.filter(function (p) { return (ctx.bank[p] || []).length; });
+      info.parts = info.parts.filter(function (p) { return (ctx.bank[p] || []).length; });
+      if (!info.parts.length) return err("parts", "That resource has none of those parts");
       var code, tries = 0;
       do { code = makeCode(ctx.rand, 6); tries++; } while (store.exists(code) && tries < 50);
       var tk = makeCode(ctx.rand, 16);
@@ -321,6 +366,8 @@ var Engine = (function () {
     var room = String(b.room || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
     var s = room && store.load(room);
     if (!s) return err("room", "Room not found");
+    ctx = withSet(ctx0, s.resource);
+    if (!ctx) return err("resource", "No questions for " + s.resource);
     if (a === "state") return view(s, b, ctx);
     if (a.indexOf("room.") === 0 && b.tk !== s.tk) return err("tutor", "Tutor key needed");
     var r = apply(s, b, ctx);
@@ -333,6 +380,7 @@ var Engine = (function () {
     handle: handle, apply: apply, view: view, newRoom: newRoom, makeCode: makeCode,
     teamScores: teamScores, sprintTable: sprintTable, sprintStatus: sprintStatus,
     hofRows: hofRows, hofPick: hofPick, isoWeek: isoWeek, rankClasses: rankClasses,
+    soloOf: soloOf, withSet: withSet, hasTeams: hasTeams, PARTS: PARTS, SOLO: SOLO,
     DEFAULT_TEAMS: DEFAULT_TEAMS, CAMPUSES: CAMPUSES, HOF_LINE: HOF_LINE
   };
 })();

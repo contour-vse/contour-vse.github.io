@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Contour Live: team challenge and exam sprint.">
+<meta name="description" content="Contour Live: team challenge, exam sprint and end of class quiz.">
 <meta name="robots" content="noindex">
 <title>Contour Live</title>
 <link rel="stylesheet" href="live.css">
@@ -64,6 +64,7 @@
 .review li.no{border-color:#F3C78E;background:var(--orange-soft)}
 .review .n{font-family:var(--mono);color:var(--navy)}
 .review .ans{font-family:var(--mono);font-size:15px}
+.review .ex{grid-column:1 / -1;font-weight:600;font-size:15px;color:var(--ink);line-height:1.4}
 .classbox{background:var(--navy-soft);border-radius:12px;padding:10px 14px;margin:-4px 0 16px;font-weight:800;color:var(--navy);font-size:17px}
 .classbox small{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
 .prizebox{display:grid;gap:8px}
@@ -132,11 +133,11 @@
       (teams && S.view && S.view.cls ? '<div class="classbox" id="classbox"><small>You are joining</small>' + esc(S.view.cls) + " · " + esc(S.view.campus) + "</div>" : "") +
       '<div class="field"><label for="code">Room code</label><input id="code" class="code" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' + esc(S.room) + '"></div>' +
       (teams ? '<div class="field"><label for="nm">First name</label><input id="nm" maxlength="20" autocomplete="given-name" value="' + esc(S.name) + '"></div>' +
-        '<div class="field"><label>Team</label><div class="teams" id="teams">' + t + "</div></div>" : "") +
+        (S.view && S.view.teamMode === false ? "" : '<div class="field"><label>Team</label><div class="teams" id="teams">' + t + "</div></div>") : "") +
       '<p class="err" id="err">' + esc(msg || "") + "</p>" +
       '<button class="btn primary big block" id="go" type="button">' + (teams ? "Join" : "Next") + "</button></section>";
     $("code").addEventListener("input", function (e) { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); });
-    if (teams) {
+    if ($("teams")) {
       $("teams").addEventListener("click", function (e) {
         var b = e.target.closest("button"); if (!b) return;
         S.team = +b.dataset.t; Array.prototype.forEach.call(this.children, function (c) { c.classList.toggle("on", c === b); });
@@ -155,7 +156,8 @@
       }
       var name = $("nm").value.trim();
       if (!name) { $("err").textContent = "Type your first name"; return; }
-      if (S.team < 0 || S.team >= teams.length) { $("err").textContent = "Tap your team"; return; }
+      if (S.view && S.view.teamMode === false) S.team = 0;
+      else if (S.team < 0 || S.team >= teams.length) { $("err").textContent = "Tap your team"; return; }
       this.disabled = true;
       Live.call("join", { room: S.room, pid: S.pid, name: name, team: S.team }).then(function (r) {
         if (!r.ok) { renderJoin(teams, r.message || "Try again"); return; }
@@ -177,6 +179,7 @@
   /* ---------- main ---------- */
   function strip(v) {
     var me = v.me, t = v.teams[me.t];
+    if (!v.teamMode) return '<div class="strip"><div class="tn">' + esc(me.n) + '<div style="font-size:14px;font-weight:700;opacity:.8">' + esc(v.cls) + " · " + esc(v.campus) + "</div></div></div>";
     return '<div class="strip"><div class="tn">' + esc(t ? t.n : "") + '<div style="font-size:14px;font-weight:700;opacity:.8">' + esc(me.n) + "</div></div>" +
       '<div class="stat"><b>' + (t ? t.s : 0) + "</b><span>Points</span></div>" +
       '<div class="stat"><b>' + ordinal(me.rank) + "</b><span>Place</span></div></div>";
@@ -186,9 +189,9 @@
     if (!S.joined) return;
     if (!v.ok) { if (v.error === "room") { S.joined = false; Live.mine("cl-joined", null); renderJoin(null, "That room has closed. Ask for the new code."); } return; }
     if (!v.me) { S.joined = false; Live.mine("cl-joined", null); Live.state(S.room, { pid: S.pid }).then(function (x) { renderJoin(x.teams); }); return; }
-    S.view = v; S.offset = v.now - Date.now();
+    S.view = v; S.offset = v.now - Date.now(); Live.useSet(v.resource);
     $("meChip").innerHTML = (Live.demo ? '<span class="chip orange">Demo</span>' : "") + '<span class="chip">' + esc(S.room) + "</span>";
-    if (v.mode === "sprint") return renderSprint(v);
+    if (v.mode === "sprint" || v.mode === "quiz") return renderSprint(v);
     var key = [v.v, v.mode, v.qid, v.revealed, JSON.stringify(v.me.lock || null), JSON.stringify(v.teams), S.pick].join("|");
     if (key === S.lastKey) return; S.lastKey = key;
     if (v.mode === "team" && v.qid) return renderTeamQ(v);
@@ -200,19 +203,19 @@
         '<section class="card" style="text-align:center"><p class="eyebrow">Team Challenge results</p>' +
         (mine ? '<p class="wteam" style="color:var(--green-ink)">Your team won!</p><p class="wnames">Your names go up in the Hall of Fame this week.</p>' : "") +
         (w.length ? w.map(function (t) { return '<p class="wteam" style="margin-top:14px">' + esc(t.n) + '</p><p class="wnames">' + esc(t.names.join(", ")) + " · " + t.s + " points</p>"; }).join("") : '<p class="wnames">No points this time</p>') +
-        (mine ? "" : '<p style="margin:14px 0 0;font-weight:700">Your team came ' + ordinal(v.me.rank) + ". The Exam Sprint is next: anyone can win it.</p>") +
+        (mine ? "" : '<p style="margin:14px 0 0;font-weight:700">Your team came ' + ordinal(v.me.rank) + ". Next up, a solo round: anyone can win it.</p>") +
         "</section>" + prizeBox(v) + hofLink(v);
       return;
     }
     $("app").innerHTML = strip(v) +
       '<section class="card wait"><div class="pulse"></div><p class="big">You\'re in, ' + esc(v.me.n) + "</p><p>" + esc(v.cls) + " · " + esc(v.campus) + "</p><p>Eyes on the board. The first question is coming.</p></section>" + prizeBox(v) +
-      '<p style="text-align:center;margin:0"><button class="linkbtn" id="sw" type="button">Wrong team? Switch</button></p>';
-    $("sw").onclick = function () { S.joined = false; Live.mine("cl-joined", null); renderJoin(v.teams); };
+      (v.teamMode ? '<p style="text-align:center;margin:0"><button class="linkbtn" id="sw" type="button">Wrong team? Switch</button></p>' : "");
+    if ($("sw")) $("sw").onclick = function () { S.joined = false; Live.mine("cl-joined", null); renderJoin(v.teams); };
   }
 
   function renderTeamQ(v) {
     var q = Live.byId(v.qid), round = v.round === "warmup" ? "Round 1 · Warm Up" : "Round 2 · Challenge";
-    var total = (window.QUESTIONS[v.round] || []).length, pts = v.round === "warmup" ? 1 : 3;
+    var total = (Live.Q()[v.round] || []).length, pts = v.round === "warmup" ? 1 : 3;
     if (S.pickQ !== v.qid) { S.pick = null; S.pickQ = v.qid; }
     var lock = v.me.lock, chosen = lock ? lock.c : S.pick;
     var opts = q.options.map(function (o, i) {
@@ -232,7 +235,7 @@
     $("app").innerHTML = strip(v) +
       '<section class="card"><div class="qhead"><span class="eyebrow" style="margin:0">' + round + "</span>" +
       '<span class="chip">Q' + (v.qi + 1) + " of " + total + " · " + pts + (pts === 1 ? " pt" : " pts") + "</span></div>" +
-      '<p class="qtext">' + esc(q.text) + "</p>" + Live.imgs(q, "") + '<p class="qask">' + esc(q.ask) + "</p>" +
+      (q.text ? '<p class="qtext">' + esc(q.text) + "</p>" : "") + Live.imgs(q, "") + '<p class="qask">' + esc(q.ask) + "</p>" +
       '<div class="opts" id="opts">' + opts + "</div>" + foot + "</section>";
     $("opts").onclick = function (e) {
       var b = e.target.closest(".opt"); if (!b || b.disabled) return;
@@ -252,47 +255,54 @@
     } else bar("");
   }
 
-  /* ---------- sprint ---------- */
+  /* ---------- solo games: Exam Sprint and Quiz (same rules) ---------- */
+  var KIND = {
+    sprint: { name: "Exam Sprint", short: "sprint", label: function (i) { var q = Live.Q().sprint[i]; return q && q.label ? q.label : "Question " + (i + 1); }, num: function (i) { return Live.qnum(Live.Q().sprint[i], i); }, redo: "Find each one in the Exam Sprint section of your workbook and redo the ones you missed.", champ: "Sprint champion!" },
+    quiz: { name: "Quiz", short: "quiz", label: function (i) { var q = Live.Q().quiz[i]; return q && q.topic ? q.topic : "Quiz"; }, num: function (i) { return Live.qnum(Live.Q().quiz[i], i); }, redo: "Redo the ones you missed tonight, then check them in your Learning Portal.", champ: "Quiz champion!" }
+  };
   var tickTimer = null;
   function renderSprint(v) {
-    var sp = v.sprint, ids = window.QUESTIONS.sprint.map(function (q) { return q.id; });
-    var mine = v.me.sprint || {};
-    if (sp.status === "running" && !v.me.fin) {
-      var key = ["run", v.v, S.sq, S.spick, JSON.stringify(mine)].join("|");
-      if (key !== S.lastKey) { S.lastKey = key; drawSprintQ(v, ids, mine); }
+    var kind = v.mode, K = KIND[kind], sp = v[kind], ids = Live.Q()[kind].map(function (q) { return q.id; });
+    var me = v.me.solo[kind] || { ans: {} }, mine = me.ans || {};
+    if (S.kind !== kind) { S.kind = kind; S.sq = 0; S.spick = null; S.lastKey = ""; }
+    if (sp.status === "running" && !me.fin) {
+      var key = ["run", kind, v.v, S.sq, S.spick, JSON.stringify(mine)].join("|");
+      if (key !== S.lastKey) { S.lastKey = key; drawSprintQ(v, kind, ids, mine); }
       if (!tickTimer) tickTimer = setInterval(updateTimer, 250);
       updateTimer();
       return;
     }
     clearInterval(tickTimer); tickTimer = null;
-    var key2 = ["sp", sp.status, v.me.fin, v.me.score, v.me.place, S.review].join("|");
+    var key2 = ["sp", kind, sp.status, me.fin, me.score, me.place].join("|");
     if (key2 === S.lastKey) return; S.lastKey = key2;
     bar("");
     if (sp.status === "ended") {
       var list = ids.map(function (id, i) {
-        var a = mine[id], k = sp.keys[id];
-        return '<li class="' + (a === k ? "ok" : "no") + '"><span class="n">Q' + (i + 34) + '</span><span>' + (a ? "You: " + a : "Blank") + '</span><span class="ans">Answer ' + k + "</span></li>";
+        var a = mine[id], k = sp.keys[id], ex = sp.explain && sp.explain[id];
+        return '<li class="' + (a === k ? "ok" : "no") + '"><span class="n">' + K.num(i) + '</span><span>' + (a ? "You: " + a : "Blank") + '</span><span class="ans">Answer ' + k + "</span>" +
+          (ex ? '<span class="ex">' + esc(ex) + "</span>" : "") + "</li>";
       }).join("");
-      var sc = v.me.score || 0;
+      var sc = me.score || 0;
       $("app").innerHTML =
-        '<section class="card" style="text-align:center"><p class="eyebrow">Exam Sprint results</p><div class="score">' + sc + "<span style=\"font-size:30px;color:var(--muted)\"> / " + ids.length + "</span></div>" +
-        (v.me.place ? '<p style="font-size:20px;font-weight:800;color:var(--navy);margin:10px 0 0">' + ordinal(v.me.place) + " of " + v.me.of + (v.me.place === 1 ? ". Sprint champion!" : "") + "</p>" : '<p style="margin:10px 0 0;color:var(--muted)">No answers this time</p>') +
+        '<section class="card" style="text-align:center"><p class="eyebrow">' + K.name + ' results</p><div class="score">' + sc + "<span style=\"font-size:30px;color:var(--muted)\"> / " + ids.length + "</span></div>" +
+        (me.place ? '<p style="font-size:20px;font-weight:800;color:var(--navy);margin:10px 0 0">' + ordinal(me.place) + " of " + me.of + (me.place === 1 ? ". " + K.champ : "") + "</p>" : '<p style="margin:10px 0 0;color:var(--muted)">No answers this time</p>') +
         '</section><section class="card"><p class="eyebrow">Your answers</p><ul class="review">' + list + "</ul>" +
-        '<p style="margin:12px 0 0;color:var(--muted);font-size:15px">Find each one in Section H of your workbook and redo the ones you missed.</p></section>' +
-        (v.me.place === 1 ? prizeBox(v) : "") + hofLink(v);
+        '<p style="margin:12px 0 0;color:var(--muted);font-size:15px">' + K.redo + "</p></section>" +
+        (me.place === 1 ? prizeBox(v) : "") + hofLink(v);
       return;
     }
-    if (v.me.fin) {
+    if (me.fin) {
       var n = Object.keys(mine).length;
-      $("app").innerHTML = '<section class="card wait"><div class="pulse"></div><p class="big">Finished!</p><p>' + n + " of " + ids.length + " answered. Results show when the tutor ends the sprint.</p></section>";
+      $("app").innerHTML = '<section class="card wait"><div class="pulse"></div><p class="big">Finished!</p><p>' + n + " of " + ids.length + " answered. Results show when the tutor ends the " + K.short + ".</p></section>";
       return;
     }
     $("app").innerHTML = strip(v) +
-      '<section class="card wait"><p class="eyebrow">Exam Sprint</p><p class="big">10 questions · 12 minutes</p>' +
-      '<p style="margin-top:12px">Just you, no team.</p></section>' +
+      '<section class="card wait"><p class="eyebrow">' + K.name + '</p><p class="big">' + ids.length + " questions · 12 minutes</p>" +
+      '<p style="margin-top:12px">Just you' + (v.teamMode ? ", no team" : "") + ".</p></section>" +
       '<section class="card"><ul style="margin:0;padding-left:20px;display:grid;gap:6px;font-size:17px">' +
       "<li><b>Each answer locks.</b> No changing it.</li><li><b>Skip</b> a slow one and come back to it later.</li>" +
-      "<li>1 point for each right answer. Ties go to whoever finishes first.</li><li>No score until the tutor ends the sprint.</li></ul></section>" +
+      "<li>1 point for each right answer. Ties go to whoever finishes first.</li><li>No score until the tutor ends the " + K.short + ".</li></ul></section>" +
+      prizeBox(v) +
       '<section class="card wait" style="padding:20px"><div class="pulse"></div><p>Waiting for the tutor to start the timer</p></section>';
   }
 
@@ -301,23 +311,24 @@
     return -1;
   }
 
-  function drawSprintQ(v, ids, mine) {
+  function drawSprintQ(v, kind, ids, mine) {
+    var K = KIND[kind];
     if (mine[ids[S.sq]]) { var nx = nextOpen(ids, mine, S.sq); if (nx >= 0) { S.sq = nx; S.spick = null; } }
-    var q = window.QUESTIONS.sprint[S.sq], left = ids.filter(function (id) { return !mine[id]; }).length;
+    var q = Live.Q()[kind][S.sq], left = ids.filter(function (id) { return !mine[id]; }).length;
     var nav = ids.map(function (id, i) {
       var c = mine[id] ? "done" : (i === S.sq ? "cur" : "");
-      return '<button type="button" class="' + c + '" data-i="' + i + '"' + (mine[id] ? " disabled aria-label=\"Q" + (i + 34) + ' locked"' : "") + ">" + (i + 1) + "</button>";
+      return '<button type="button" class="' + c + '" data-i="' + i + '"' + (mine[id] ? " disabled aria-label=\"" + K.num(i) + ' locked"' : "") + ">" + (i + 1) + "</button>";
     }).join("");
     var opts = q.options.map(function (o, i) {
       var l = L[i];
       return '<button type="button" class="opt' + (S.spick === l ? " sel" : "") + '" data-l="' + l + '"><span class="l">' + l + "</span><span>" + esc(o) + "</span></button>";
     }).join("");
     $("app").innerHTML =
-      '<div class="strip"><div class="tn">Exam Sprint<div style="font-size:14px;font-weight:700;opacity:.8">' + left + " left · each answer locks</div></div>" +
+      '<div class="strip"><div class="tn">' + K.name + '<div style="font-size:14px;font-weight:700;opacity:.8">' + left + " left · each answer locks</div></div>" +
       '<div class="stat"><b class="timer" id="tm">12:00</b><span>Time</span></div><div></div></div>' +
-      '<div><div class="nav" id="nav">' + nav + '</div><div class="legend"><span><i class="d"></i>Locked</span><span><i></i>Still open</span></div></div>' +
-      '<section class="card"><div class="qhead"><span class="eyebrow" style="margin:0">Question ' + (S.sq + 1) + " of " + ids.length + '</span><span class="chip">Workbook Q' + (S.sq + 34) + "</span></div>" +
-      '<p class="qtext">' + esc(q.text) + "</p>" + Live.imgs(q, "") + '<p class="qask">' + esc(q.ask) + "</p>" +
+      '<div><div class="nav" id="nav" style="grid-template-columns:repeat(' + Math.min(ids.length, 12) + ',minmax(0,1fr))">' + nav + '</div><div class="legend"><span><i class="d"></i>Locked</span><span><i></i>Still open</span></div></div>' +
+      '<section class="card"><div class="qhead"><span class="eyebrow" style="margin:0">Question ' + (S.sq + 1) + " of " + ids.length + '</span><span class="chip">' + esc(K.label(S.sq)) + "</span></div>" +
+      (q.text ? '<p class="qtext">' + esc(q.text) + "</p>" : "") + Live.imgs(q, "") + '<p class="qask">' + esc(q.ask) + "</p>" +
       '<div class="opts" id="opts">' + opts + "</div>" +
       '<p style="text-align:center;margin:16px 0 0"><button class="linkbtn" id="fin" type="button">I\'m finished</button></p></section>';
     $("nav").onclick = function (e) { var b = e.target.closest("button"); if (!b || b.disabled) return; S.sq = +b.dataset.i; S.spick = null; S.lastKey = ""; render(S.view); window.scrollTo(0, 0); };
@@ -325,7 +336,7 @@
     $("fin").onclick = function () {
       var blanks = ids.filter(function (id) { return !mine[id]; }).length;
       if (blanks && !confirm(blanks + " still blank. A blank scores 0 but a guess has a 1 in 4 chance. Finish anyway?")) return;
-      Live.call("sprint.finish", { room: S.room, pid: S.pid }).then(function () { S.lastKey = ""; poller.now(); });
+      Live.call(kind + ".finish", { room: S.room, pid: S.pid }).then(function () { S.lastKey = ""; poller.now(); });
     };
     bar('<button class="btn big" id="skip" type="button"' + (left > 1 ? "" : " disabled") + '>Skip</button>' +
       '<button class="btn primary big" id="lockS" type="button" style="flex:2"' + (S.spick ? "" : " disabled") + ">" + (S.spick ? "Lock in " + S.spick : "Tap an answer") + "</button>");
@@ -333,11 +344,11 @@
     $("lockS").onclick = function () {
       if (!S.spick || S.sending) return; S.sending = true; this.disabled = true;
       var qid = ids[S.sq];
-      Live.call("sprint.answer", { room: S.room, pid: S.pid, qid: qid, choice: S.spick }).then(function (r) {
+      Live.call(kind + ".answer", { room: S.room, pid: S.pid, qid: qid, choice: S.spick }).then(function (r) {
         S.sending = false;
-        if (!r.ok && r.error !== "locked") { toast(r.message || "Try again"); return; }
+        if (!r.ok && r.error !== "locked") { toast(r.message || "Try again"); S.lastKey = ""; render(S.view); return; }
         mine = r.mine || mine; mine[qid] = mine[qid] || S.spick;
-        S.view.me.sprint = mine;
+        S.view.me.solo[kind].ans = mine;
         if (S.sq === ids.indexOf(qid)) { S.spick = null; var nx = nextOpen(ids, mine, S.sq); if (nx >= 0) S.sq = nx; }
         S.lastKey = ""; render(S.view); window.scrollTo(0, 0); poller.now();
       });
@@ -345,8 +356,8 @@
   }
 
   function updateTimer() {
-    var v = S.view, el = $("tm"); if (!v || !el) return;
-    var ms = v.sprint.endAt - now(); el.textContent = Live.clock(ms); el.classList.toggle("low", ms < 60000);
+    var v = S.view, el = $("tm"); if (!v || !el || !v[v.mode]) return;
+    var ms = v[v.mode].endAt - now(); el.textContent = Live.clock(ms); el.classList.toggle("low", ms < 60000);
     if (ms <= 0) { S.lastKey = ""; poller.now(); }
   }
 

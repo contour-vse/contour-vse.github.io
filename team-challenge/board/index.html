@@ -33,7 +33,8 @@ body{font-size:18px}
 
 /* question */
 .qtop{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
-.panel .qtext{font-size:clamp(20px,1.9vw,28px);line-height:1.35}
+.panel .qtext{font-size:clamp(20px,1.9vw,28px);line-height:1.35;white-space:pre-line}
+.panel .qtext.long{font-size:clamp(15px,1.25vw,19px);line-height:1.45;max-height:60vh;overflow:auto}
 .panel .qask{font-size:clamp(21px,2vw,30px)}
 .panel .qimg{max-height:min(27vh,330px)}
 .bopts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
@@ -334,7 +335,7 @@ body{font-size:18px}
     stage('<div class="qtop"><span class="eyebrow" style="margin:0">' + (v.round === "warmup" ? "Round 1 · Warm Up" : "Round 2 · Challenge") + "</span>" +
       '<span class="chip">Q' + (v.qi + 1) + " of " + total + " · " + pts + (pts === 1 ? " point" : " points") + "</span></div>" +
       '<div class="locks"><span class="small" style="font-weight:800">' + (v.revealed ? "Answers:" : v.locked.length + " of " + v.teams.length + " locked in") + "</span>" + locks + "</div>" +
-      (q.text ? '<p class="qtext">' + esc(q.text) + "</p>" : "") + Live.imgs(q, "../") + '<p class="qask">' + esc(q.ask) + "</p>" +
+      (q.text ? '<p class="qtext' + (q.text.length > 500 ? ' long' : '') + '">' + esc(q.text) + "</p>" : "") + Live.imgs(q, "../") + '<p class="qask">' + esc(q.ask) + "</p>" +
       '<div class="bopts">' + opts + "</div>", v);
     requestAnimationFrame(function () { requestAnimationFrame(function () {
       Array.prototype.forEach.call(document.querySelectorAll(".bopt .fill"), function (f) { f.style.width = f.dataset.w + "%"; });

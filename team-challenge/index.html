@@ -235,7 +235,7 @@
     $("app").innerHTML = strip(v) +
       '<section class="card"><div class="qhead"><span class="eyebrow" style="margin:0">' + round + "</span>" +
       '<span class="chip">Q' + (v.qi + 1) + " of " + total + " · " + pts + (pts === 1 ? " pt" : " pts") + "</span></div>" +
-      (q.text ? '<p class="qtext">' + esc(q.text) + "</p>" : "") + Live.imgs(q, "") + '<p class="qask">' + esc(q.ask) + "</p>" +
+      (q.text ? '<p class="qtext' + (q.text.length > 500 ? ' long' : '') + '">' + esc(q.text) + "</p>" : "") + Live.imgs(q, "") + '<p class="qask">' + esc(q.ask) + "</p>" +
       '<div class="opts" id="opts">' + opts + "</div>" + foot + "</section>";
     $("opts").onclick = function (e) {
       var b = e.target.closest(".opt"); if (!b || b.disabled) return;
@@ -328,7 +328,7 @@
       '<div class="stat"><b class="timer" id="tm">12:00</b><span>Time</span></div><div></div></div>' +
       '<div><div class="nav" id="nav" style="grid-template-columns:repeat(' + Math.min(ids.length, 12) + ',minmax(0,1fr))">' + nav + '</div><div class="legend"><span><i class="d"></i>Locked</span><span><i></i>Still open</span></div></div>' +
       '<section class="card"><div class="qhead"><span class="eyebrow" style="margin:0">Question ' + (S.sq + 1) + " of " + ids.length + '</span><span class="chip">' + esc(K.label(S.sq)) + "</span></div>" +
-      (q.text ? '<p class="qtext">' + esc(q.text) + "</p>" : "") + Live.imgs(q, "") + '<p class="qask">' + esc(q.ask) + "</p>" +
+      (q.text ? '<p class="qtext' + (q.text.length > 500 ? ' long' : '') + '">' + esc(q.text) + "</p>" : "") + Live.imgs(q, "") + '<p class="qask">' + esc(q.ask) + "</p>" +
       '<div class="opts" id="opts">' + opts + "</div>" +
       '<p style="text-align:center;margin:16px 0 0"><button class="linkbtn" id="fin" type="button">I\'m finished</button></p></section>';
     $("nav").onclick = function (e) { var b = e.target.closest("button"); if (!b || b.disabled) return; S.sq = +b.dataset.i; S.spick = null; S.lastKey = ""; render(S.view); window.scrollTo(0, 0); };

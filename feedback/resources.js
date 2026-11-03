@@ -11,6 +11,72 @@ window.CAMPUSES = [
 ];
 
 window.FEEDBACK_RESOURCES = {
+  "y7-qr-1-1-wb": {
+    title: "Intermediate Quantitative Reasoning 1.1 Workbook",
+    year: 7, subject: "Quantitative Reasoning", week: 1, type: "wb",
+    sections: ["Your Selective Exam", "Mini Diagnostic", "Patterns", "Cycles", "Cases and Elimination", "Spatial Reasoning", "Review & Redo", "Exam Sprint"],
+    skills: [
+      "find the rule from the first few cases",
+      "rule out options until one is left",
+      "count the cubes I can't see"
+    ],
+    struggles: ["Reading the question", "Spotting the pattern", "Keeping track of cases", "Picturing cubes and nets", "Working too slowly", "Careless mistakes"]
+  },
+  "y7-qr-1-1-hw": {
+    title: "Intermediate Quantitative Reasoning 1.1 Homework",
+    year: 7, subject: "Quantitative Reasoning", week: 1, type: "hw",
+    sections: ["Fluency", "Application", "Exam Style"],
+    skills: [
+      "find the rule from the first few cases",
+      "rule out options until one is left",
+      "count the cubes I can't see"
+    ],
+    struggles: ["Reading the question", "Spotting the pattern", "Keeping track of cases", "Picturing cubes and nets", "Working too slowly", "Careless mistakes"]
+  },
+  "y7-qr-1-1-quiz": {
+    title: "Intermediate Quantitative Reasoning 1.1 Quiz",
+    year: 7, subject: "Quantitative Reasoning", week: 1, type: "quiz",
+    sections: ["Patterns", "Cycles", "Cases and Elimination", "Spatial Reasoning"],
+    skills: [
+      "find the rule from the first few cases",
+      "rule out options until one is left",
+      "count the cubes I can't see"
+    ],
+    struggles: ["Reading the question", "Spotting the pattern", "Keeping track of cases", "Picturing cubes and nets", "Working too slowly", "Careless mistakes"]
+  },
+  "y8-en-1-1-wb": {
+    title: "Advanced Reading 1.1 Workbook",
+    year: 8, subject: "Reading", week: 1, type: "wb",
+    sections: ["Your Selective Exam", "Mini Diagnostic", "What the Question Asks", "From Detail to Inference", "Narrator Knowledge", "Review & Redo", "Exam Sprint"],
+    skills: [
+      "say exactly what a question is asking for",
+      "point to the line that proves my answer",
+      "tell what a narrator can and can't know"
+    ],
+    struggles: ["Knowing what the question asks", "Finding the proof line", "Inferring too far", "Tricky words", "Narrator questions", "Working too slowly"]
+  },
+  "y8-en-1-1-hw": {
+    title: "Advanced Reading 1.1 Homework",
+    year: 8, subject: "Reading", week: 1, type: "hw",
+    sections: ["Fluency", "Application", "Exam Style"],
+    skills: [
+      "say exactly what a question is asking for",
+      "point to the line that proves my answer",
+      "tell what a narrator can and can't know"
+    ],
+    struggles: ["Knowing what the question asks", "Finding the proof line", "Inferring too far", "Tricky words", "Narrator questions", "Working too slowly"]
+  },
+  "y8-en-1-1-quiz": {
+    title: "Advanced Reading 1.1 Quiz",
+    year: 8, subject: "Reading", week: 1, type: "quiz",
+    sections: ["Question Targets", "Evidence", "Inference", "Narrator Knowledge"],
+    skills: [
+      "say exactly what a question is asking for",
+      "point to the line that proves my answer",
+      "tell what a narrator can and can't know"
+    ],
+    struggles: ["Knowing what the question asks", "Finding the proof line", "Inferring too far", "Tricky words", "Narrator questions", "Working too slowly"]
+  },
   "y8-qr-1-1-wb": {
     title: "Advanced Quantitative Reasoning 1.1 Workbook",
     year: 8, subject: "Quantitative Reasoning", week: 1, type: "wb",

@@ -41,7 +41,8 @@ img{max-width:100%}
 .k{font-family:var(--mono);font-size:12px;opacity:.8;margin-left:6px}
 
 .card{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:20px}
-.qtext{font-size:19px;margin:0 0 10px}
+.qtext{font-size:19px;margin:0 0 10px;white-space:pre-line}
+.qtext.long{font-size:16px;line-height:1.45;max-height:55vh;overflow:auto;padding:10px 12px;border:1px solid rgba(127,127,127,.35);border-radius:10px}
 .qask{font-weight:800;font-size:19px;color:var(--navy);margin:10px 0 0}
 .qimg{display:block;margin:12px auto 4px;max-height:300px;width:auto;max-width:100%;border-radius:8px;background:#fff}
 

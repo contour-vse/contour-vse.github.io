@@ -487,7 +487,7 @@ window.QUESTIONS = {
      "She is going to get wet walking home.",
      "She is cross that the bus left without her.",
      "She is worried she left her umbrella at school.",
-     "She is annoyed that the walk home is such a long one."
+     "She is upset that her umbrella is now lost for good."
     ],
     "topic": "Linking Lines"
    },

@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Fold nets into cubes, find opposite faces and spot shapes that are not nets.">
+<title>Nets · Contour</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F6FC; --panel:#FFFFFF; --ink:#12203D; --muted:#46557A; --line:#D3DDEC; --wash:#F6F9FE;
+  --navy:#0B3D91; --navy-soft:#E4ECF8;
+  --blue:#007AFF; --blue-ink:#0060C7; --blue-soft:#E5F1FF;
+  --green:#2FB76A; --green-ink:#17793F; --green-soft:#E2F5EA;
+  --orange:#E88100; --orange-ink:#9A5400; --orange-soft:#FFF0DC;
+  --red:#D62C2C; --red-soft:#FDE7E7;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.4;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:12px 18px 24px;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.brand h1{font-weight:850;font-size:28px;letter-spacing:-.02em;margin:0;color:var(--navy);line-height:1}
+.keys{font-family:var(--mono);font-size:13px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.keys b{background:var(--panel);border:1.5px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--navy)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tabs button{flex:1 0 auto;min-height:44px;border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 16px;font-size:17px;font-weight:750;color:var(--muted);white-space:nowrap}
+.tabs button .n{font-family:var(--mono);margin-right:7px;color:var(--blue-ink)}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tabs button.on .n{color:#AFC8F0}
+.stage{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;min-height:560px}
+.vis{position:relative;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.side{display:flex;flex-direction:column;gap:9px;min-width:0}
+.q{font-weight:850;font-size:24px;line-height:1.15;color:var(--navy);letter-spacing:-.01em;margin:0}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap}
+.btn{min-height:44px;border:2px solid var(--line);background:var(--panel);border-radius:12px;padding:8px 14px;font-weight:750;font-size:17px;line-height:1.1;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:var(--navy)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-ink);border-color:var(--blue-ink)}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.on{background:var(--navy-soft);border-color:var(--navy);color:var(--navy)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn .k{font-family:var(--mono);font-size:12px;opacity:.75}
+.ans-t{width:100%;border:2px dashed var(--orange);background:var(--orange-soft);color:var(--orange-ink)}
+.ans-t[aria-pressed="true"]{border-style:solid;background:var(--orange);color:#fff}
+.ans{border:2px solid var(--orange);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:#fff}
+.big{font-size:44px;font-weight:900;color:var(--blue-ink);line-height:1;letter-spacing:-.02em}
+.mid{font-size:26px;font-weight:850;color:var(--navy);line-height:1.15}
+.rule{font-size:19px;font-weight:750;color:var(--navy)}
+.rule em{font-style:normal;color:var(--blue-ink)}
+.lbl{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:2px solid var(--line);border-radius:12px;padding:4px 10px;font-weight:800;font-size:18px;background:#fff;color:var(--navy);min-width:44px;text-align:center}
+.chip small{display:block;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.chip.hot{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-ink)}
+.chip.good{border-color:var(--green);background:var(--green-soft);color:var(--green-ink)}
+.chip.bad{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:16px;font-weight:700}
+.ok{color:var(--green-ink)} .no{color:var(--red)}
+@media (max-width:860px){
+  .stage{display:flex;flex-direction:column;padding:12px;min-height:0;gap:12px}
+  .side{display:contents}
+  .q{order:-1}
+  .brand h1{font-size:23px}
+  .keys{display:none}
+  .q{font-size:21px}
+  .tabs button{font-size:15px;padding:6px 12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.scene3{position:relative;perspective:1400px;margin:0 auto;touch-action:none;cursor:grab;display:grid;place-items:center;max-width:100%}
+.cam{position:relative;width:0;height:0;transform-style:preserve-3d}
+.sq{position:absolute;left:0;top:0;transform-origin:0 0;transform-style:preserve-3d}
+.sq .fa,.sq .ba{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;border:2.5px solid #12203D;backface-visibility:hidden;-webkit-backface-visibility:hidden;color:#0B3D91}
+.sq .ba{transform:rotateY(180deg);background:#F4F7FC;border-color:#7D8BA6}
+.status{font-weight:850;font-size:20px;color:var(--navy);min-height:28px;text-align:center}
+.pairrow{display:flex;align-items:center;gap:10px}
+.pchip{font-weight:900;font-size:22px;border-radius:10px;padding:2px 12px}
+.rowb{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg{display:flex;border:2px solid var(--navy);border-radius:12px;overflow:hidden;width:max-content;max-width:100%}
+.seg button{border:0;background:#fff;min-height:42px;padding:6px 12px;font-weight:800;color:var(--navy)}
+.seg button.on{background:var(--navy);color:#fff}
+.gal{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.duo{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;width:100%}
+.copts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;width:100%;max-width:620px}
+.copt{border:2px solid var(--line);border-radius:14px;background:#fff;padding:8px 6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:900;font-size:22px;color:var(--navy);min-height:44px}
+.copt svg{max-width:100%;height:auto}
+.copt.right{border-color:var(--green);background:var(--green-soft);color:var(--green-ink)}
+.copt.wrong{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.drawgrid svg{display:block;max-width:100%;height:auto}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{border:2px solid var(--line);border-radius:12px;padding:4px 12px;min-width:84px;background:#fff}
+.stat b{display:block;font-size:30px;line-height:1.1;color:var(--navy)}
+.stat span{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.scene3.see .fa{opacity:.62}.scene3.see .ba{opacity:.4}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M8.5 2.5h7v6h6v7h-6v6h-7v-6h-6v-7h6z"/><path d="M8.5 8.5h7v7h-7z"/></svg></div>
+      <h1 id="title">Nets</h1>
+    </div>
+    <div class="keys"><span><b>&larr;</b> <b>&rarr;</b> step</span><span><b>Space</b> play</span><span><b>R</b> reset</span></div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <main class="stage">
+    <section class="vis" id="vis"></section>
+    <aside class="side">
+      <p class="q" id="q"></p>
+      <div class="ctrls">
+        <button class="btn primary" id="playBtn" type="button">Play <span class="k">Space</span></button>
+        <button class="btn" id="stepBtn" type="button">Step</button>
+        <button class="btn" id="resetBtn" type="button">Reset <span class="k">R</span></button>
+      </div>
+      <div id="extra"></div>
+      <button class="btn ans-t" id="ansBtn" type="button" aria-pressed="false">Show answer</button>
+      <div class="ans" id="ans" hidden></div>
+    </aside>
+  </main>
+</div>
+<script id="model">
+/* nets model. Squares are {r, c, f}. The net lies face up; the base square stays flat and every other square
+   folds away from the viewer about its hinge, so the printed side ends up outside.
+   World: x right, y down the screen (towards the front), z towards the viewer. Base = top face. */
+(function(root){
+  var K = function(r, c){ return r + ',' + c; };
+  var DIRS = [[0,1],[0,-1],[1,0],[-1,0]];
+  function mat(){ return [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]; }
+  function mul(A, B){ var C = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]; for(var i = 0; i < 4; i++) for(var j = 0; j < 4; j++) for(var k = 0; k < 4; k++) C[i][j] += A[i][k] * B[k][j]; return C; }
+  function tr(x, y, z){ var m = mat(); m[0][3] = x; m[1][3] = y; m[2][3] = z; return m; }
+  function rotX(a){ var c = Math.cos(a), s = Math.sin(a); return [[1,0,0,0],[0,c,-s,0],[0,s,c,0],[0,0,0,1]]; }
+  function rotY(a){ var c = Math.cos(a), s = Math.sin(a); return [[c,0,s,0],[0,1,0,0],[-s,0,c,0],[0,0,0,1]]; }
+  function app(A, v){ var w = v.length === 3 ? v.concat([1]) : v; return [0,1,2].map(function(i){ return A[i][0]*w[0] + A[i][1]*w[1] + A[i][2]*w[2] + A[i][3]*w[3]; }); }
+  function appV(A, v){ return [0,1,2].map(function(i){ return A[i][0]*v[0] + A[i][1]*v[1] + A[i][2]*v[2]; }); }
+  function connected(cells){ if(!cells.length) return false; var S = {}; cells.forEach(function(q){ S[K(q.r, q.c)] = 1; });
+    var seen = {}, st = [cells[0]]; seen[K(cells[0].r, cells[0].c)] = 1; var n = 1;
+    while(st.length){ var q = st.pop(); DIRS.forEach(function(d){ var k = K(q.r + d[0], q.c + d[1]); if(S[k] && !seen[k]){ seen[k] = 1; n++; st.push({ r:q.r + d[0], c:q.c + d[1] }); } }); }
+    return n === cells.length; }
+  // spanning tree from the base: parent and hinge direction for every square, in fold order
+  function tree(cells, base){
+    var S = {}; cells.forEach(function(q, i){ S[K(q.r, q.c)] = i; });
+    var b = base == null ? pickBase(cells) : base;
+    var order = [b], par = {}, seen = {}; seen[b] = 1; par[b] = -1;
+    for(var h = 0; h < order.length; h++){ var q = cells[order[h]];
+      DIRS.forEach(function(d){ var j = S[K(q.r + d[0], q.c + d[1])]; if(j != null && !seen[j]){ seen[j] = 1; par[j] = order[h]; order.push(j); } }); }
+    return { base:b, order:order, parent:par };
+  }
+  function pickBase(cells){ // the square with the most neighbours, nearest the middle
+    var S = {}; cells.forEach(function(q){ S[K(q.r, q.c)] = 1; });
+    var mr = cells.reduce(function(a, q){ return a + q.r; }, 0) / cells.length, mc = cells.reduce(function(a, q){ return a + q.c; }, 0) / cells.length;
+    var best = 0, bs = -1e9;
+    cells.forEach(function(q, i){ var n = DIRS.filter(function(d){ return S[K(q.r + d[0], q.c + d[1])]; }).length;
+      var s = n * 10 - Math.hypot(q.r - mr, q.c - mc); if(s > bs){ bs = s; best = i; } });
+    return best; }
+  // world matrix of every square (unit square, local coords x in [0,1], y in [0,1], z = 0) for fold amounts t[i] in [0,1]
+  function matrices(cells, T, t){
+    var b = cells[T.base], Ms = {};
+    T.order.forEach(function(i){
+      var q = cells[i], p = T.parent[i];
+      if(p < 0){ Ms[i] = tr(q.c - b.c, q.r - b.r, 0); return; }
+      var pq = cells[p], dr = q.r - pq.r, dc = q.c - pq.c, a = (t[i] == null ? 1 : t[i]) * Math.PI / 2, R;
+      // in the parent's local frame: the hinge edge and a turn that sends the square away from the viewer (to -z)
+      if(dc === 1) R = mul(tr(1, 0, 0), rotY(a));            // right: hinge x = 1
+      else if(dc === -1) R = mul(tr(0, 0, 0), mul(rotY(-a), tr(-1, 0, 0)));
+      else if(dr === 1) R = mul(tr(0, 1, 0), rotX(-a));       // below: hinge y = 1
+      else R = mul(tr(0, 0, 0), mul(rotX(a), tr(0, -1, 0)));
+      Ms[i] = mul(Ms[p], R);
+    });
+    return Ms;
+  }
+  var SIDE = { '0,0,1':'top', '0,0,-1':'bottom', '0,1,0':'front', '0,-1,0':'back', '1,0,0':'right', '-1,0,0':'left' };
+  // the face each square lands on once fully folded (outward normal of its printed side)
+  function fold(cells, base){
+    var T = tree(cells, base), Ms = matrices(cells, T, {}), out = [];
+    cells.forEach(function(q, i){
+      var n = appV(Ms[i], [0,0,1]).map(function(v){ return Math.round(v) + 0; });
+      // printed side faces +z locally; on the cube that side looks outward only if the square sits on that side of the cube centre
+      var ctr = app(Ms[i], [0.5, 0.5, 0]);
+      out.push({ i:i, f:q.f, side: SIDE[n.join(',')], normal:n, centre:ctr.map(function(v){ return Math.round(v * 2) / 2; }) });
+    });
+    return { tree:T, faces:out };
+  }
+  function isNet(cells){
+    if(cells.length !== 6 || !connected(cells)) return false;
+    var sides = {}; fold(cells).faces.forEach(function(x){ sides[x.side] = 1; });
+    return Object.keys(sides).length === 6;
+  }
+  function state(cells){ var s = {}; fold(cells).faces.forEach(function(x){ s[x.side] = x.f; }); return s; }
+  var OPP = { top:'bottom', bottom:'top', front:'back', back:'front', left:'right', right:'left' };
+  function pairs(cells){ var s = state(cells), seen = {}, out = [];
+    ['top','front','left'].forEach(function(p){ out.push([s[p], s[OPP[p]]]); });
+    return out.map(function(p){ return p.slice().sort(); }).sort(function(a, b){ return a[0] < b[0] ? -1 : 1; }); }
+  function opposite(cells, f){ var s = state(cells); for(var p in s) if(s[p] === f) return s[OPP[p]]; }
+  // why two squares are opposite: the ends of a straight row of 3, or of a Z of 4
+  function reason(cells, f, g){
+    var at = {}; cells.forEach(function(q){ at[q.f] = q; }); var S = {}; cells.forEach(function(q){ S[K(q.r, q.c)] = q.f; });
+    var a = at[f], b = at[g], found = null;
+    DIRS.forEach(function(u){ if(found) return;
+      var m = S[K(a.r + u[0], a.c + u[1])];
+      if(m && a.r + 2*u[0] === b.r && a.c + 2*u[1] === b.c) found = { kind:'row', path:[f, m, g] };
+      if(!m) return;
+      DIRS.forEach(function(v){ if(found || v[0]*u[0] + v[1]*u[1] !== 0) return;
+        var p1 = [a.r + u[0], a.c + u[1]], p2 = [p1[0] + v[0], p1[1] + v[1]], p3 = [p2[0] + u[0], p2[1] + u[1]];
+        if(S[K(p2[0], p2[1])] && p3[0] === b.r && p3[1] === b.c) found = { kind:'z', path:[f, m, S[K(p2[0], p2[1])], g] };
+      }); });
+    return found;
+  }
+  // free shapes of n squares, up to turning and flipping
+  function canon(cells){
+    var pts = cells.map(function(q){ return [q.r, q.c]; }), best = null;
+    for(var k = 0; k < 8; k++){
+      var p = pts.map(function(x){ var r = x[0], c = x[1];
+        for(var j = 0; j < k % 4; j++){ var t = r; r = c; c = -t; }
+        if(k >= 4) c = -c; return [r, c]; });
+      var mr = Math.min.apply(0, p.map(function(x){ return x[0]; })), mc = Math.min.apply(0, p.map(function(x){ return x[1]; }));
+      var s = p.map(function(x){ return [x[0] - mr, x[1] - mc]; }).sort(function(a, b){ return a[0] - b[0] || a[1] - b[1]; }).map(function(x){ return x.join(','); }).join(';');
+      if(best === null || s < best) best = s; }
+    return best; }
+  function fromKey(s){ return s.split(';').map(function(x){ var p = x.split(','); return { r:+p[0], c:+p[1] }; }); }
+  function polyominoes(n){
+    var cur = { '0,0':1 };
+    for(var k = 1; k < n; k++){ var next = {};
+      Object.keys(cur).forEach(function(s){ var cs = fromKey(s), S = {}; cs.forEach(function(q){ S[K(q.r, q.c)] = 1; });
+        cs.forEach(function(q){ DIRS.forEach(function(d){ var r = q.r + d[0], c = q.c + d[1]; if(S[K(r, c)]) return;
+          next[canon(cs.concat([{ r:r, c:c }]))] = 1; }); }); });
+      cur = next; }
+    return Object.keys(cur).sort().map(fromKey);
+  }
+  function has2x2(cells){ var S = {}; cells.forEach(function(q){ S[K(q.r, q.c)] = 1; });
+    return cells.some(function(q){ return S[K(q.r + 1, q.c)] && S[K(q.r, q.c + 1)] && S[K(q.r + 1, q.c + 1)]; }); }
+  function longestRow(cells){ var S = {}, best = 0; cells.forEach(function(q){ S[K(q.r, q.c)] = 1; });
+    cells.forEach(function(q){ [[0,1],[1,0]].forEach(function(d){ var n = 1; while(S[K(q.r + d[0]*n, q.c + d[1]*n)]) n++; best = Math.max(best, n); }); });
+    return best; }
+  function whyNot(cells){ if(cells.length !== 6) return 'size'; if(!connected(cells)) return 'apart';
+    if(has2x2(cells)) return 'block'; if(longestRow(cells) >= 5) return 'row5'; return isNet(cells) ? null : 'overlap'; }
+  // all 24 ways to hold a cube state {top,bottom,front,back,left,right}
+  function turnR(s){ return { top:s.left, right:s.top, bottom:s.right, left:s.bottom, front:s.front, back:s.back }; }
+  function turnF(s){ return { top:s.back, front:s.top, bottom:s.front, back:s.bottom, left:s.left, right:s.right }; }
+  function spin(s){ return { top:s.top, bottom:s.bottom, front:s.right, right:s.back, back:s.left, left:s.front }; }
+  function holds(s){ var out = [], seen = {}, q = [s];
+    while(q.length){ var x = q.shift(), k = [x.top, x.bottom, x.front, x.back, x.left, x.right].join('|'); if(seen[k]) continue; seen[k] = 1; out.push(x); q.push(turnR(x), turnF(x), spin(x)); }
+    return out; }
+  function canShow(s, view){ return holds(s).some(function(h){ return h.top === view.top && h.front === view.front && h.right === view.right; }); }
+  // 4 cube pictures (top, front, right): 1 right, 3 wrong (opposite faces side by side, or a mirror image)
+  function cubeOptions(cells, rnd){
+    rnd = rnd || Math.random;
+    var s = state(cells), H = holds(s), right = H[Math.floor(rnd() * H.length)];
+    var view = { top:right.top, front:right.front, right:right.right }, list = [{ kind:'right', view:view }];
+    function add(kind, v){ if(list.length >= 4 || !v.top || v.top === v.front || v.top === v.right || v.front === v.right) return;
+      if(canShow(s, v)) return; if(list.some(function(o){ return o.view.top === v.top && o.view.front === v.front && o.view.right === v.right; })) return;
+      list.push({ kind:kind, view:v }); }
+    var tries = [
+      function(){ var h = H[Math.floor(rnd() * H.length)]; return ['mirror', { top:h.top, front:h.right, right:h.front }]; },
+      function(){ var h = H[Math.floor(rnd() * H.length)]; return ['opposite', { top:h.top, front:h.front, right:h.left }]; },
+      function(){ var h = H[Math.floor(rnd() * H.length)]; return ['opposite', { top:h.top, front:h.bottom, right:h.right }]; } ];
+    for(var n = 0; n < 200 && list.length < 4; n++){ var t = tries[n % 3](); add(t[0], t[1]); }
+    for(var i = list.length - 1; i > 0; i--){ var j = Math.floor(rnd() * (i + 1)), x = list[i]; list[i] = list[j]; list[j] = x; }
+    return list;
+  }
+  function cellsFrom(rows){ var out = []; rows.forEach(function(row, r){ row.split('').forEach(function(ch, c){ if(ch !== '.' && ch !== ' ') out.push({ r:r, c:c, f:ch }); }); }); return out; }
+  var api = { K:K, mat:mat, mul:mul, app:app, appV:appV, connected:connected, tree:tree, matrices:matrices, fold:fold, isNet:isNet, state:state,
+    pairs:pairs, opposite:opposite, reason:reason, canon:canon, polyominoes:polyominoes, has2x2:has2x2, longestRow:longestRow, whyNot:whyNot,
+    holds:holds, canShow:canShow, cubeOptions:cubeOptions, cellsFrom:cellsFrom, OPP:OPP,
+    // booklet nets (Nets exploration)
+    CROSS: cellsFrom(['.A..', 'BCDE', '.F..']),
+    ZNET: cellsFrom(['..KJ', '.ML.', 'ON..']),
+    SHAPE1: cellsFrom(['1111', '11..']),
+    SHAPE2: cellsFrom(['11111', '.1...']) };
+  if(typeof module !== 'undefined' && module.exports) module.exports = api; else root.NetModel = api;
+})(this);
+
+</script>
+<script>
+/* shared lab shell: tabs, controls, keyboard, answer toggle, tweening */
+var Lab = (function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cfg, cur = -1, inst = null, gen = 0, showAns = false;
+  var $ = function(id){ return document.getElementById(id); };
+  function el(tag, cls, html){ var e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; }
+  function sleep(ms, g){ return new Promise(function(res, rej){ setTimeout(function(){ g === gen ? res() : rej('x'); }, RM ? 0 : ms); }); }
+  function tween(ms, fn, g){
+    return new Promise(function(res, rej){
+      if(RM || ms <= 0){ fn(1); res(); return; }
+      var t0 = performance.now();
+      function f(now){
+        if(g !== gen){ rej('x'); return; }
+        var t = Math.min(1, (now - t0) / ms);
+        fn(t);
+        if(t < 1) requestAnimationFrame(f); else res();
+      }
+      requestAnimationFrame(f);
+    });
+  }
+  function ease(t){ return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
+  function setAns(v){
+    showAns = v;
+    var b = $('ansBtn'); b.setAttribute('aria-pressed', v ? 'true' : 'false');
+    b.textContent = v ? 'Hide answer' : 'Show answer';
+    $('ans').hidden = !v || !$('ans').innerHTML;
+    if(inst && inst.answer) inst.answer(v);
+  }
+  function go(i){
+    if(i < 0 || i >= cfg.steps.length) return;
+    gen++; cur = i;
+    if(inst && inst.destroy) inst.destroy();
+    var s = cfg.steps[i];
+    [].forEach.call($('tabs').children, function(b, j){ b.classList.toggle('on', j === i); b.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+    $('q').textContent = s.q || '';
+    $('q').hidden = !s.q;
+    $('vis').innerHTML = ''; $('extra').innerHTML = ''; $('ans').innerHTML = '';
+    $('playBtn').hidden = s.play === false; $('stepBtn').hidden = s.step === false;
+    $('ansBtn').hidden = s.answer === false;
+    $('stepBtn').textContent = s.stepLabel || 'Step';
+    if(s.playLabel) $('playBtn').firstChild.nodeValue = s.playLabel + ' '; else $('playBtn').firstChild.nodeValue = 'Play ';
+    showAns = false;
+    inst = s.mount({ vis: $('vis'), extra: $('extra'), ans: $('ans'), gen: gen, el: el,
+      alive: function(g){ return g === gen; } }) || {};
+    setAns(false);
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch(e) {}
+  }
+  function guard(p){ if(p && p.catch) p.catch(function(){}); }
+  function init(c){
+    cfg = c;
+    document.title = c.title + ' · Contour';
+    $('title').textContent = c.title;
+    c.steps.forEach(function(s, i){
+      var b = el('button', '', '<span class="n">' + (i + 1) + '</span>' + s.name);
+      b.type = 'button'; b.setAttribute('role', 'tab');
+      b.onclick = function(){ go(i); };
+      $('tabs').appendChild(b);
+    });
+    $('playBtn').onclick = function(){ if(inst.play) guard(inst.play()); };
+    $('stepBtn').onclick = function(){ if(inst.step) guard(inst.step()); };
+    $('resetBtn').onclick = function(){ reset(); };
+    $('ansBtn').onclick = function(){ setAns(!showAns); };
+    document.addEventListener('keydown', function(e){
+      if(e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+      if(e.altKey || e.ctrlKey || e.metaKey) return;
+      if(inst && inst.key && inst.key(e)) { e.preventDefault(); return; }
+      if(e.key === 'ArrowRight'){ go(cur + 1); e.preventDefault(); }
+      else if(e.key === 'ArrowLeft'){ go(cur - 1); e.preventDefault(); }
+      else if(e.key === ' '){ if(!$('playBtn').hidden && inst.play) guard(inst.play()); e.preventDefault(); }
+      else if(e.key === 'r' || e.key === 'R'){ reset(); }
+      else if(e.key === 'a' || e.key === 'A'){ if(!$('ansBtn').hidden) setAns(!showAns); }
+    });
+    var h = parseInt((location.hash || '').slice(1), 10);
+    go(h >= 1 && h <= c.steps.length ? h - 1 : 0);
+  }
+  function reset(){ gen++; var keep = showAns; if(inst && inst.reset) inst.reset(); else go(cur); if(keep) setAns(true); }
+  function refreshAns(){ $('ans').hidden = !showAns || !$('ans').innerHTML; }
+  return { init: init, tween: tween, sleep: sleep, ease: ease, el: el, RM: RM,
+    gen: function(){ return gen; }, bump: function(){ return ++gen; }, showing: function(){ return showAns; },
+    refreshAns: refreshAns, go: go, guard: guard };
+})();
+
+</script>
+<script>
+(function(){
+var M = NetModel, el = Lab.el;
+var INK = '#12203D', PAIR = ['#FFD08A', '#9FE0B8', '#B9D3FA'], PAIR_INK = ['#9A5400', '#17793F', '#0060C7'];
+var FOLD_MS = 650;
+
+/* ---------- 3D net that folds ---------- */
+function Fold3D(host, cells, o){
+  this.o = o || {}; this.host = host;
+  this.scene = el('div', 'scene3'); host.appendChild(this.scene);
+  this.cam = el('div', 'cam'); this.scene.appendChild(this.cam);
+  this.tilt = 44; this.spin = 24; this.t = {}; this.colors = {}; this.bad = {};
+  this.setCells(cells);
+  this.drag();
+}
+Fold3D.prototype.setCells = function(cells){
+  var self = this; this.cells = cells; this.T = M.tree(cells); this.t = this.zeros(); this.colors = {}; this.bad = {};
+  this.cam.innerHTML = ''; this.sq = cells.map(function(q, i){
+    var d = el('div', 'sq'); d.innerHTML = '<div class="fa">' + (q.f || '') + '</div><div class="ba"></div>'; self.cam.appendChild(d); return d; });
+  this.size(); this.render();
+};
+Fold3D.prototype.size = function(){
+  var w = this.host.clientWidth || 700, h = window.innerHeight * (this.o.hf || 0.6);
+  var R = Math.max.apply(0, this.cells.map(function(q){ return q.r; })) + 1, C = Math.max.apply(0, this.cells.map(function(q){ return q.c; })) + 1;
+  this.u = Math.max(34, Math.min(this.o.maxU || 110, Math.floor(w * 0.8 / (C + 0.5)), Math.floor(h / (R + 1.4))));
+  this.scene.style.width = Math.min(w, (C + 1.2) * this.u + 40) + 'px'; this.scene.style.height = Math.round(h) + 'px';
+  var self = this; this.sq.forEach(function(d){ d.style.width = self.u + 'px'; d.style.height = self.u + 'px'; d.style.fontSize = Math.round(self.u * 0.5) + 'px'; });
+};
+function camM(tilt, spin){ var a = tilt * Math.PI / 180, b = spin * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);
+  var X = [[1,0,0],[0,ca,-sa],[0,sa,ca]], Z = [[cb,-sb,0],[sb,cb,0],[0,0,1]], R = [[0,0,0],[0,0,0],[0,0,0]];
+  for(var i = 0; i < 3; i++) for(var j = 0; j < 3; j++) for(var k = 0; k < 3; k++) R[i][j] += X[i][k] * Z[k][j]; return R; }
+Fold3D.prototype.render = function(){
+  var self = this, Ms = M.matrices(this.cells, this.T, this.t), u = this.u;
+  // centre: middle of the square centres
+  var cx = 0, cy = 0, cz = 0, n = this.cells.length;
+  this.cells.forEach(function(q, i){ var c = M.app(Ms[i], [0.5, 0.5, 0]); cx += c[0]; cy += c[1]; cz += c[2]; });
+  cx /= n; cy /= n; cz /= n;
+  this.cam.style.transform = 'rotateX(' + this.tilt + 'deg) rotateZ(' + this.spin + 'deg)';
+  var C = camM(this.tilt, this.spin);
+  this.cells.forEach(function(q, i){ var m = Ms[i];
+    var t = [ (m[0][3] - cx) * u, (m[1][3] - cy) * u, (m[2][3] - cz) * u ];
+    var arr = [m[0][0], m[1][0], m[2][0], 0, m[0][1], m[1][1], m[2][1], 0, m[0][2], m[1][2], m[2][2], 0, t[0], t[1], t[2], 1];
+    self.sq[i].style.transform = 'matrix3d(' + arr.map(function(v){ return +v.toFixed(5); }).join(',') + ')';
+    var nw = M.appV(m, [0,0,1]), nc = [0,1,2].map(function(r){ return C[r][0]*nw[0] + C[r][1]*nw[1] + C[r][2]*nw[2]; });
+    var lit = Math.max(0, 0.35 * nc[0] * -1 + 0.45 * -nc[1] + 0.8 * nc[2]);
+    var base = self.bad[i] ? [0, 85, -22] : self.colors[i] != null ? null : [214, 70, 0];
+    var fa = self.sq[i].firstChild;
+    if(base) fa.style.background = 'hsl(' + base[0] + ',' + base[1] + '%,' + Math.round(70 + base[2] + 22 * Math.min(1, lit)) + '%)';
+    else fa.style.background = PAIR[self.colors[i]];
+    fa.style.color = self.colors[i] != null ? PAIR_INK[self.colors[i]] : self.bad[i] ? '#9B1C1C' : '#0B3D91';
+  });
+};
+Fold3D.prototype.drag = function(){
+  var self = this;
+  this.scene.addEventListener('pointerdown', function(e){
+    if(self.o.noDrag) return;
+    var sx = e.clientX, sy = e.clientY, t0 = self.tilt, s0 = self.spin, moved = false;
+    function mv(ev){ var dx = ev.clientX - sx, dy = ev.clientY - sy; if(Math.hypot(dx, dy) > 4) moved = true;
+      self.spin = s0 - dx * 0.5; self.tilt = Math.max(-85, Math.min(85, t0 - dy * 0.5)); self.render(); }
+    function up(){ window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); self.moved = moved; }
+    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+  });
+};
+Fold3D.prototype.foldOne = function(i, g, to){
+  var self = this, from = this.t[i] || 0; to = to == null ? 1 : to;
+  return Lab.tween(FOLD_MS, function(k){ self.t[i] = from + (to - from) * Lab.ease(k); self.render(); }, g);
+};
+Fold3D.prototype.foldAll = function(g, to, ms){
+  var self = this, ids = this.T.order.slice(1), from = {}; ids.forEach(function(i){ from[i] = self.t[i] || 0; }); to = to == null ? 1 : to;
+  return Lab.tween(ms || 1300, function(k){ ids.forEach(function(i){ self.t[i] = from[i] + (to - from[i]) * Lab.ease(k); }); self.render(); }, g);
+};
+Fold3D.prototype.zeros = function(){ var z = {}; this.cells.forEach(function(q, i){ z[i] = 0; }); return z; };
+Fold3D.prototype.flat = function(){ this.t = this.zeros(); this.bad = {}; this.scene.classList.remove('see'); this.render(); };
+Fold3D.prototype.markOverlap = function(){
+  var res = M.fold(this.cells), by = {}, self = this; this.bad = {};
+  res.faces.forEach(function(x){ (by[x.side] = by[x.side] || []).push(x.i); });
+  Object.keys(by).forEach(function(k){ if(by[k].length > 1) by[k].forEach(function(i){ self.bad[i] = 1; }); });
+  this.scene.classList.toggle('see', Object.keys(this.bad).length > 0);
+  this.render(); return Object.keys(this.bad).length;
+};
+Fold3D.prototype.spinTo = function(g, tilt, spin, ms){ var self = this, a = this.tilt, b = this.spin;
+  return Lab.tween(ms || 900, function(k){ var e = Lab.ease(k); self.tilt = a + (tilt - a) * e; self.spin = b + (spin - b) * e; self.render(); }, g); };
+
+/* ---------- flat drawings ---------- */
+function netSVG(cells, u, opts){
+  opts = opts || {}; var R = Math.max.apply(0, cells.map(function(q){ return q.r; })) + 1, C = Math.max.apply(0, cells.map(function(q){ return q.c; })) + 1;
+  var s = '<svg width="' + (C * u + 4) + '" height="' + (R * u + 4) + '" viewBox="-2 -2 ' + (C * u + 4) + ' ' + (R * u + 4) + '">';
+  cells.forEach(function(q){ s += '<rect x="' + q.c * u + '" y="' + q.r * u + '" width="' + u + '" height="' + u + '" fill="' + (opts.fill || '#CFE2FA') + '" stroke="' + INK + '" stroke-width="2"/>' +
+    (opts.letters === false ? '' : '<text x="' + (q.c * u + u / 2) + '" y="' + (q.r * u + u * 0.56) + '" text-anchor="middle" dominant-baseline="middle" font-size="' + (u * 0.5) + '" font-weight="900" fill="#0B3D91">' + (q.f || '') + '</text>'); });
+  return s + '</svg>';
+}
+function cubeSVG(v, u){
+  // isometric cube: top, front (lower left), right (lower right)
+  var c = Math.cos(Math.PI / 6), P = function(x, y, z){ return [((x + y) * c + 0.1) * u, ((x - y) * 0.5 - z + 1.6) * u]; };
+  function face(pts, fill, txt, m){ var q = pts.map(function(p){ return P(p[0], p[1], p[2]); });
+    var cx = q.reduce(function(a, p){ return a + p[0]; }, 0) / 4, cy = q.reduce(function(a, p){ return a + p[1]; }, 0) / 4;
+    return '<polygon points="' + q.map(function(p){ return p.join(','); }).join(' ') + '" fill="' + fill + '" stroke="' + INK + '" stroke-width="2" stroke-linejoin="round"/>' +
+      '<text transform="translate(' + cx + ',' + cy + ') matrix(' + m.join(',') + ')" text-anchor="middle" dominant-baseline="central" font-size="' + (u * 0.5) + '" font-weight="900" fill="#0B3D91">' + txt + '</text>'; }
+  var W = 2 * c * u + 0.2 * u, H = 2.1 * u;
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '">' +
+    face([[0,0,1],[1,0,1],[1,1,1],[0,1,1]], '#E5F1FF', v.top, [c, 0.5, -c, 0.5, 0, 0]) +
+    face([[0,0,0],[1,0,0],[1,0,1],[0,0,1]], '#B5D2F7', v.front, [c, 0.5, 0, 1, 0, 0]) +
+    face([[1,0,0],[1,1,0],[1,1,1],[1,0,1]], '#86B4EE', v.right, [c, -0.5, 0, 1, 0, 0]) + '</svg>';
+}
+// spin so the side where faces overlap points at the viewer
+function faceSpin(f3){ var res = M.fold(f3.cells), by = {}; res.faces.forEach(function(x){ by[x.side] = (by[x.side] || 0) + 1; });
+  var side = Object.keys(by).filter(function(k){ return by[k] > 1; })[0];
+  return { front:24, right:66, back:204, left:-66, top:24, bottom:24 }[side] || 24; }
+function onResize(fn){ var t; var h = function(){ clearTimeout(t); t = setTimeout(fn, 80); }; window.addEventListener('resize', h); return function(){ window.removeEventListener('resize', h); }; }
+function pairsHTML(cells){
+  return M.pairs(cells).map(function(p, k){ var r = M.reason(cells, p[0], p[1]);
+    return '<div class="pairrow"><span class="pchip" style="background:' + PAIR[k] + ';color:' + PAIR_INK[k] + '">' + p[0] + ' &amp; ' + p[1] + '</span><span class="muted">' + (r ? (r.kind === 'row' ? 'Row of 3' : 'Z shape') : 'Last pair') + '</span></div>'; }).join(''); }
+function colourPairs(f3, cells, upto){ f3.colors = {}; var at = {}; cells.forEach(function(q, i){ at[q.f] = i; });
+  M.pairs(cells).forEach(function(p, k){ if(k < upto){ f3.colors[at[p[0]]] = k; f3.colors[at[p[1]]] = k; } }); f3.render(); }
+function WHY(k){ return { block:'2 by 2 block', row5:'Row of 5', overlap:'Faces overlap', size:'Needs 6 squares', apart:'Squares must join' }[k]; }
+
+/* ---------- steps ---------- */
+function stepFold(ctx){
+  var cells = M.CROSS, f3 = new Fold3D(ctx.vis, cells), order = f3.T.order.slice(1), k = 0;
+  var hint = el('div', 'muted', 'Drag to turn'); ctx.vis.appendChild(hint);
+  function ans(){ ctx.ans.innerHTML = '<div class="lbl">Opposite</div>' + pairsHTML(cells) + '<div class="rule">Ends of a straight row of 3: <em>opposite</em></div>'; Lab.refreshAns();
+    if(Lab.showing() && k >= order.length) colourPairs(f3, cells, 3); else { f3.colors = {}; f3.render(); } }
+  ctx.extra.innerHTML = '<div class="muted">Each square folds back, away from you</div>';
+  var off = onResize(function(){ f3.size(); f3.render(); });
+  ans();
+  function rst(){ Lab.bump(); k = 0; f3.tilt = 44; f3.spin = 24; f3.flat(); ans(); }
+  return {
+    play: function(){ rst(); var g = Lab.gen(), p = Lab.sleep(200, g);
+      order.forEach(function(i){ p = p.then(function(){ return f3.foldOne(i, g); }).then(function(){ k++; }); });
+      return p.then(function(){ ans(); return f3.spinTo(g, 30, 28 + 180, 2200); }); },
+    step: function(){ var g = Lab.bump(); if(k >= order.length){ rst(); return; } var i = order[k]; return f3.foldOne(i, g).then(function(){ k++; ans(); }); },
+    reset: rst, answer: ans, destroy: off };
+}
+
+function stepOpp(ctx){
+  var NETS = [{ n:'Z net', c:M.ZNET }, { n:'Cross', c:M.CROSS }, { n:'Steps', c:M.cellsFrom(['F...', 'KMN.', '..WX']) }];
+  var cur = 0, f3 = new Fold3D(ctx.vis, NETS[0].c, { hf:0.56 }), sel = null, shown = 0, folded = false;
+  var tip = el('div', 'status', 'Tap a square'); ctx.vis.appendChild(tip);
+  function side(){
+    ctx.extra.innerHTML = '<div class="seg" id="nsel">' + NETS.map(function(x, i){ return '<button type="button" class="' + (i === cur ? 'on' : '') + '" data-i="' + i + '">' + x.n + '</button>'; }).join('') + '</div>';
+    ctx.extra.querySelectorAll('#nsel button').forEach(function(b){ b.onclick = function(){ cur = +b.dataset.i; Lab.bump(); f3.setCells(NETS[cur].c); sel = null; shown = 0; folded = false; tip.textContent = 'Tap a square'; side(); ans(); }; });
+  }
+  function ans(){
+    var cells = NETS[cur].c;
+    ctx.ans.innerHTML = pairsHTML(cells) + '<div class="rule">No row of 3? Look for a <em>Z</em></div>'; Lab.refreshAns();
+    colourPairs(f3, cells, Lab.showing() ? 3 : shown);
+    if(sel != null && !Lab.showing() && !shown){ f3.colors = {}; f3.colors[sel] = 2; f3.render(); }
+  }
+  f3.sq.forEach(function(){});
+  f3.scene.addEventListener('click', function(e){ if(f3.moved) return; var d = e.target.closest('.sq'); if(!d) return;
+    var i = f3.sq.indexOf(d), cells = NETS[cur].c; sel = i;
+    var o = M.opposite(cells, cells[i].f), r = M.reason(cells, cells[i].f, o);
+    tip.innerHTML = Lab.showing() ? cells[i].f + ' is opposite <b>' + o + '</b>' + (r ? ' (' + r.path.join(', ') + ')' : '') : 'Which square is opposite <b>' + cells[i].f + '</b>?';
+    ans(); });
+  side(); ans();
+  var off = onResize(function(){ f3.size(); f3.render(); });
+  function rst(){ Lab.bump(); shown = 0; sel = null; folded = false; f3.tilt = 44; f3.spin = 24; f3.flat(); tip.textContent = 'Tap a square'; ans(); }
+  function next(g){ if(shown < 3){ shown++; var cells = NETS[cur].c, p = M.pairs(cells)[shown - 1], r = M.reason(cells, p[0], p[1]);
+      tip.innerHTML = p[0] + ' &amp; ' + p[1] + ': ' + (r ? (r.kind === 'row' ? 'row of 3, ' : 'Z shape, ') + r.path.join(', ') : 'the last two'); ans(); return Promise.resolve(); }
+    if(!folded){ folded = true; tip.textContent = 'Fold to check'; return f3.foldAll(g).then(function(){ return f3.spinTo(g, 30, 28 + 180, 2000); }); }
+    return Promise.resolve(); }
+  return {
+    play: function(){ rst(); var g = Lab.gen(), p = Lab.sleep(200, g); for(var i = 0; i < 4; i++) p = p.then(function(){ return next(g); }).then(function(){ return Lab.sleep(900, g); }); return p; },
+    step: function(){ var g = Lab.bump(); if(folded){ rst(); return; } return next(g); },
+    reset: rst, answer: ans, destroy: off };
+}
+
+function stepIsNet(ctx){
+  var SH = [{ n:'Shape 1', c:M.SHAPE1 }, { n:'Shape 2', c:M.SHAPE2 },
+    { n:'A', c:M.cellsFrom(['11..', '1111']) }, { n:'B', c:M.cellsFrom(['.1..', '1111', '.1..']) },
+    { n:'C', c:M.cellsFrom(['11..', '.11.', '..11']) }, { n:'D', c:M.cellsFrom(['1...', '111.', '..11']) },
+    { n:'U', c:M.cellsFrom(['1..1', '1111']) }];
+  SH.forEach(function(s){ s.c = s.c.map(function(q){ return { r:q.r, c:q.c, f:'' }; }); });
+  var cur = 0, f3 = new Fold3D(ctx.vis, SH[0].c, { hf:0.5 }), votes = {}, done = false;
+  var st = el('div', 'status', '&nbsp;'); ctx.vis.appendChild(st);
+  function side(){
+    var v = votes[cur];
+    ctx.extra.innerHTML = '<div class="rowb"><button class="btn" type="button" id="nprev">&larr;</button><div class="mid" style="min-width:110px;text-align:center">' + SH[cur].n + '</div><button class="btn" type="button" id="nnext">&rarr;</button></div>' +
+      '<div class="rowb" style="margin-top:8px"><button class="btn' + (v === 'y' ? ' on' : '') + '" type="button" data-v="y">Net</button><button class="btn' + (v === 'n' ? ' on' : '') + '" type="button" data-v="n">Not a net</button></div>';
+    ctx.extra.querySelector('#nprev').onclick = function(){ go(cur - 1); }; ctx.extra.querySelector('#nnext').onclick = function(){ go(cur + 1); };
+    ctx.extra.querySelectorAll('[data-v]').forEach(function(b){ b.onclick = function(){ votes[cur] = b.dataset.v; side(); }; });
+  }
+  function ans(){
+    var c = SH[cur].c, ok = M.isNet(c), w = M.whyNot(c);
+    var nets = M.polyominoes(6).filter(M.isNet);
+    ctx.ans.innerHTML = '<div class="mid">' + (ok ? '<span class="ok">Net</span>' : '<span class="no">Not a net</span>') + '</div>' + (ok ? '' : '<div class="rule"><em>' + WHY(w) + '</em></div>') +
+      '<div class="lbl">All ' + nets.length + ' nets</div><div class="gal">' + nets.map(function(n){ return netSVG(n, 9, { letters:false }); }).join('') + '</div>';
+    Lab.refreshAns();
+  }
+  function go(i){ cur = (i + SH.length) % SH.length; Lab.bump(); done = false; f3.tilt = 44; f3.spin = 24; f3.setCells(SH[cur].c); st.innerHTML = '&nbsp;'; side(); ans(); }
+  side(); ans();
+  var off = onResize(function(){ f3.size(); f3.render(); });
+  function fold(g){ return f3.foldAll(g).then(function(){ var bad = f3.markOverlap(); done = true;
+      st.innerHTML = bad ? '<span class="no">Faces overlap</span>' : '<span class="ok">Closes into a cube</span>'; return bad ? f3.spinTo(g, 34, faceSpin(f3), 900) : f3.spinTo(g, 25, 28 + 140, 1600); }); }
+  return {
+    play: function(){ var g = Lab.bump(); f3.flat(); st.innerHTML = '&nbsp;'; return Lab.sleep(150, g).then(function(){ return fold(g); }); },
+    step: function(){ var g = Lab.bump(); if(done){ go(cur + 1); return; } return fold(g); },
+    reset: function(){ go(cur); }, answer: ans, destroy: off };
+}
+
+function stepWhich(ctx){
+  var NETS = [M.CROSS, M.cellsFrom(['F...', 'KMN.', '..WX']), M.ZNET], ni = 0, opts, pick = -1;
+  var top = el('div', 'duo'); ctx.vis.appendChild(top);
+  var holder = el('div'); top.appendChild(holder);
+  var f3 = new Fold3D(holder, NETS[0], { hf:0.4, maxU:60 });
+  var box = el('div', 'copts'); ctx.vis.appendChild(box);
+  function gen(){ opts = M.cubeOptions(NETS[ni]); pick = -1; draw(); }
+  function draw(){
+    var u = Math.max(30, Math.min(48, Math.floor(((ctx.vis.clientWidth || 700) - 60) / 4 / 1.9)));
+    box.innerHTML = '';
+    opts.forEach(function(o, i){ var b = el('button', 'copt', cubeSVG(o.view, u) + '<span>' + 'ABCD'[i] + '</span>'); b.type = 'button';
+      if(pick === i) b.classList.add(o.kind === 'right' ? 'right' : 'wrong');
+      if(Lab.showing() || pick >= 0){ if(o.kind === 'right') b.classList.add('right'); }
+      b.onclick = function(){ pick = i; draw(); };
+      box.appendChild(b); });
+    var r = opts.map(function(o){ return o.kind; }).indexOf('right');
+    ctx.ans.innerHTML = '<div class="hud"><span class="mid">Answer</span><span class="big">' + 'ABCD'[r] + '</span></div>' +
+      opts.map(function(o, i){ return o.kind === 'right' ? '' : '<div class="rule">' + 'ABCD'[i] + ': ' + (o.kind === 'mirror' ? 'mirror image' : 'opposite faces side by side') + '</div>'; }).join('');
+    Lab.refreshAns();
+  }
+  ctx.extra.innerHTML = '<div class="rowb"><button class="btn" type="button" id="wnew">New cubes</button><button class="btn" type="button" id="wnet">Next net</button></div><div class="muted" style="margin-top:6px">Drag the net to turn it</div>';
+  ctx.extra.querySelector('#wnew').onclick = function(){ Lab.bump(); f3.flat(); gen(); };
+  ctx.extra.querySelector('#wnet').onclick = function(){ Lab.bump(); ni = (ni + 1) % NETS.length; f3.setCells(NETS[ni]); gen(); };
+  gen();
+  var off = onResize(function(){ f3.size(); f3.render(); draw(); });
+  return {
+    play: function(){ var g = Lab.bump(); f3.flat(); return Lab.sleep(150, g).then(function(){ return f3.foldAll(g); }).then(function(){ return f3.spinTo(g, 30, 28 + 360, 3000); }); },
+    step: function(){ var g = Lab.bump(); if(f3.t[f3.T.order[1]] > 0.5) { f3.flat(); return; } return f3.foldAll(g); },
+    reset: function(){ Lab.bump(); f3.tilt = 44; f3.spin = 24; f3.flat(); pick = -1; draw(); }, answer: draw, destroy: off };
+}
+
+function stepFree(ctx){
+  var N = 6, on = {}, found = {}, mode = 'draw', f3 = null;
+  var grid = el('div', 'drawgrid'); ctx.vis.appendChild(grid);
+  var holder = el('div'); holder.style.width = '100%'; holder.hidden = true; ctx.vis.appendChild(holder);
+  var st = el('div', 'status', 'Tap 6 squares'); ctx.vis.appendChild(st);
+  function cells(){ var keys = Object.keys(on).filter(function(k){ return on[k]; }).sort(function(a, b){ return on[a] - on[b]; });
+    var cs = keys.map(function(k){ var p = k.split(','); return { r:+p[0], c:+p[1] }; });
+    var mr = Math.min.apply(0, cs.map(function(q){ return q.r; })), mc = Math.min.apply(0, cs.map(function(q){ return q.c; }));
+    return cs.map(function(q, i){ return { r:q.r - mr, c:q.c - mc, f:String(i + 1) }; }); }
+  function drawGrid(){
+    var w = Math.min(ctx.vis.clientWidth || 600, 520), u = Math.floor((w - 10) / N), s = '<svg width="' + (N * u + 4) + '" height="' + (N * u + 4) + '" viewBox="-2 -2 ' + (N * u + 4) + ' ' + (N * u + 4) + '">';
+    var cs = cells(), idx = {}; Object.keys(on).filter(function(k){ return on[k]; }).sort(function(a, b){ return on[a] - on[b]; }).forEach(function(k, i){ idx[k] = i + 1; });
+    for(var r = 0; r < N; r++) for(var c = 0; c < N; c++){ var k = r + ',' + c;
+      s += '<g data-k="' + k + '" style="cursor:pointer"><rect x="' + c * u + '" y="' + r * u + '" width="' + u + '" height="' + u + '" fill="' + (on[k] ? '#CFE2FA' : '#fff') + '" stroke="' + (on[k] ? INK : '#C7D2E4') + '" stroke-width="' + (on[k] ? 2.5 : 1.2) + '"/>' +
+        (on[k] ? '<text x="' + (c * u + u / 2) + '" y="' + (r * u + u * 0.56) + '" text-anchor="middle" dominant-baseline="middle" font-size="' + (u * 0.42) + '" font-weight="900" fill="#0B3D91">' + idx[k] + '</text>' : '') + '</g>'; }
+    grid.innerHTML = s + '</svg>';
+    grid.querySelectorAll('[data-k]').forEach(function(g){ g.addEventListener('click', function(){ var k = g.dataset.k;
+      if(on[k]) delete on[k]; else on[k] = Date.now() + Math.random(); drawGrid(); upd(); }); });
+  }
+  function upd(){
+    var cs = cells(), n = cs.length;
+    var w = n === 6 ? M.whyNot(cs) : n > 6 ? 'size' : null;
+    st.innerHTML = mode === 'draw' ? (n < 6 ? n + ' of 6 squares' : n > 6 ? '<span class="no">Too many squares</span>' : !M.connected(cs) ? '<span class="no">Squares must join</span>' : 'Press Fold') : st.innerHTML;
+    ctx.extra.innerHTML = '<div class="stats"><div class="stat"><b>' + Object.keys(found).length + ' / 11</b><span>Nets found</span></div></div>' +
+      '<div class="rowb" style="margin-top:8px"><button class="btn" type="button" id="fedit"' + (mode === 'draw' ? ' disabled' : '') + '>Edit</button><button class="btn" type="button" id="fclear">Clear</button></div>';
+    ctx.extra.querySelector('#fedit').onclick = edit; ctx.extra.querySelector('#fclear').onclick = function(){ on = {}; edit(); };
+    ctx.ans.innerHTML = n === 6 && M.connected(cs) ? '<div class="mid">' + (w ? '<span class="no">Not a net</span>' : '<span class="ok">Net</span>') + '</div>' + (w ? '<div class="rule"><em>' + WHY(w) + '</em></div>' : '') : '';
+    Lab.refreshAns();
+    document.getElementById('playBtn').disabled = !(n === 6 && M.connected(cs));
+  }
+  function edit(){ Lab.bump(); mode = 'draw'; grid.hidden = false; holder.hidden = true; drawGrid(); upd(); }
+  function fold(){
+    var cs = cells(); if(cs.length !== 6 || !M.connected(cs)) return;
+    var g = Lab.bump(); mode = 'fold'; grid.hidden = true; holder.hidden = false; holder.innerHTML = '';
+    f3 = new Fold3D(holder, cs, { hf:0.5 }); st.innerHTML = '&nbsp;'; upd();
+    return Lab.sleep(250, g).then(function(){ return f3.foldAll(g); }).then(function(){
+      var bad = f3.markOverlap(), ok = M.isNet(cs);
+      if(ok) found[M.canon(cs)] = 1;
+      st.innerHTML = ok ? '<span class="ok">Net!</span>' : '<span class="no">Not a net: ' + WHY(M.whyNot(cs)) + '</span>'; upd();
+      return f3.spinTo(g, 28, 28 + 200, 2000); });
+  }
+  on = { '1,1':1, '2,0':2, '2,1':3, '2,2':4, '2,3':5, '3,1':6 };
+  drawGrid(); upd();
+  var off = onResize(function(){ if(mode === 'draw') drawGrid(); else { f3.size(); f3.render(); } });
+  return { play: fold, reset: function(){ on = {}; edit(); }, destroy: function(){ off(); document.getElementById('playBtn').disabled = false; } };
+}
+
+Lab.init({ title: 'Nets', steps: [
+  { name:'Fold It', q:'Which letters end up opposite each other?', mount: stepFold },
+  { name:'Opposite Faces', q:'Which letter is opposite?', mount: stepOpp },
+  { name:'Is It a Net?', q:'Does it fold into a cube?', playLabel:'Fold', stepLabel:'Fold, then next', mount: stepIsNet },
+  { name:'Which Cube?', q:'Which cube can this net make?', playLabel:'Fold', stepLabel:'Fold or flatten', mount: stepWhich },
+  { name:'Free Play', q:'', step:false, playLabel:'Fold', mount: stepFree }
+]});
+})();
+
+</script>
+</body>
+</html>

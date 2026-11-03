@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Count every cube in a stack, including the hidden ones, and draw its views.">
+<title>Hidden Cubes and Views · Contour</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F6FC; --panel:#FFFFFF; --ink:#12203D; --muted:#46557A; --line:#D3DDEC; --wash:#F6F9FE;
+  --navy:#0B3D91; --navy-soft:#E4ECF8;
+  --blue:#007AFF; --blue-ink:#0060C7; --blue-soft:#E5F1FF;
+  --green:#2FB76A; --green-ink:#17793F; --green-soft:#E2F5EA;
+  --orange:#E88100; --orange-ink:#9A5400; --orange-soft:#FFF0DC;
+  --red:#D62C2C; --red-soft:#FDE7E7;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:18px;line-height:1.4;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:12px 18px 24px;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.mark{width:40px;height:40px;border-radius:11px;background:var(--navy);display:grid;place-items:center;flex:none}
+.brand h1{font-weight:850;font-size:28px;letter-spacing:-.02em;margin:0;color:var(--navy);line-height:1}
+.keys{font-family:var(--mono);font-size:13px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.keys b{background:var(--panel);border:1.5px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--navy)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.tabs button{flex:1 0 auto;min-height:44px;border:2px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 16px;font-size:17px;font-weight:750;color:var(--muted);white-space:nowrap}
+.tabs button .n{font-family:var(--mono);margin-right:7px;color:var(--blue-ink)}
+.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tabs button.on .n{color:#AFC8F0}
+.stage{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;min-height:560px}
+.vis{position:relative;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.side{display:flex;flex-direction:column;gap:9px;min-width:0}
+.q{font-weight:850;font-size:24px;line-height:1.15;color:var(--navy);letter-spacing:-.01em;margin:0}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap}
+.btn{min-height:44px;border:2px solid var(--line);background:var(--panel);border-radius:12px;padding:8px 14px;font-weight:750;font-size:17px;line-height:1.1;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:var(--navy)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:var(--blue-ink);border-color:var(--blue-ink)}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.on{background:var(--navy-soft);border-color:var(--navy);color:var(--navy)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn .k{font-family:var(--mono);font-size:12px;opacity:.75}
+.ans-t{width:100%;border:2px dashed var(--orange);background:var(--orange-soft);color:var(--orange-ink)}
+.ans-t[aria-pressed="true"]{border-style:solid;background:var(--orange);color:#fff}
+.ans{border:2px solid var(--orange);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:#fff}
+.big{font-size:44px;font-weight:900;color:var(--blue-ink);line-height:1;letter-spacing:-.02em}
+.mid{font-size:26px;font-weight:850;color:var(--navy);line-height:1.15}
+.rule{font-size:19px;font-weight:750;color:var(--navy)}
+.rule em{font-style:normal;color:var(--blue-ink)}
+.lbl{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:2px solid var(--line);border-radius:12px;padding:4px 10px;font-weight:800;font-size:18px;background:#fff;color:var(--navy);min-width:44px;text-align:center}
+.chip small{display:block;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.chip.hot{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-ink)}
+.chip.good{border-color:var(--green);background:var(--green-soft);color:var(--green-ink)}
+.chip.bad{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:16px;font-weight:700}
+.ok{color:var(--green-ink)} .no{color:var(--red)}
+@media (max-width:860px){
+  .stage{display:flex;flex-direction:column;padding:12px;min-height:0;gap:12px}
+  .side{display:contents}
+  .q{order:-1}
+  .brand h1{font-size:23px}
+  .keys{display:none}
+  .q{font-size:21px}
+  .tabs button{font-size:15px;padding:6px 12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.iso{display:block;max-width:100%;height:auto;touch-action:manipulation}
+.iso [data-i]{cursor:pointer}
+.duo{display:flex;gap:22px;justify-content:center;align-items:center;flex-wrap:wrap;width:100%}
+.duo > div{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.views{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.vbox{border:2px solid var(--line);border-radius:14px;padding:8px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:110px;min-height:140px;background:#fff}
+.vbox.on{border-color:var(--blue);background:var(--blue-soft)}
+.blank{font-size:40px;font-weight:900;color:#9AA8C2;flex:1;display:grid;place-items:center}
+.mapbox{gap:6px}
+.front-tag{font-size:15px;font-weight:800;color:var(--muted);letter-spacing:.04em}
+.sumline{font-size:26px;font-weight:850;color:var(--navy);min-height:34px}
+.sumline b{color:var(--blue-ink);font-size:34px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{border:2px solid var(--line);border-radius:12px;padding:4px 12px;min-width:84px;background:#fff}
+.stat b{display:block;font-size:30px;line-height:1.1;color:var(--navy)}
+.stat span{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.rowb{display:flex;gap:8px;flex-wrap:wrap}
+.spin{animation:sp .45s ease}
+@keyframes sp{0%{opacity:.2;transform:scale(.94)}100%{opacity:1;transform:none}}
+.hmap{display:block}
+.duo.col{flex-direction:column;gap:10px}
+.vbox{min-height:0}
+.duo > .views{flex-direction:row;align-items:flex-end}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M8 3l4 2.3v4.6L8 12.2 4 9.9V5.3z"/><path d="M4 14.6l4-2.3 4 2.3v4.6L8 21.5l-4-2.3zM12 14.6l4-2.3 4 2.3v4.6l-4 2.3-4-2.3z"/></svg></div>
+      <h1 id="title">Hidden Cubes and Views</h1>
+    </div>
+    <div class="keys"><span><b>&larr;</b> <b>&rarr;</b> step</span><span><b>Space</b> play</span><span><b>R</b> reset</span></div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <main class="stage">
+    <section class="vis" id="vis"></section>
+    <aside class="side">
+      <p class="q" id="q"></p>
+      <div class="ctrls">
+        <button class="btn primary" id="playBtn" type="button">Play <span class="k">Space</span></button>
+        <button class="btn" id="stepBtn" type="button">Step</button>
+        <button class="btn" id="resetBtn" type="button">Reset <span class="k">R</span></button>
+      </div>
+      <div id="extra"></div>
+      <button class="btn ans-t" id="ansBtn" type="button" aria-pressed="false">Show answer</button>
+      <div class="ans" id="ans" hidden></div>
+    </aside>
+  </main>
+</div>
+<script id="model">
+/* cube stacks model. A stack is a height map H[r][c]: r = 0 is the back row, c = 0 the left column.
+   World: x = column (right), y = depth (towards the back), z = up. Viewer sits front, right and above. */
+(function(root){
+  var C30 = Math.cos(Math.PI / 6), S30 = 0.5;
+  function rows(H){ return H.length; } function cols(H){ return H[0].length; }
+  function total(H){ return H.reduce(function(a, r){ return a + r.reduce(function(b, v){ return b + v; }, 0); }, 0); }
+  function columns(H){ return H.reduce(function(a, r){ return a + r.filter(function(v){ return v > 0; }).length; }, 0); }
+  // cubes as {x,y,z}; back row r = 0 sits at the largest y
+  function cubes(H){ var out = [], R = rows(H);
+    H.forEach(function(row, r){ row.forEach(function(h, c){ for(var z = 0; z < h; z++) out.push({ x:c, y:R - 1 - r, z:z, r:r, c:c }); }); });
+    return out; }
+  function proj(x, y, z){ return [(x + y) * C30, (x - y) * S30 - z]; }
+  function depth(q){ return q.x - q.y + q.z; }   // larger = nearer the viewer
+  function frontView(H){ var out = []; for(var c = 0; c < cols(H); c++){ var m = 0; H.forEach(function(r){ m = Math.max(m, r[c]); }); out.push(m); } return out; }
+  // view from the right: front row on the left
+  function rightView(H){ return H.map(function(r){ return Math.max.apply(0, r); }).reverse(); }
+  function backView(H){ return frontView(H).slice().reverse(); }
+  function leftView(H){ return rightView(H).slice().reverse(); }
+  function rotate(H){ // turn the stack a quarter turn: the right side becomes the front
+    var R = rows(H), Cn = cols(H), out = [];
+    for(var c = Cn - 1; c >= 0; c--){ var row = []; for(var r = R - 1; r >= 0; r--) row.push(H[r][c]); out.push(row); }
+    return out; }
+  // ray cast every sample of the picture: which cube (and face) is nearest
+  function visibility(H, step){
+    step = step || 0.05;
+    var cs = cubes(H), occ = {}; cs.forEach(function(q, i){ occ[q.x + ',' + q.y + ',' + q.z] = i; });
+    var R = rows(H), Cn = cols(H), Z = Math.max.apply(0, H.map(function(r){ return Math.max.apply(0, r); }));
+    var seen = {}, faces = {};
+    var x0 = -0.2, x1 = (Cn + R) * C30 + 0.2, y0 = -Z - R * S30 - 0.2, y1 = Cn * S30 + 0.2;
+    for(var sx = x0; sx < x1; sx += step) for(var sy = y0; sy < y1; sy += step){
+      // a point on the line with z = 0, then walk along d = (1,-1,1) towards the viewer
+      var a = sx / C30, b = sy / S30, px = (a + b) / 2, py = (a - b) / 2;
+      var best = -1e9, hit = -1, face = null;
+      for(var i = 0; i < cs.length; i++){ var q = cs[i];
+        // slabs: x in [q.x, q.x+1] etc along P(t) = (px + t, py - t, t)
+        var lo = -1e9, hi = 1e9, enter = null;
+        var tx0 = q.x - px, tx1 = q.x + 1 - px; if(tx1 < hi){ hi = tx1; enter = 'right'; } if(tx0 > lo) lo = tx0;
+        var ty0 = py - (q.y + 1), ty1 = py - q.y; if(ty1 < hi){ hi = ty1; enter = 'front'; } if(ty0 > lo) lo = ty0;
+        var tz0 = q.z, tz1 = q.z + 1; if(tz1 < hi){ hi = tz1; enter = 'top'; } if(tz0 > lo) lo = tz0;
+        if(hi - lo > 1e-6 && hi > best){ best = hi; hit = i; face = enter; }
+      }
+      if(hit >= 0){ seen[hit] = (seen[hit] || 0) + 1; faces[hit + face] = (faces[hit + face] || 0) + 1; }
+    }
+    var min = 0.02 / (step * step);   // ignore slivers smaller than 2% of a face
+    var vis = Object.keys(seen).filter(function(k){ return seen[k] > min; }).map(Number);
+    var vf = Object.keys(faces).filter(function(k){ return faces[k] > min; });
+    return { cubes: cs, visible: vis.sort(function(a, b){ return a - b; }), visibleCount: vis.length, faceCount: vf.length, hidden: cs.length - vis.length };
+  }
+  function cuboidGap(H){ var Z = Math.max.apply(0, H.map(function(r){ return Math.max.apply(0, r); })); return rows(H) * cols(H) * Z - total(H); }
+  var api = { C30:C30, S30:S30, rows:rows, cols:cols, total:total, columns:columns, cubes:cubes, proj:proj, depth:depth,
+    frontView:frontView, rightView:rightView, backView:backView, leftView:leftView, rotate:rotate, visibility:visibility, cuboidGap:cuboidGap,
+    // booklet exploration stack (Hidden Cubes and Views): back row first
+    BOOK: [[4,3,1],[3,2,1]] };
+  if(typeof module !== 'undefined' && module.exports) module.exports = api; else root.StackModel = api;
+})(this);
+
+</script>
+<script>
+/* shared lab shell: tabs, controls, keyboard, answer toggle, tweening */
+var Lab = (function(){
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cfg, cur = -1, inst = null, gen = 0, showAns = false;
+  var $ = function(id){ return document.getElementById(id); };
+  function el(tag, cls, html){ var e = document.createElement(tag); if(cls) e.className = cls; if(html != null) e.innerHTML = html; return e; }
+  function sleep(ms, g){ return new Promise(function(res, rej){ setTimeout(function(){ g === gen ? res() : rej('x'); }, RM ? 0 : ms); }); }
+  function tween(ms, fn, g){
+    return new Promise(function(res, rej){
+      if(RM || ms <= 0){ fn(1); res(); return; }
+      var t0 = performance.now();
+      function f(now){
+        if(g !== gen){ rej('x'); return; }
+        var t = Math.min(1, (now - t0) / ms);
+        fn(t);
+        if(t < 1) requestAnimationFrame(f); else res();
+      }
+      requestAnimationFrame(f);
+    });
+  }
+  function ease(t){ return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
+  function setAns(v){
+    showAns = v;
+    var b = $('ansBtn'); b.setAttribute('aria-pressed', v ? 'true' : 'false');
+    b.textContent = v ? 'Hide answer' : 'Show answer';
+    $('ans').hidden = !v || !$('ans').innerHTML;
+    if(inst && inst.answer) inst.answer(v);
+  }
+  function go(i){
+    if(i < 0 || i >= cfg.steps.length) return;
+    gen++; cur = i;
+    if(inst && inst.destroy) inst.destroy();
+    var s = cfg.steps[i];
+    [].forEach.call($('tabs').children, function(b, j){ b.classList.toggle('on', j === i); b.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+    $('q').textContent = s.q || '';
+    $('q').hidden = !s.q;
+    $('vis').innerHTML = ''; $('extra').innerHTML = ''; $('ans').innerHTML = '';
+    $('playBtn').hidden = s.play === false; $('stepBtn').hidden = s.step === false;
+    $('ansBtn').hidden = s.answer === false;
+    $('stepBtn').textContent = s.stepLabel || 'Step';
+    if(s.playLabel) $('playBtn').firstChild.nodeValue = s.playLabel + ' '; else $('playBtn').firstChild.nodeValue = 'Play ';
+    showAns = false;
+    inst = s.mount({ vis: $('vis'), extra: $('extra'), ans: $('ans'), gen: gen, el: el,
+      alive: function(g){ return g === gen; } }) || {};
+    setAns(false);
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch(e) {}
+  }
+  function guard(p){ if(p && p.catch) p.catch(function(){}); }
+  function init(c){
+    cfg = c;
+    document.title = c.title + ' · Contour';
+    $('title').textContent = c.title;
+    c.steps.forEach(function(s, i){
+      var b = el('button', '', '<span class="n">' + (i + 1) + '</span>' + s.name);
+      b.type = 'button'; b.setAttribute('role', 'tab');
+      b.onclick = function(){ go(i); };
+      $('tabs').appendChild(b);
+    });
+    $('playBtn').onclick = function(){ if(inst.play) guard(inst.play()); };
+    $('stepBtn').onclick = function(){ if(inst.step) guard(inst.step()); };
+    $('resetBtn').onclick = function(){ reset(); };
+    $('ansBtn').onclick = function(){ setAns(!showAns); };
+    document.addEventListener('keydown', function(e){
+      if(e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+      if(e.altKey || e.ctrlKey || e.metaKey) return;
+      if(inst && inst.key && inst.key(e)) { e.preventDefault(); return; }
+      if(e.key === 'ArrowRight'){ go(cur + 1); e.preventDefault(); }
+      else if(e.key === 'ArrowLeft'){ go(cur - 1); e.preventDefault(); }
+      else if(e.key === ' '){ if(!$('playBtn').hidden && inst.play) guard(inst.play()); e.preventDefault(); }
+      else if(e.key === 'r' || e.key === 'R'){ reset(); }
+      else if(e.key === 'a' || e.key === 'A'){ if(!$('ansBtn').hidden) setAns(!showAns); }
+    });
+    var h = parseInt((location.hash || '').slice(1), 10);
+    go(h >= 1 && h <= c.steps.length ? h - 1 : 0);
+  }
+  function reset(){ gen++; var keep = showAns; if(inst && inst.reset) inst.reset(); else go(cur); if(keep) setAns(true); }
+  function refreshAns(){ $('ans').hidden = !showAns || !$('ans').innerHTML; }
+  return { init: init, tween: tween, sleep: sleep, ease: ease, el: el, RM: RM,
+    gen: function(){ return gen; }, bump: function(){ return ++gen; }, showing: function(){ return showAns; },
+    refreshAns: refreshAns, go: go, guard: guard };
+})();
+
+</script>
+<script>
+(function(){
+var M = StackModel, el = Lab.el;
+var TOP = '#DCEBFF', FRONT = '#8DB9F2', RIGHT = '#4F87DA', INK = '#12203D';
+var HOT = { top:'#FFE2B8', front:'#F5B25C', right:'#E88100' };
+var SEEN = { top:'#CDEFD9', front:'#7FD1A0', right:'#2FB76A' };
+
+/* ---------- isometric stack drawing ---------- */
+function Iso(host, H, o){
+  this.o = o || {}; this.H = H;
+  this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); this.svg.setAttribute('class', 'iso');
+  host.appendChild(this.svg);
+  this.mark = {}; this.hot = {}; this.labels = {}; this.xray = false; this.arrow = null;
+  this.set(H);
+}
+Iso.prototype.set = function(H){ this.H = H; this.cs = M.cubes(H); this.order = this.cs.map(function(q, i){ return i; }).sort(function(a, b){
+    var A = this.cs[a], B = this.cs[b]; return M.depth(A) - M.depth(B) || A.z - B.z; }.bind(this)); this.mark = {}; this.hot = {}; this.labels = {}; this.size(); this.draw(); };
+Iso.prototype.size = function(){
+  var H = this.H, R = M.rows(H), C = M.cols(H), Z = Math.max(1, Math.max.apply(0, H.map(function(r){ return Math.max.apply(0, r); })));
+  var x0 = -0.9, x1 = (C + R) * M.C30 + 0.9, y0 = -Z - R * M.S30 - (this.o.arrows ? 1.6 : 0.6), y1 = C * M.S30 + 1.1;
+  this.vb = [x0, y0, x1 - x0, y1 - y0];
+  this.svg.setAttribute('viewBox', this.vb.join(' '));
+  var host = this.svg.parentNode, w = host.clientWidth || 700, h = window.innerHeight * (this.o.hf || 0.6);
+  var k = Math.min((w * (this.o.wf || 0.95)) / this.vb[2], h / this.vb[3], this.o.maxK || 70);
+  this.svg.setAttribute('width', Math.round(this.vb[2] * k)); this.svg.setAttribute('height', Math.round(this.vb[3] * k));
+};
+function poly(pts){ return pts.map(function(p){ var q = M.proj(p[0], p[1], p[2]); return q[0].toFixed(3) + ',' + q[1].toFixed(3); }).join(' '); }
+Iso.prototype.cubeSVG = function(i, extra){
+  var q = this.cs[i], x = q.x, y = q.y, z = q.z;
+  var pal = this.hot[i] ? HOT : this.mark[i] ? SEEN : { top:TOP, front:FRONT, right:RIGHT };
+  var s = '<g data-i="' + i + '"' + (extra || '') + '>' +
+    '<polygon points="' + poly([[x,y,z+1],[x+1,y,z+1],[x+1,y+1,z+1],[x,y+1,z+1]]) + '" fill="' + pal.top + '"/>' +
+    '<polygon points="' + poly([[x,y,z],[x+1,y,z],[x+1,y,z+1],[x,y,z+1]]) + '" fill="' + pal.front + '"/>' +
+    '<polygon points="' + poly([[x+1,y,z],[x+1,y+1,z],[x+1,y+1,z+1],[x+1,y,z+1]]) + '" fill="' + pal.right + '"/>';
+  s += '<g fill="none" stroke="' + INK + '" stroke-width="0.045" stroke-linejoin="round">' +
+    '<polygon points="' + poly([[x,y,z+1],[x+1,y,z+1],[x+1,y+1,z+1],[x,y+1,z+1]]) + '"/>' +
+    '<polygon points="' + poly([[x,y,z],[x+1,y,z],[x+1,y,z+1],[x,y,z+1]]) + '"/>' +
+    '<polygon points="' + poly([[x+1,y,z],[x+1,y+1,z],[x+1,y+1,z+1],[x+1,y,z+1]]) + '"/></g>';
+  if(this.labels[i] != null){ var c = M.proj(x + 0.5, y, z + 0.5);
+    s += '<text x="' + c[0] + '" y="' + (c[1] + 0.05) + '" text-anchor="middle" dominant-baseline="middle" font-size="0.48" font-weight="900" fill="' + INK + '" stroke="#fff" stroke-width="0.1" paint-order="stroke">' + this.labels[i] + '</text>'; }
+  return s + '</g>';
+};
+Iso.prototype.draw = function(){
+  var s = '', self = this;
+  var R = M.rows(this.H), C = M.cols(this.H);
+  // base footprint
+  s += '<polygon points="' + poly([[0,0,0],[C,0,0],[C,R,0],[0,R,0]]) + '" fill="#EEF3FA" stroke="#B9C6DC" stroke-width="0.04"/>';
+  var hotOnTop = this.xray && Object.keys(this.hot).length;
+  this.order.forEach(function(i){ if(hotOnTop && self.hot[i]) return; s += self.cubeSVG(i, hotOnTop ? ' opacity="0.28"' : ''); });
+  if(hotOnTop) this.order.forEach(function(i){ if(self.hot[i]) s += self.cubeSVG(i); });
+  // direction arrows
+  var A = this.o.arrows ? this.o.arrows : (this.o.front !== false ? ['front'] : []);
+  A.forEach(function(k){ var on = self.arrow === k, col = on ? '#007AFF' : '#46557A', a, b, t;
+    if(k === 'front'){ var m = M.proj(C / 2, 0, 0); a = [m[0] - 0.55, m[1] + 0.95]; b = [m[0] - 0.12, m[1] + 0.2]; t = [a[0] - 0.1, a[1] + 0.35]; }
+    if(k === 'right'){ var m2 = M.proj(C, R / 2, 0); a = [m2[0] + 0.6, m2[1] + 0.85]; b = [m2[0] + 0.14, m2[1] + 0.2]; t = [a[0] + 0.1, a[1] + 0.35]; }
+    if(k === 'top'){ var m3 = M.proj(C / 2, R / 2, Math.max.apply(0, self.H.map(function(r){ return Math.max.apply(0, r); }))); a = [m3[0] - 0.9, m3[1] - 1.2]; b = [m3[0] - 0.3, m3[1] - 0.45]; t = [a[0] - 0.15, a[1] - 0.3]; }
+    var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy); dx /= L; dy /= L;
+    s += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + (b[0] - dx * 0.15) + '" y2="' + (b[1] - dy * 0.15) + '" stroke="' + col + '" stroke-width="' + (on ? 0.1 : 0.06) + '"/>' +
+      '<polygon points="' + [b[0], b[1], b[0] - dx*0.25 - dy*0.13, b[1] - dy*0.25 + dx*0.13, b[0] - dx*0.25 + dy*0.13, b[1] - dy*0.25 - dx*0.13].join(',') + '" fill="' + col + '"/>' +
+      '<text x="' + t[0] + '" y="' + t[1] + '" text-anchor="middle" dominant-baseline="middle" font-size="0.36" font-weight="' + (on ? 900 : 700) + '" fill="' + col + '">' + k[0].toUpperCase() + k.slice(1) + '</text>'; });
+  this.svg.innerHTML = s;
+};
+/* flat views: list of column heights drawn as squares */
+function viewSVG(hs, opts){
+  opts = opts || {}; var u = opts.u || 26, Z = Math.max(1, opts.zmax || Math.max.apply(0, hs)), W = hs.length;
+  var s = '<svg width="' + (W * u + 6) + '" height="' + (Z * u + 6) + '" viewBox="-3 -3 ' + (W * u + 6) + ' ' + (Z * u + 6) + '">';
+  hs.forEach(function(h, i){ for(var k = 0; k < h; k++) s += '<rect x="' + i * u + '" y="' + (Z - 1 - k) * u + '" width="' + u + '" height="' + u + '" fill="' + (opts.fill || '#FFFFFF') + '" stroke="' + (opts.stroke || '#D62C2C') + '" stroke-width="3"/>'; });
+  s += '<line x1="-3" y1="' + Z * u + '" x2="' + (W * u + 3) + '" y2="' + Z * u + '" stroke="#B9C6DC" stroke-width="2"/>';
+  return s + '</svg>';
+}
+function mapSVG(H, show, opts){
+  opts = opts || {}; var u = opts.u || 54, R = M.rows(H), C = M.cols(H), hot = opts.hot;
+  var s = '<svg class="hmap" width="' + (C * u + 6) + '" height="' + (R * u + 6) + '" viewBox="-3 -3 ' + (C * u + 6) + ' ' + (R * u + 6) + '">';
+  H.forEach(function(row, r){ row.forEach(function(h, c){
+    var on = hot && hot[0] === r && hot[1] === c;
+    s += '<g data-r="' + r + '" data-c="' + c + '"><rect x="' + c * u + '" y="' + r * u + '" width="' + u + '" height="' + u + '" fill="' + (on ? '#FFF0DC' : h ? '#CFE2FA' : '#fff') + '" stroke="' + (on ? '#E88100' : INK) + '" stroke-width="' + (on ? 4 : 2.5) + '"/>' +
+      '<text x="' + (c * u + u / 2) + '" y="' + (r * u + u / 2 + 1) + '" text-anchor="middle" dominant-baseline="middle" font-size="' + Math.round(u * 0.46) + '" font-weight="900" fill="' + (show(r, c) ? '#D62C2C' : '#9AA8C2') + '">' + (show(r, c) ? h : '?') + '</text></g>'; }); });
+  return s + '</svg>';
+}
+function onResize(fn){ var t; var h = function(){ clearTimeout(t); t = setTimeout(fn, 80); }; window.addEventListener('resize', h); return function(){ window.removeEventListener('resize', h); }; }
+function sum(a){ return a.reduce(function(x, y){ return x + y; }, 0); }
+function colsOrder(H){ var out = []; H.forEach(function(row, r){ row.forEach(function(h, c){ out.push([r, c]); }); }); return out; }
+
+/* ---------- steps ---------- */
+function stepSee(ctx){
+  var H = M.BOOK, iso = new Iso(ctx.vis, H), V = M.visibility(H, 0.04);
+  var vis = V.visible.slice().sort(function(a, b){ return iso.order.indexOf(b) - iso.order.indexOf(a); });
+  function info(){ ctx.extra.innerHTML = '<div class="stat"><b>' + Object.keys(iso.mark).length + '</b><span>Marked</span></div><div class="muted" style="margin-top:6px">Tap each cube you can see</div>'; }
+  iso.svg.addEventListener('click', function(e){ var g = e.target.closest('[data-i]'); if(!g) return; var i = +g.dataset.i;
+    if(iso.mark[i]) delete iso.mark[i]; else iso.mark[i] = 1; iso.draw(); info(); });
+  ctx.ans.innerHTML = '<div class="hud"><span class="big">' + V.visibleCount + '</span><span class="mid">cubes you can see</span></div><div class="rule">Is that every cube? <em>Next step</em></div>';
+  info();
+  var off = onResize(function(){ iso.size(); iso.draw(); });
+  var k = 0;
+  function one(){ if(k >= vis.length) return; var i = vis[k++]; iso.mark[i] = 1; iso.labels[i] = k; iso.draw(); info(); }
+  function rst(){ Lab.bump(); k = 0; iso.mark = {}; iso.labels = {}; iso.draw(); info(); }
+  return {
+    play: function(){ rst(); var g = Lab.gen(), p = Lab.sleep(150, g); vis.forEach(function(){ p = p.then(function(){ one(); return Lab.sleep(380, g); }); }); return p; },
+    step: function(){ if(k >= vis.length){ rst(); return; } one(); },
+    reset: rst, destroy: off };
+}
+
+function stepHidden(ctx){
+  var H = M.BOOK, iso = new Iso(ctx.vis, H, { hf:0.56 }), V = M.visibility(H, 0.04), seen = {};
+  V.visible.forEach(function(i){ seen[i] = 1; });
+  var cols = colsOrder(H), k = 0, done = [];
+  function info(){
+    var hid = done.reduce(function(a, x){ return a + x.hidden; }, 0);
+    ctx.extra.innerHTML = '<div class="chiprow">' + done.map(function(x){ return '<div class="chip' + (x === done[done.length - 1] ? ' hot' : '') + '"><small>' + x.h + ' tall</small>' + (x.hidden ? x.hidden + ' hidden' : 'none') + '</div>'; }).join('') + '</div>' +
+      '<div class="stats" style="margin-top:8px"><div class="stat"><b>' + (done.length ? sum(done.map(function(x){ return x.h; })) : '?') + '</b><span>Cubes so far</span></div><div class="stat"><b>' + (done.length ? hid : '?') + '</b><span>Hidden</span></div></div>';
+  }
+  function show(j){
+    var rc = cols[j], h = H[rc[0]][rc[1]]; iso.hot = {}; iso.labels = {}; iso.xray = true;
+    var hidden = 0;
+    iso.cs.forEach(function(q, i){ if(q.r === rc[0] && q.c === rc[1]){ iso.hot[i] = 1; iso.labels[i] = q.z + 1; if(!seen[i]) hidden++; } });
+    done.push({ h:h, hidden:hidden }); iso.draw(); info();
+  }
+  ctx.ans.innerHTML = '<div class="rule">Seen <em>' + V.visibleCount + '</em> + hidden <em>' + V.hidden + '</em></div><div class="hud"><span class="mid">Total</span><span class="big">' + M.total(H) + '</span></div><div class="rule">Every raised cube stands on a <em>full column</em></div>';
+  info();
+  var off = onResize(function(){ iso.size(); iso.draw(); });
+  function rst(){ Lab.bump(); k = 0; done = []; iso.hot = {}; iso.labels = {}; iso.xray = false; iso.draw(); info(); }
+  function done(){ iso.hot = {}; iso.labels = {}; iso.xray = false; iso.draw(); }
+  return {
+    play: function(){ rst(); var g = Lab.gen(), p = Lab.sleep(150, g); cols.forEach(function(c, j){ p = p.then(function(){ show(j); return Lab.sleep(1100, g); }); }); return p.then(done); },
+    step: function(){ if(k >= cols.length){ rst(); return; } show(k++); if(k === cols.length) setTimeout(function(){}, 0); },
+    reset: rst, destroy: off };
+}
+
+function stepViews(ctx){
+  var H = M.BOOK, wrap = el('div', 'duo col'); ctx.vis.appendChild(wrap);
+  var left = el('div'); wrap.appendChild(left);
+  var iso = new Iso(left, H, { arrows:['front','right','top'], hf:0.46, wf:0.95 });
+  var panel = el('div', 'views'); wrap.appendChild(panel);
+  var V = [{ k:'front', n:'Front', hs:M.frontView(H) }, { k:'right', n:'Right', hs:M.rightView(H) }, { k:'top', n:'Top' }];
+  var shown = {}, Z = Math.max.apply(0, M.frontView(H));
+  function draw(){
+    var ans = Lab.showing();
+    panel.innerHTML = V.map(function(v){ var on = shown[v.k] || ans;
+      var pic = v.k === 'top' ? mapSVG(H.map(function(r){ return r.map(function(){ return 0; }); }), function(){ return false; }, { u:30 }).replace(/>\?</g, '><') : viewSVG(v.hs, { zmax:Z, u:28 });
+      if(!on) pic = '<div class="blank">?</div>';
+      return '<div class="vbox' + (iso.arrow === v.k ? ' on' : '') + '"><div class="lbl">' + v.n + '</div>' + pic + '</div>'; }).join('');
+  }
+  ctx.ans.innerHTML = '<div class="rule">Front: <em>' + M.frontView(H).join(', ') + '</em> (tallest in each column)</div><div class="rule">Right: <em>' + M.rightView(H).join(', ') + '</em> (front row on the left)</div>';
+  draw();
+  var k = 0, off = onResize(function(){ iso.size(); iso.draw(); });
+  function one(){ var v = V[k++]; iso.arrow = v.k; shown[v.k] = 1; iso.draw(); draw(); }
+  function rst(){ Lab.bump(); k = 0; shown = {}; iso.arrow = null; iso.draw(); draw(); }
+  return {
+    play: function(){ rst(); var g = Lab.gen(), p = Lab.sleep(150, g); V.forEach(function(){ p = p.then(function(){ one(); return Lab.sleep(1100, g); }); }); return p; },
+    step: function(){ if(k >= V.length){ rst(); return; } one(); },
+    reset: rst, answer: draw, destroy: off };
+}
+
+function stepMap(ctx){
+  var H = M.BOOK, wrap = el('div', 'duo'); ctx.vis.appendChild(wrap);
+  var left = el('div'); wrap.appendChild(left);
+  var iso = new Iso(left, H, { hf:0.5, wf:0.95 });
+  var right = el('div', 'mapbox'); wrap.appendChild(right);
+  var cols = colsOrder(H), k = 0;
+  function draw(){
+    var ans = Lab.showing(), hot = k ? cols[k - 1] : null;
+    right.innerHTML = '<div class="lbl">Top view</div>' + mapSVG(H, function(r, c){ return ans || cols.slice(0, k).some(function(x){ return x[0] === r && x[1] === c; }); }, { hot:hot }) +
+      '<div class="front-tag">&uarr; Front</div>';
+    var parts = cols.slice(0, ans ? cols.length : k).map(function(x){ return H[x[0]][x[1]]; });
+    ctx.extra.innerHTML = '<div class="sumline">' + (parts.length ? parts.join(' + ') + (parts.length === cols.length ? ' = <b>' + sum(parts) + '</b>' : '') : '&nbsp;') + '</div>';
+  }
+  ctx.ans.innerHTML = '<div class="hud"><span class="mid">Total</span><span class="big">' + M.total(H) + '</span></div><div class="rule">Total = <em>sum</em> of the heights</div>';
+  draw();
+  var off = onResize(function(){ iso.size(); iso.draw(); });
+  function one(){ var rc = cols[k++]; iso.hot = {}; iso.cs.forEach(function(q, i){ if(q.r === rc[0] && q.c === rc[1]) iso.hot[i] = 1; }); iso.xray = true; iso.draw(); draw(); }
+  function rst(){ Lab.bump(); k = 0; iso.hot = {}; iso.xray = false; iso.draw(); draw(); }
+  return {
+    play: function(){ rst(); var g = Lab.gen(), p = Lab.sleep(150, g); cols.forEach(function(){ p = p.then(function(){ one(); return Lab.sleep(800, g); }); });
+      return p.then(function(){ iso.hot = {}; iso.xray = false; iso.draw(); }); },
+    step: function(){ if(k >= cols.length){ rst(); return; } one(); },
+    reset: rst, answer: draw, destroy: off };
+}
+
+function stepFree(ctx){
+  var PRE = [{ n:'Booklet', H:M.BOOK }, { n:'Steps', H:[[3,2],[2,1],[1,1]] }, { n:'Tower', H:[[3,3,1],[2,2,1],[1,1,1]] }, { n:'Empty', H:[[1,0,0],[0,0,0],[0,0,0]] }];
+  var H = clone(PRE[0].H), minus = false;
+  function clone(h){ return h.map(function(r){ return r.slice(); }); }
+  var wrap = el('div', 'duo'); ctx.vis.appendChild(wrap);
+  var left = el('div'); wrap.appendChild(left);
+  var iso = new Iso(left, H, { hf:0.5, wf:0.95, maxK:56 });
+  var right = el('div', 'mapbox'); wrap.appendChild(right);
+  function upd(){
+    iso.set(H);
+    right.innerHTML = '<div class="lbl">Tap to build</div>' + mapSVG(H, function(){ return true; }, { u:50 }) + '<div class="front-tag">&uarr; Front</div>';
+    right.querySelectorAll('[data-r]').forEach(function(g){ g.style.cursor = 'pointer'; g.addEventListener('click', function(){
+      var r = +g.dataset.r, c = +g.dataset.c; H[r][c] = minus ? Math.max(0, H[r][c] - 1) : (H[r][c] + 1) % 6; upd(); }); });
+    var V = M.visibility(H, 0.06), t = M.total(H);
+    ctx.ans.innerHTML = '<div class="stats"><div class="stat"><b>' + t + '</b><span>Total</span></div><div class="stat"><b>' + V.visibleCount + '</b><span>Visible</span></div><div class="stat"><b>' + V.hidden + '</b><span>Hidden</span></div></div>' +
+      (t ? '<div class="duo" style="justify-content:flex-start;gap:14px"><div><div class="lbl">Front</div>' + viewSVG(M.frontView(H), { u:18 }) + '</div><div><div class="lbl">Right</div>' + viewSVG(M.rightView(H), { u:18 }) + '</div></div>' : '');
+    Lab.refreshAns();
+  }
+  ctx.extra.innerHTML = '<div class="rowb" id="spre">' + PRE.map(function(p, i){ return '<button class="btn" type="button" data-i="' + i + '">' + p.n + '</button>'; }).join('') + '</div>' +
+    '<div class="rowb" style="margin-top:8px"><button class="btn navy" type="button" id="srot">Turn 90&deg; &#8635;</button><button class="btn" type="button" id="sminus" aria-pressed="false">Tap takes away</button></div>';
+  ctx.extra.querySelectorAll('#spre button').forEach(function(b){ b.onclick = function(){ H = clone(PRE[+b.dataset.i].H); upd(); }; });
+  ctx.extra.querySelector('#srot').onclick = function(){ H = M.rotate(H); left.classList.remove('spin'); void left.offsetWidth; left.classList.add('spin'); upd(); };
+  var mb = ctx.extra.querySelector('#sminus'); mb.onclick = function(){ minus = !minus; mb.classList.toggle('on', minus); mb.setAttribute('aria-pressed', minus); };
+  upd();
+  var off = onResize(function(){ iso.size(); iso.draw(); });
+  return { reset: function(){ H = clone(PRE[0].H); upd(); }, destroy: off };
+}
+
+Lab.init({ title: 'Hidden Cubes and Views', steps: [
+  { name:'Count What You See', q:'How many cubes can you see?', mount: stepSee },
+  { name:'Hidden Cubes', q:'How many cubes are in this stack?', mount: stepHidden },
+  { name:'Top, Front, Side', q:'What does it look like from each side?', mount: stepViews },
+  { name:'Height Map', q:'What is each column\'s height?', mount: stepMap },
+  { name:'Free Play', q:'', play:false, step:false, mount: stepFree }
+]});
+})();
+
+</script>
+</body>
+</html>

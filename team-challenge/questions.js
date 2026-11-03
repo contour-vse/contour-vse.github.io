@@ -461,6 +461,434 @@ window.QUESTIONS = {
    }
   ]
  },
+ "y8-en-1-1-wb": {
+  "title": "Advanced Reading 1.1 Workbook",
+  "year": 8,
+  "warmup": [
+   {
+    "id": "w1",
+    "text": "The school library opens at 8:15 am on weekdays. On Fridays, though, it opens half an hour later, so the librarians can sort the new books that arrive each week. Students may borrow up to four books at a time.",
+    "img": null,
+    "ask": "When does the library open on Fridays?",
+    "options": [
+     "8:45 am",
+     "8:15 am",
+     "7:45 am",
+     "9:15 am"
+    ],
+    "topic": "Proving a Detail"
+   },
+   {
+    "id": "w2",
+    "text": "Wren pulled her hood up and frowned at the sky. She had left her umbrella on the bus that morning, and the walk home from the station was a long one. Big grey clouds were rolling in over the hills, and the first fat drops were already darkening the footpath.",
+    "img": null,
+    "ask": "Why is Wren most likely frowning?",
+    "options": [
+     "She is cross with the driver of the bus.",
+     "She is too hot in her warm hoodie.",
+     "She is going to get wet walking home.",
+     "She cannot find her way to the station."
+    ],
+    "topic": "Linking Lines"
+   },
+   {
+    "id": "w3",
+    "text": "The old footbridge over the creek was so narrow that two bikes could not fit side by side, so riders had to take turns. Hugo waited patiently at one end while an older man wheeled his bike slowly across, nodding his thanks as he went by.",
+    "img": null,
+    "ask": "In the text, the word 'narrow' means",
+    "options": [
+     "long",
+     "not wide",
+     "old and shaky",
+     "high above the water"
+    ],
+    "topic": "Words in Context"
+   },
+   {
+    "id": "w4",
+    "text": "Emus cannot fly, but they are strong runners and can reach about 50 kilometres an hour. The father emu sits on the eggs for around eight weeks, and in that time he hardly eats or drinks. After the chicks hatch, he looks after them for many months.",
+    "img": null,
+    "ask": "According to the text, who sits on the eggs?",
+    "options": [
+     "the mother emu",
+     "both parents, taking turns",
+     "the oldest chick",
+     "the father emu"
+    ],
+    "topic": "Proving a Detail"
+   },
+   {
+    "id": "w5",
+    "text": "Esme checked the oven for the third time in five minutes. She had set the table with the good plates, and a card on the bench read Happy Birthday, Gran in bright letters. When the doorbell rang, she wiped her hands, took a deep breath and hurried to the door.",
+    "img": null,
+    "ask": "What is Esme most likely doing?",
+    "options": [
+     "cleaning up after a party",
+     "baking for a school fair",
+     "getting ready for her gran's visit",
+     "waiting for a pizza delivery to arrive"
+    ],
+    "topic": "Linking Lines"
+   },
+   {
+    "id": "w6",
+    "text": "After the long hike up the hill and back, Kip was ravenous. He finished two sandwiches, an apple and a whole bowl of pasta before anyone else had even sat down at the table, then asked if there was any dessert.",
+    "img": null,
+    "ask": "In the text, the word 'ravenous' means",
+    "options": [
+     "very hungry",
+     "very tired",
+     "very cold",
+     "very cross"
+    ],
+    "topic": "Words in Context"
+   },
+   {
+    "id": "w7",
+    "text": "The community garden has twelve plots. Ten are rented by local families, and the last two are kept for the primary school next door, whose students grow herbs and beans there each spring. Anyone is welcome to visit on Saturday mornings.",
+    "img": null,
+    "ask": "How many plots are kept for the school?",
+    "options": [
+     "ten",
+     "twelve",
+     "three",
+     "two"
+    ],
+    "topic": "Proving a Detail"
+   },
+   {
+    "id": "w8",
+    "text": "Yusuf stared at the starting blocks and wiped his palms on his towel again. When his name was called, his legs felt like jelly as he walked to lane four. In the stands, his sister waved a sign with his name on it in huge letters.",
+    "img": null,
+    "ask": "How is Yusuf most likely feeling?",
+    "options": [
+     "bored",
+     "nervous",
+     "angry",
+     "relaxed"
+    ],
+    "topic": "Linking Lines"
+   }
+  ],
+  "challenge": [
+   {
+    "id": "c1",
+    "text": "Gaps on Purpose\n\nWalk across almost any long bridge and you will feel it before you see it: a soft bump under your shoes, or a clunk under the wheels of the car. Look down and you will find a metal joint that looks like two combs pushed together. The joint is not a repair, and it is not a fault. Engineers put it there on purpose.\n\nMost materials grow slightly when they warm up and shrink when they cool down. A steel beam 100 metres long can stretch by about five centimetres between a frosty winter dawn and a hot summer afternoon. Concrete moves too, though usually by a little less than steel. Five centimetres sounds tiny, but if both ends of a bridge were fixed solid, the growing deck would have nowhere to go. It would push against the land at each end with enormous force.\n\nRailway builders learnt this the hard way. Some early lines were laid with the rails pressed tightly end to end, and on very hot days the track could buckle sideways into a curve. Workers began leaving small gaps between the rails, and every wheel that crossed a gap made a sound. That is where the famous clickety clack of older trains came from.\n\nToday the gaps are hidden in clever places. In a comb joint, the metal teeth slide past each other as the bridge grows and shrinks, so there is never an open hole for a wheel to drop into. Some bridges rest on rollers or thick rubber pads, which let the deck creep back and forth over the seasons. Even footpaths have a version. The straight lines cut into the concrete every metre or two give the slab a weak spot, so that if it cracks, it cracks along a neat line instead of anywhere at all.\n\nThe joints need looking after. Leaves, grit and rubbish can jam the teeth, and a jammed joint behaves as if there were no joint at all. In many cities, road crews clean the joints out each spring, before the summer heat makes the deck grow into the space.\n\nIt is a surprising lesson. A structure that is allowed to move a little will usually last far longer than one built to stand perfectly still.",
+    "img": null,
+    "ask": "The passage is mainly about",
+    "options": [
+     "why long bridges need metal comb joints.",
+     "how the clickety clack of older trains began.",
+     "why structures are built with room to grow and shrink.",
+     "how railway builders learnt to stop tracks buckling in the heat."
+    ],
+    "topic": "Question Targets"
+   },
+   {
+    "id": "c2",
+    "text": "Gaps on Purpose\n\nWalk across almost any long bridge and you will feel it before you see it: a soft bump under your shoes, or a clunk under the wheels of the car. Look down and you will find a metal joint that looks like two combs pushed together. The joint is not a repair, and it is not a fault. Engineers put it there on purpose.\n\nMost materials grow slightly when they warm up and shrink when they cool down. A steel beam 100 metres long can stretch by about five centimetres between a frosty winter dawn and a hot summer afternoon. Concrete moves too, though usually by a little less than steel. Five centimetres sounds tiny, but if both ends of a bridge were fixed solid, the growing deck would have nowhere to go. It would push against the land at each end with enormous force.\n\nRailway builders learnt this the hard way. Some early lines were laid with the rails pressed tightly end to end, and on very hot days the track could buckle sideways into a curve. Workers began leaving small gaps between the rails, and every wheel that crossed a gap made a sound. That is where the famous clickety clack of older trains came from.\n\nToday the gaps are hidden in clever places. In a comb joint, the metal teeth slide past each other as the bridge grows and shrinks, so there is never an open hole for a wheel to drop into. Some bridges rest on rollers or thick rubber pads, which let the deck creep back and forth over the seasons. Even footpaths have a version. The straight lines cut into the concrete every metre or two give the slab a weak spot, so that if it cracks, it cracks along a neat line instead of anywhere at all.\n\nThe joints need looking after. Leaves, grit and rubbish can jam the teeth, and a jammed joint behaves as if there were no joint at all. In many cities, road crews clean the joints out each spring, before the summer heat makes the deck grow into the space.\n\nIt is a surprising lesson. A structure that is allowed to move a little will usually last far longer than one built to stand perfectly still.",
+    "img": null,
+    "ask": "According to the passage, why does a long bridge need a joint?",
+    "options": [
+     "A fixed deck would push hard against the land as it grows.",
+     "The joint stops car wheels from dropping into an open gap.",
+     "Steel can stretch by five centimetres in one afternoon.",
+     "Leaves, grit and rubbish can jam the teeth."
+    ],
+    "topic": "True but Not the Answer"
+   },
+   {
+    "id": "c3",
+    "text": "Gaps on Purpose\n\nWalk across almost any long bridge and you will feel it before you see it: a soft bump under your shoes, or a clunk under the wheels of the car. Look down and you will find a metal joint that looks like two combs pushed together. The joint is not a repair, and it is not a fault. Engineers put it there on purpose.\n\nMost materials grow slightly when they warm up and shrink when they cool down. A steel beam 100 metres long can stretch by about five centimetres between a frosty winter dawn and a hot summer afternoon. Concrete moves too, though usually by a little less than steel. Five centimetres sounds tiny, but if both ends of a bridge were fixed solid, the growing deck would have nowhere to go. It would push against the land at each end with enormous force.\n\nRailway builders learnt this the hard way. Some early lines were laid with the rails pressed tightly end to end, and on very hot days the track could buckle sideways into a curve. Workers began leaving small gaps between the rails, and every wheel that crossed a gap made a sound. That is where the famous clickety clack of older trains came from.\n\nToday the gaps are hidden in clever places. In a comb joint, the metal teeth slide past each other as the bridge grows and shrinks, so there is never an open hole for a wheel to drop into. Some bridges rest on rollers or thick rubber pads, which let the deck creep back and forth over the seasons. Even footpaths have a version. The straight lines cut into the concrete every metre or two give the slab a weak spot, so that if it cracks, it cracks along a neat line instead of anywhere at all.\n\nThe joints need looking after. Leaves, grit and rubbish can jam the teeth, and a jammed joint behaves as if there were no joint at all. In many cities, road crews clean the joints out each spring, before the summer heat makes the deck grow into the space.\n\nIt is a surprising lesson. A structure that is allowed to move a little will usually last far longer than one built to stand perfectly still.",
+    "img": null,
+    "ask": "Which statement about concrete is supported by the passage?",
+    "options": [
+     "It grows more quickly than steel on hot days.",
+     "It never moves as much as steel does.",
+     "It needs a cut every metre or two so that it has room to grow.",
+     "It tends to change length a little less than steel."
+    ],
+    "topic": "Proving a Detail"
+   },
+   {
+    "id": "c4",
+    "text": "The Solo\n\nThe band room smelt of valve oil and old carpet. I sat in the second row with my trumpet across my knees, pressing the valves without blowing, the way you check your pocket for keys you know are there. In twenty minutes the whole school would be in the hall, and eight bars of the second song belonged to me alone.\n\nFreya, our band captain, was moving along the rows with her clipboard, ticking off names. When she reached me, she tapped the clipboard twice with her pen and moved on without a word. Arjun leaned across from the trombones. “She did that to me before my solo last term,” he whispered. “It means she reckons you’ll be fine.” I wasn’t so sure.\n\nThe walk to the hall took four minutes. I know because I counted the fence posts along the quad and lost track twice. My lips felt as if they belonged to somebody else, and I kept wiping my palms on my trousers.\n\nOn stage, the lights turned the audience into one dark shape that rustled and coughed. Freya sat in the back row with the drums, where I couldn’t see her. The first song went by in a blur. Then the second song began, and I watched the conductor’s hand rise toward me, and I lifted the trumpet.\n\nThe first note cracked. It came out thin and sour, and somewhere in the dark a few people laughed. I felt the heat climb up my neck. But the second note was clean, and so was the third, and by the sixth bar I couldn’t hear anything except the tune in front of me.\n\nAfterwards, while I was packing up, Freya walked past and dropped a folded note onto my case. Inside, in her neat handwriting, she had written: “Told you. Tap, tap.” Later, Arjun admitted that Freya had asked him that morning whether I’d been practising. He had told her I practised every lunchtime, which was true. What he didn’t tell her was that I practised alone because I was too nervous to play in front of anyone.",
+    "img": null,
+    "ask": "Freya’s note suggests that she",
+    "options": [
+     "was surprised that the solo had gone well.",
+     "had expected the narrator to do well all along.",
+     "wanted to make up for the people who laughed in the hall.",
+     "knew that the narrator practised alone."
+    ],
+    "topic": "Linking Lines"
+   },
+   {
+    "id": "c5",
+    "text": "The Solo\n\nThe band room smelt of valve oil and old carpet. I sat in the second row with my trumpet across my knees, pressing the valves without blowing, the way you check your pocket for keys you know are there. In twenty minutes the whole school would be in the hall, and eight bars of the second song belonged to me alone.\n\nFreya, our band captain, was moving along the rows with her clipboard, ticking off names. When she reached me, she tapped the clipboard twice with her pen and moved on without a word. Arjun leaned across from the trombones. “She did that to me before my solo last term,” he whispered. “It means she reckons you’ll be fine.” I wasn’t so sure.\n\nThe walk to the hall took four minutes. I know because I counted the fence posts along the quad and lost track twice. My lips felt as if they belonged to somebody else, and I kept wiping my palms on my trousers.\n\nOn stage, the lights turned the audience into one dark shape that rustled and coughed. Freya sat in the back row with the drums, where I couldn’t see her. The first song went by in a blur. Then the second song began, and I watched the conductor’s hand rise toward me, and I lifted the trumpet.\n\nThe first note cracked. It came out thin and sour, and somewhere in the dark a few people laughed. I felt the heat climb up my neck. But the second note was clean, and so was the third, and by the sixth bar I couldn’t hear anything except the tune in front of me.\n\nAfterwards, while I was packing up, Freya walked past and dropped a folded note onto my case. Inside, in her neat handwriting, she had written: “Told you. Tap, tap.” Later, Arjun admitted that Freya had asked him that morning whether I’d been practising. He had told her I practised every lunchtime, which was true. What he didn’t tell her was that I practised alone because I was too nervous to play in front of anyone.",
+    "img": null,
+    "ask": "“My lips felt as if they belonged to somebody else” suggests that the narrator’s lips",
+    "options": [
+     "were sore from practising every lunchtime.",
+     "were cold from the walk across the quad.",
+     "were hard to control because of nerves.",
+     "had stopped working after the first note cracked."
+    ],
+    "topic": "Words in Context"
+   },
+   {
+    "id": "c6",
+    "text": "The Solo\n\nThe band room smelt of valve oil and old carpet. I sat in the second row with my trumpet across my knees, pressing the valves without blowing, the way you check your pocket for keys you know are there. In twenty minutes the whole school would be in the hall, and eight bars of the second song belonged to me alone.\n\nFreya, our band captain, was moving along the rows with her clipboard, ticking off names. When she reached me, she tapped the clipboard twice with her pen and moved on without a word. Arjun leaned across from the trombones. “She did that to me before my solo last term,” he whispered. “It means she reckons you’ll be fine.” I wasn’t so sure.\n\nThe walk to the hall took four minutes. I know because I counted the fence posts along the quad and lost track twice. My lips felt as if they belonged to somebody else, and I kept wiping my palms on my trousers.\n\nOn stage, the lights turned the audience into one dark shape that rustled and coughed. Freya sat in the back row with the drums, where I couldn’t see her. The first song went by in a blur. Then the second song began, and I watched the conductor’s hand rise toward me, and I lifted the trumpet.\n\nThe first note cracked. It came out thin and sour, and somewhere in the dark a few people laughed. I felt the heat climb up my neck. But the second note was clean, and so was the third, and by the sixth bar I couldn’t hear anything except the tune in front of me.\n\nAfterwards, while I was packing up, Freya walked past and dropped a folded note onto my case. Inside, in her neat handwriting, she had written: “Told you. Tap, tap.” Later, Arjun admitted that Freya had asked him that morning whether I’d been practising. He had told her I practised every lunchtime, which was true. What he didn’t tell her was that I practised alone because I was too nervous to play in front of anyone.",
+    "img": null,
+    "ask": "Which of these could the narrator {b}NOT{/b} know?",
+    "options": [
+     "how Freya reacted when the first note cracked",
+     "what Freya asked Arjun about the narrator that morning",
+     "how long the walk to the hall took",
+     "that some people in the audience laughed"
+    ],
+    "topic": "Narrator Knowledge"
+   }
+  ],
+  "sprint": [
+   {
+    "id": "s1",
+    "text": "The Moon on the Horizon\n\nAnyone who has watched a full moon rise over the sea or a line of hills has seen it: a huge orange disc that looks close enough to touch. A few hours later, high in the sky, the same moon looks small and silvery white. Most people assume the rising moon must be closer to them. It isn’t.\n\nThe moon’s distance from Earth does change over the course of a month, but only slowly, and never enough in one night to explain what we see. Photographs settle the question. Take a picture of the rising moon, then another at midnight with the same camera and zoom, and the two discs come out almost exactly the same size. In fact, the moon is very slightly closer to you when it is high overhead, because you are then on the side of the Earth that faces it.\n\nThe colour, on the other hand, is real. When the moon is low, its light travels through far more air on the way to your eyes. The air scatters away much of the blue light and lets more of the red and orange through, which is the same reason a sunset glows.\n\nSo why does the low moon look so big? People have argued about this “moon illusion” for more than two thousand years, and scientists still do not fully agree. One popular explanation is that the brain judges size by comparison. Near the horizon, the moon sits beside trees, roofs and distant hills, and it looks enormous next to them. High in the sky, it floats alone with nothing to compare it with.\n\nAnother explanation is that the brain pictures the sky as a flattened bowl, with the horizon much further away than the point straight overhead. Because the brain believes the horizon moon is further off, it decides the moon must be larger to look the size it does.\n\nYou can test the illusion yourself. Next time the moon is low, roll a sheet of paper into a tube and look at the moon through it, so that only the moon shows. For many people, it shrinks at once. Nothing about the moon has changed, only what the brain has to work with.",
+    "img": null,
+    "ask": "According to the passage, why does the moon look orange near the horizon?",
+    "options": [
+     "It reflects the glow of the setting sun.",
+     "Air takes away much of its blue light.",
+     "It is closer to Earth when it rises.",
+     "It sits beside trees, roofs and hills."
+    ],
+    "topic": "Exam Sprint"
+   },
+   {
+    "id": "s2",
+    "text": "The Moon on the Horizon\n\nAnyone who has watched a full moon rise over the sea or a line of hills has seen it: a huge orange disc that looks close enough to touch. A few hours later, high in the sky, the same moon looks small and silvery white. Most people assume the rising moon must be closer to them. It isn’t.\n\nThe moon’s distance from Earth does change over the course of a month, but only slowly, and never enough in one night to explain what we see. Photographs settle the question. Take a picture of the rising moon, then another at midnight with the same camera and zoom, and the two discs come out almost exactly the same size. In fact, the moon is very slightly closer to you when it is high overhead, because you are then on the side of the Earth that faces it.\n\nThe colour, on the other hand, is real. When the moon is low, its light travels through far more air on the way to your eyes. The air scatters away much of the blue light and lets more of the red and orange through, which is the same reason a sunset glows.\n\nSo why does the low moon look so big? People have argued about this “moon illusion” for more than two thousand years, and scientists still do not fully agree. One popular explanation is that the brain judges size by comparison. Near the horizon, the moon sits beside trees, roofs and distant hills, and it looks enormous next to them. High in the sky, it floats alone with nothing to compare it with.\n\nAnother explanation is that the brain pictures the sky as a flattened bowl, with the horizon much further away than the point straight overhead. Because the brain believes the horizon moon is further off, it decides the moon must be larger to look the size it does.\n\nYou can test the illusion yourself. Next time the moon is low, roll a sheet of paper into a tube and look at the moon through it, so that only the moon shows. For many people, it shrinks at once. Nothing about the moon has changed, only what the brain has to work with.",
+    "img": null,
+    "ask": "According to the passage, what do the two photographs show?",
+    "options": [
+     "The rising moon is more orange.",
+     "The moon is much closer at midnight.",
+     "The rising moon is a little larger.",
+     "The moon is about the same size in both."
+    ],
+    "topic": "Exam Sprint"
+   },
+   {
+    "id": "s3",
+    "text": "The Moon on the Horizon\n\nAnyone who has watched a full moon rise over the sea or a line of hills has seen it: a huge orange disc that looks close enough to touch. A few hours later, high in the sky, the same moon looks small and silvery white. Most people assume the rising moon must be closer to them. It isn’t.\n\nThe moon’s distance from Earth does change over the course of a month, but only slowly, and never enough in one night to explain what we see. Photographs settle the question. Take a picture of the rising moon, then another at midnight with the same camera and zoom, and the two discs come out almost exactly the same size. In fact, the moon is very slightly closer to you when it is high overhead, because you are then on the side of the Earth that faces it.\n\nThe colour, on the other hand, is real. When the moon is low, its light travels through far more air on the way to your eyes. The air scatters away much of the blue light and lets more of the red and orange through, which is the same reason a sunset glows.\n\nSo why does the low moon look so big? People have argued about this “moon illusion” for more than two thousand years, and scientists still do not fully agree. One popular explanation is that the brain judges size by comparison. Near the horizon, the moon sits beside trees, roofs and distant hills, and it looks enormous next to them. High in the sky, it floats alone with nothing to compare it with.\n\nAnother explanation is that the brain pictures the sky as a flattened bowl, with the horizon much further away than the point straight overhead. Because the brain believes the horizon moon is further off, it decides the moon must be larger to look the size it does.\n\nYou can test the illusion yourself. Next time the moon is low, roll a sheet of paper into a tube and look at the moon through it, so that only the moon shows. For many people, it shrinks at once. Nothing about the moon has changed, only what the brain has to work with.",
+    "img": null,
+    "ask": "The writer mentions trees, roofs and distant hills mainly to",
+    "options": [
+     "show what the low moon can be compared with.",
+     "show that the moon rises behind objects on the horizon.",
+     "explain why the low moon looks orange.",
+     "suggest the best places to watch a moonrise."
+    ],
+    "topic": "Exam Sprint"
+   },
+   {
+    "id": "s4",
+    "text": "The Moon on the Horizon\n\nAnyone who has watched a full moon rise over the sea or a line of hills has seen it: a huge orange disc that looks close enough to touch. A few hours later, high in the sky, the same moon looks small and silvery white. Most people assume the rising moon must be closer to them. It isn’t.\n\nThe moon’s distance from Earth does change over the course of a month, but only slowly, and never enough in one night to explain what we see. Photographs settle the question. Take a picture of the rising moon, then another at midnight with the same camera and zoom, and the two discs come out almost exactly the same size. In fact, the moon is very slightly closer to you when it is high overhead, because you are then on the side of the Earth that faces it.\n\nThe colour, on the other hand, is real. When the moon is low, its light travels through far more air on the way to your eyes. The air scatters away much of the blue light and lets more of the red and orange through, which is the same reason a sunset glows.\n\nSo why does the low moon look so big? People have argued about this “moon illusion” for more than two thousand years, and scientists still do not fully agree. One popular explanation is that the brain judges size by comparison. Near the horizon, the moon sits beside trees, roofs and distant hills, and it looks enormous next to them. High in the sky, it floats alone with nothing to compare it with.\n\nAnother explanation is that the brain pictures the sky as a flattened bowl, with the horizon much further away than the point straight overhead. Because the brain believes the horizon moon is further off, it decides the moon must be larger to look the size it does.\n\nYou can test the illusion yourself. Next time the moon is low, roll a sheet of paper into a tube and look at the moon through it, so that only the moon shows. For many people, it shrinks at once. Nothing about the moon has changed, only what the brain has to work with.",
+    "img": null,
+    "ask": "Which statement is supported by the passage?",
+    "options": [
+     "The moon’s distance from Earth never changes.",
+     "The flattened bowl idea has been proved correct.",
+     "Scientists have not settled on one explanation.",
+     "A paper tube makes the moon shrink for everyone."
+    ],
+    "topic": "Exam Sprint"
+   },
+   {
+    "id": "s5",
+    "text": "The Moon on the Horizon\n\nAnyone who has watched a full moon rise over the sea or a line of hills has seen it: a huge orange disc that looks close enough to touch. A few hours later, high in the sky, the same moon looks small and silvery white. Most people assume the rising moon must be closer to them. It isn’t.\n\nThe moon’s distance from Earth does change over the course of a month, but only slowly, and never enough in one night to explain what we see. Photographs settle the question. Take a picture of the rising moon, then another at midnight with the same camera and zoom, and the two discs come out almost exactly the same size. In fact, the moon is very slightly closer to you when it is high overhead, because you are then on the side of the Earth that faces it.\n\nThe colour, on the other hand, is real. When the moon is low, its light travels through far more air on the way to your eyes. The air scatters away much of the blue light and lets more of the red and orange through, which is the same reason a sunset glows.\n\nSo why does the low moon look so big? People have argued about this “moon illusion” for more than two thousand years, and scientists still do not fully agree. One popular explanation is that the brain judges size by comparison. Near the horizon, the moon sits beside trees, roofs and distant hills, and it looks enormous next to them. High in the sky, it floats alone with nothing to compare it with.\n\nAnother explanation is that the brain pictures the sky as a flattened bowl, with the horizon much further away than the point straight overhead. Because the brain believes the horizon moon is further off, it decides the moon must be larger to look the size it does.\n\nYou can test the illusion yourself. Next time the moon is low, roll a sheet of paper into a tube and look at the moon through it, so that only the moon shows. For many people, it shrinks at once. Nothing about the moon has changed, only what the brain has to work with.",
+    "img": null,
+    "ask": "The passage suggests that the moon illusion happens",
+    "options": [
+     "only when the moon is full.",
+     "because the low moon’s light travels through more air.",
+     "only to people who live near hills or the sea.",
+     "in the viewer’s mind rather than in the sky."
+    ],
+    "topic": "Exam Sprint"
+   },
+   {
+    "id": "s6",
+    "text": "Clancy of the Overflow\n\nI had written him a letter which I had, for want of better\nKnowledge, sent to where I met him down the Lachlan, years ago,\nHe was shearing when I knew him, so I sent the letter to him,\nJust “on spec”, addressed as follows: “Clancy, of The Overflow”.\n\nAnd an answer came directed in a writing unexpected,\n(And I think the same was written with a thumbnail dipped in tar)\n’Twas his shearing mate who wrote it, and verbatim I will quote it:\n“Clancy’s gone to Queensland droving, and we don’t know where he are.”\n\nIn my wild erratic fancy visions come to me of Clancy\nGone a-droving “down the Cooper” where the western drovers go;\nAs the stock are slowly stringing, Clancy rides behind them singing,\nFor the drover’s life has pleasures that the townsfolk never know.\n\nAnd the bush hath friends to meet him, and their kindly voices greet him\nIn the murmur of the breezes and the river on its bars,\nAnd he sees the vision splendid of the sunlit plains extended,\nAnd at night the wondrous glory of the everlasting stars.\n\nI am sitting in my dingy little office, where a stingy\nRay of sunlight struggles feebly down between the houses tall,\nAnd the foetid air and gritty of the dusty, dirty city\nThrough the open window floating, spreads its foulness over all.\n\nAnd I somehow rather fancy that I’d like to change with Clancy,\nLike to take a turn at droving where the seasons come and go,\nWhile he faced the round eternal of the cash-book and the journal,\nBut I doubt he’d suit the office, Clancy, of The Overflow.",
+    "img": null,
+    "ask": "In stanza 5, the word “stingy” suggests the ray of sunlight is",
+    "options": [
+     "harsh and unkind.",
+     "giving very little light.",
+     "sharp and painful to look at.",
+     "warm and welcome."
+    ],
+    "topic": "Exam Sprint"
+   },
+   {
+    "id": "s7",
+    "text": "Clancy of the Overflow\n\nI had written him a letter which I had, for want of better\nKnowledge, sent to where I met him down the Lachlan, years ago,\nHe was shearing when I knew him, so I sent the letter to him,\nJust “on spec”, addressed as follows: “Clancy, of The Overflow”.\n\nAnd an answer came directed in a writing unexpected,\n(And I think the same was written with a thumbnail dipped in tar)\n’Twas his shearing mate who wrote it, and verbatim I will quote it:\n“Clancy’s gone to Queensland droving, and we don’t know where he are.”\n\nIn my wild erratic fancy visions come to me of Clancy\nGone a-droving “down the Cooper” where the western drovers go;\nAs the stock are slowly stringing, Clancy rides behind them singing,\nFor the drover’s life has pleasures that the townsfolk never know.\n\nAnd the bush hath friends to meet him, and their kindly voices greet him\nIn the murmur of the breezes and the river on its bars,\nAnd he sees the vision splendid of the sunlit plains extended,\nAnd at night the wondrous glory of the everlasting stars.\n\nI am sitting in my dingy little office, where a stingy\nRay of sunlight struggles feebly down between the houses tall,\nAnd the foetid air and gritty of the dusty, dirty city\nThrough the open window floating, spreads its foulness over all.\n\nAnd I somehow rather fancy that I’d like to change with Clancy,\nLike to take a turn at droving where the seasons come and go,\nWhile he faced the round eternal of the cash-book and the journal,\nBut I doubt he’d suit the office, Clancy, of The Overflow.",
+    "img": null,
+    "ask": "According to the poem, who wrote the reply to the speaker’s letter?",
+    "options": [
+     "a man who worked with Clancy",
+     "Clancy, writing back himself",
+     "a drover on the Cooper",
+     "a stranger who found the letter"
+    ],
+    "topic": "Exam Sprint"
+   },
+   {
+    "id": "s8",
+    "text": "Clancy of the Overflow\n\nI had written him a letter which I had, for want of better\nKnowledge, sent to where I met him down the Lachlan, years ago,\nHe was shearing when I knew him, so I sent the letter to him,\nJust “on spec”, addressed as follows: “Clancy, of The Overflow”.\n\nAnd an answer came directed in a writing unexpected,\n(And I think the same was written with a thumbnail dipped in tar)\n’Twas his shearing mate who wrote it, and verbatim I will quote it:\n“Clancy’s gone to Queensland droving, and we don’t know where he are.”\n\nIn my wild erratic fancy visions come to me of Clancy\nGone a-droving “down the Cooper” where the western drovers go;\nAs the stock are slowly stringing, Clancy rides behind them singing,\nFor the drover’s life has pleasures that the townsfolk never know.\n\nAnd the bush hath friends to meet him, and their kindly voices greet him\nIn the murmur of the breezes and the river on its bars,\nAnd he sees the vision splendid of the sunlit plains extended,\nAnd at night the wondrous glory of the everlasting stars.\n\nI am sitting in my dingy little office, where a stingy\nRay of sunlight struggles feebly down between the houses tall,\nAnd the foetid air and gritty of the dusty, dirty city\nThrough the open window floating, spreads its foulness over all.\n\nAnd I somehow rather fancy that I’d like to change with Clancy,\nLike to take a turn at droving where the seasons come and go,\nWhile he faced the round eternal of the cash-book and the journal,\nBut I doubt he’d suit the office, Clancy, of The Overflow.",
+    "img": null,
+    "ask": "Which of these can the speaker know for certain?",
+    "options": [
+     "Clancy sings as he rides behind the cattle.",
+     "Clancy is somewhere down the Cooper.",
+     "Clancy was shearing when the speaker knew him.",
+     "The bush has friends who greet Clancy."
+    ],
+    "topic": "Exam Sprint"
+   },
+   {
+    "id": "s9",
+    "text": "Clancy of the Overflow\n\nI had written him a letter which I had, for want of better\nKnowledge, sent to where I met him down the Lachlan, years ago,\nHe was shearing when I knew him, so I sent the letter to him,\nJust “on spec”, addressed as follows: “Clancy, of The Overflow”.\n\nAnd an answer came directed in a writing unexpected,\n(And I think the same was written with a thumbnail dipped in tar)\n’Twas his shearing mate who wrote it, and verbatim I will quote it:\n“Clancy’s gone to Queensland droving, and we don’t know where he are.”\n\nIn my wild erratic fancy visions come to me of Clancy\nGone a-droving “down the Cooper” where the western drovers go;\nAs the stock are slowly stringing, Clancy rides behind them singing,\nFor the drover’s life has pleasures that the townsfolk never know.\n\nAnd the bush hath friends to meet him, and their kindly voices greet him\nIn the murmur of the breezes and the river on its bars,\nAnd he sees the vision splendid of the sunlit plains extended,\nAnd at night the wondrous glory of the everlasting stars.\n\nI am sitting in my dingy little office, where a stingy\nRay of sunlight struggles feebly down between the houses tall,\nAnd the foetid air and gritty of the dusty, dirty city\nThrough the open window floating, spreads its foulness over all.\n\nAnd I somehow rather fancy that I’d like to change with Clancy,\nLike to take a turn at droving where the seasons come and go,\nWhile he faced the round eternal of the cash-book and the journal,\nBut I doubt he’d suit the office, Clancy, of The Overflow.",
+    "img": null,
+    "ask": "The speaker’s attitude to city life is best described as",
+    "options": [
+     "proud but restless.",
+     "calm and accepting.",
+     "jealous and resentful of Clancy.",
+     "weary and longing to escape."
+    ],
+    "topic": "Exam Sprint"
+   },
+   {
+    "id": "s10",
+    "text": "Clancy of the Overflow\n\nI had written him a letter which I had, for want of better\nKnowledge, sent to where I met him down the Lachlan, years ago,\nHe was shearing when I knew him, so I sent the letter to him,\nJust “on spec”, addressed as follows: “Clancy, of The Overflow”.\n\nAnd an answer came directed in a writing unexpected,\n(And I think the same was written with a thumbnail dipped in tar)\n’Twas his shearing mate who wrote it, and verbatim I will quote it:\n“Clancy’s gone to Queensland droving, and we don’t know where he are.”\n\nIn my wild erratic fancy visions come to me of Clancy\nGone a-droving “down the Cooper” where the western drovers go;\nAs the stock are slowly stringing, Clancy rides behind them singing,\nFor the drover’s life has pleasures that the townsfolk never know.\n\nAnd the bush hath friends to meet him, and their kindly voices greet him\nIn the murmur of the breezes and the river on its bars,\nAnd he sees the vision splendid of the sunlit plains extended,\nAnd at night the wondrous glory of the everlasting stars.\n\nI am sitting in my dingy little office, where a stingy\nRay of sunlight struggles feebly down between the houses tall,\nAnd the foetid air and gritty of the dusty, dirty city\nThrough the open window floating, spreads its foulness over all.\n\nAnd I somehow rather fancy that I’d like to change with Clancy,\nLike to take a turn at droving where the seasons come and go,\nWhile he faced the round eternal of the cash-book and the journal,\nBut I doubt he’d suit the office, Clancy, of The Overflow.",
+    "img": null,
+    "ask": "In the last line, “But I doubt he’d suit the office” suggests that the speaker",
+    "options": [
+     "thinks Clancy isn’t clever enough for office work.",
+     "suspects the swap he dreams of would never work.",
+     "has decided to leave the office and go droving.",
+     "is joking that the office would be lucky to have Clancy."
+    ],
+    "topic": "Exam Sprint"
+   }
+  ],
+  "quiz": [
+   {
+    "id": "lq1",
+    "text": "Look closely at a loaf from a good bakery and you will often see shallow cuts across the top. Bakers call this scoring, and it is not just decoration.\n\nAs bread bakes, the water inside the dough turns to steam and the loaf swells quickly. If the crust has already begun to harden, that pressure has to escape somewhere, and it usually bursts the loaf open at its weakest point. A cut made with a sharp blade just before baking gives the loaf a chosen place to open instead.\n\nSome bakers go further and treat the cut as a signature. In old villages where several families shared one oven, a loaf's pattern of cuts showed whose bread was whose when it came out. Today most scoring is simpler, but a baker who cuts carelessly still ends up with a lopsided, torn loaf.",
+    "img": null,
+    "ask": "According to the text, if a loaf has no cut, the steam will usually",
+    "options": [
+     "keep the loaf flat because it cannot escape.",
+     "split the loaf along a line the baker chose.",
+     "burst the loaf open wherever it is weakest.",
+     "harden the crust before the inside is cooked."
+    ],
+    "topic": "Proving a Detail"
+   },
+   {
+    "id": "lq2",
+    "text": "Look closely at a loaf from a good bakery and you will often see shallow cuts across the top. Bakers call this scoring, and it is not just decoration.\n\nAs bread bakes, the water inside the dough turns to steam and the loaf swells quickly. If the crust has already begun to harden, that pressure has to escape somewhere, and it usually bursts the loaf open at its weakest point. A cut made with a sharp blade just before baking gives the loaf a chosen place to open instead.\n\nSome bakers go further and treat the cut as a signature. In old villages where several families shared one oven, a loaf's pattern of cuts showed whose bread was whose when it came out. Today most scoring is simpler, but a baker who cuts carelessly still ends up with a lopsided, torn loaf.",
+    "img": null,
+    "ask": "In the text, the word 'signature' is closest in meaning to",
+    "options": [
+     "a mark that shows who it belongs to.",
+     "a name signed by hand.",
+     "a decoration that makes it look better.",
+     "a rule every baker has to follow."
+    ],
+    "topic": "Words in Context"
+   },
+   {
+    "id": "lq3",
+    "text": "The spare key was not under the pot plant. I lifted the pot twice, as if the key might be hiding, then sat on the step with my school bag on my knees.\n\nMum had texted at lunch. She was taking Rosa to swimming and would not be home before six. Across the road, Saoirse was pretending to water her garden. She had watched me lift that pot, I was sure of it.\n\nWhen she finally came over, she did not ask what was wrong. She just held out a key on a green ribbon. \"Your mum dropped this off at lunch,\" she said. \"She said you'd be along.\"\n\nI took it without a word. On the ribbon, in Mum's neat writing, was a tag: \"For when you forget again.\"",
+    "img": null,
+    "ask": "Which of these is the narrator only assuming?",
+    "options": [
+     "The key was not under the pot plant.",
+     "Mum would not be home before six.",
+     "Mum had left a key with Saoirse.",
+     "Saoirse had been watching the pot."
+    ],
+    "topic": "Narrator Knowledge"
+   },
+   {
+    "id": "lq4",
+    "text": "The spare key was not under the pot plant. I lifted the pot twice, as if the key might be hiding, then sat on the step with my school bag on my knees.\n\nMum had texted at lunch. She was taking Rosa to swimming and would not be home before six. Across the road, Saoirse was pretending to water her garden. She had watched me lift that pot, I was sure of it.\n\nWhen she finally came over, she did not ask what was wrong. She just held out a key on a green ribbon. \"Your mum dropped this off at lunch,\" she said. \"She said you'd be along.\"\n\nI took it without a word. On the ribbon, in Mum's neat writing, was a tag: \"For when you forget again.\"",
+    "img": null,
+    "ask": "What does the tag on the ribbon most likely suggest?",
+    "options": [
+     "Mum was angry that the key had gone missing.",
+     "The narrator had been locked out before.",
+     "Saoirse often looked after the house for the family.",
+     "Mum wanted Saoirse to keep the key safe."
+    ],
+    "topic": "Linking Lines"
+   },
+   {
+    "id": "lq5",
+    "text": "The spare key was not under the pot plant. I lifted the pot twice, as if the key might be hiding, then sat on the step with my school bag on my knees.\n\nMum had texted at lunch. She was taking Rosa to swimming and would not be home before six. Across the road, Saoirse was pretending to water her garden. She had watched me lift that pot, I was sure of it.\n\nWhen she finally came over, she did not ask what was wrong. She just held out a key on a green ribbon. \"Your mum dropped this off at lunch,\" she said. \"She said you'd be along.\"\n\nI took it without a word. On the ribbon, in Mum's neat writing, was a tag: \"For when you forget again.\"",
+    "img": null,
+    "ask": "Why did Saoirse not ask what was wrong?",
+    "options": [
+     "She already expected the narrator to need the key.",
+     "She had been busy watering her garden.",
+     "She did not want to embarrass the narrator.",
+     "The narrator was sitting on the step with a bag."
+    ],
+    "topic": "True but Not the Answer"
+   },
+   {
+    "id": "lq6",
+    "text": "A platypus hunting on the bottom of a creek cannot see, hear or smell its food. As it dives, folds of skin close over its eyes and ears, and its nostrils seal shut. For most animals that would mean hunting blind. The platypus has another way.\n\nIts soft, rubbery bill is covered in tens of thousands of tiny sensors. Some respond to touch, while others pick up the faint electric signals given off by the muscles of moving prey, such as shrimps and insect larvae. By sweeping its bill from side to side, a platypus can usually work out where a meal is hiding under the stones.\n\nIt does not eat straight away. Food is stored in pouches in its cheeks until the platypus returns to the surface. There it floats and chews with rough pads, since adult platypuses have no teeth.",
+    "img": null,
+    "ask": "According to the text, a platypus uses each of these while feeding EXCEPT",
+    "options": [
+     "sensors in its bill that respond to touch.",
+     "sweeping its bill from side to side.",
+     "its sense of smell under the water.",
+     "pouches in its cheeks to store food."
+    ],
+    "topic": "Question Targets"
+   },
+   {
+    "id": "lq7",
+    "text": "A platypus hunting on the bottom of a creek cannot see, hear or smell its food. As it dives, folds of skin close over its eyes and ears, and its nostrils seal shut. For most animals that would mean hunting blind. The platypus has another way.\n\nIts soft, rubbery bill is covered in tens of thousands of tiny sensors. Some respond to touch, while others pick up the faint electric signals given off by the muscles of moving prey, such as shrimps and insect larvae. By sweeping its bill from side to side, a platypus can usually work out where a meal is hiding under the stones.\n\nIt does not eat straight away. Food is stored in pouches in its cheeks until the platypus returns to the surface. There it floats and chews with rough pads, since adult platypuses have no teeth.",
+    "img": null,
+    "ask": "Which statement is proven by the text?",
+    "options": [
+     "All of the sensors on the bill pick up electric signals.",
+     "A platypus waits until it is at the surface to chew.",
+     "A platypus always finds the food hidden under stones.",
+     "Young platypuses have no teeth for chewing."
+    ],
+    "topic": "Proving a Detail"
+   },
+   {
+    "id": "lq8",
+    "text": "A platypus hunting on the bottom of a creek cannot see, hear or smell its food. As it dives, folds of skin close over its eyes and ears, and its nostrils seal shut. For most animals that would mean hunting blind. The platypus has another way.\n\nIts soft, rubbery bill is covered in tens of thousands of tiny sensors. Some respond to touch, while others pick up the faint electric signals given off by the muscles of moving prey, such as shrimps and insect larvae. By sweeping its bill from side to side, a platypus can usually work out where a meal is hiding under the stones.\n\nIt does not eat straight away. Food is stored in pouches in its cheeks until the platypus returns to the surface. There it floats and chews with rough pads, since adult platypuses have no teeth.",
+    "img": null,
+    "ask": "The phrase 'hunting blind' suggests hunting",
+    "options": [
+     "at night, when it is too dark to see.",
+     "without knowing what kind of prey is near.",
+     "in muddy water full of stirred up silt.",
+     "without the senses most animals rely on."
+    ],
+    "topic": "Words in Context"
+   }
+  ]
+ },
  "y8-qr-1-1-wb": {
   "title": "Advanced Quantitative Reasoning 1.1 Workbook",
   "year": 8,

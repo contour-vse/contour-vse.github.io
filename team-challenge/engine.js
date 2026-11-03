@@ -116,7 +116,11 @@ var Engine = (function () {
   function hofRows(snap, ctx, type) {
     var base = { weekId: snap.weekId, week: snap.week, resource: snap.resource, campus: snap.campus, cls: snap.cls, type: type, room: snap.code, at: ctx.now };
     var rows = [];
-    if (type === "team") {
+    if (type === "class") {  /* every team's points count for the class: class points = average team score */
+      var all = teamScores(snap, ctx), tot = 0;
+      all.forEach(function (t) { tot += t.s; });
+      if (all.length && tot > 0) rows.push(Object.assign({}, base, { team: "", names: all.length + " teams", score: Math.round(tot / all.length * 10) / 10, ms: 0 }));
+    } else if (type === "team") {
       var sc = teamScores(snap, ctx), best = 0;
       sc.forEach(function (t) { best = Math.max(best, t.s); });
       if (best > 0) sc.forEach(function (t) {
@@ -168,6 +172,7 @@ var Engine = (function () {
       } else if (op === "teamEnd") {
         snap.mode = "teamDone"; snap.teamEndAt = now;
         log.push({ tab: "HallOfFame", key: snap.code + "|team", rows: hofRows(snap, ctx, "team") });
+        log.push({ tab: "HallOfFame", key: snap.code + "|class", rows: hofRows(snap, ctx, "class") });
       } else if (so) {
         var kind = so[1], K = SOLO[kind], S = soloOf(snap, kind);
         if (so[2] === "Ready") {
@@ -298,15 +303,18 @@ var Engine = (function () {
   }
 
   /* Hall of Fame summaries from rows of one week.
-     classes: each class's best team score, sorted. campuses: average winning team score per campus
+     classes: each class's points (the average score of ALL its teams, so every team's points count), sorted.
+     campuses: average class points per campus
      (an average, so a campus with 1 class is not behind one with 6). */
   function rankClasses(rows) {
     var byRoom = {}, list = [];
+    var pts = {};
+    rows.forEach(function (r) { if (r.type === "class") pts[r.room] = r.score; });
     rows.forEach(function (r) {
       if (r.type !== "team") return;
       var c = byRoom[r.room];
-      if (!c) { c = byRoom[r.room] = { room: r.room, campus: r.campus, cls: r.cls, score: r.score, teams: [] }; list.push(c); }
-      c.score = Math.max(c.score, r.score); c.teams.push({ team: r.team, names: r.names });
+      if (!c) { c = byRoom[r.room] = { room: r.room, campus: r.campus, cls: r.cls, score: r.score, best: r.score, teams: [] }; list.push(c); }
+      c.best = Math.max(c.best, r.score); c.score = pts[r.room] != null ? pts[r.room] : c.best; c.teams.push({ team: r.team, names: r.names });
     });
     list.sort(function (x, y) { return (y.score - x.score) || (x.cls < y.cls ? -1 : 1); });
     list.forEach(function (c) { c.rank = 1 + list.filter(function (o) { return o.score > c.score; }).length; });

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Spreeder: word flash, scan drills and read then recall on this week's passages.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0B3D91">
+<title>Spreeder · Contour</title>
+<link rel="stylesheet" href="spreeder.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./" id="home">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+      <h1>Spreeder</h1>
+    </a>
+    <div class="tools">
+      <span class="chip" id="setchip"></span>
+      <button class="icon-btn" id="clsbtn" type="button" title="Class mode" aria-label="Class mode" aria-pressed="false"></button>
+    </div>
+  </header>
+  <div class="bar" id="bar" hidden>
+    <select class="psel" id="psel" aria-label="Passage"></select>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Mode"></nav>
+  </div>
+  <main class="stage" id="view" aria-live="polite"></main>
+</div>
+<script src="../config.js"></script>
+<script src="spreeder.js"></script>
+</body>
+</html>

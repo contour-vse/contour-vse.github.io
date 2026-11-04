@@ -1,6 +1,6 @@
-/* Spreeder: word flash, scan drills, read then recall, and a projector class mode.
-   Data: data/<set>.json (built by backend/tools/build_spreed.py; no recall keys in it).
-   Recall answers are marked by the backend: POST {action:"spreed.check", set, pid, qid, choice} to CONTOUR_ENDPOINT.
+/* Swiftread: word flash, scan drills, read then recall, and a projector class mode.
+   Data: data/<set>.json (built by backend/tools/build_swift.py; no recall keys in it).
+   Recall answers are marked by the backend: POST {action:"swift.check", set, pid, qid, choice} to CONTOUR_ENDPOINT.
    Deep links: ?set=y8-en-1-1&p=<passage id>&m=flash|scan|recall[&mode=class] */
 (function () {
   "use strict";
@@ -50,9 +50,9 @@
     pid: q.get("p") || "",
     m: ["flash", "scan", "recall"].indexOf(q.get("m")) >= 0 ? q.get("m") : "flash",
     cls: q.get("mode") === "class",
-    wpm: +(ls("spreeder.wpm") || 300),
-    chunk: +(ls("spreeder.chunk") || 1),
-    focus: ls("spreeder.focus") !== "0",
+    wpm: +(ls("swiftread.wpm") || 300),
+    chunk: +(ls("swiftread.chunk") || 1),
+    focus: ls("swiftread.focus") !== "0",
     data: null
   };
   if (!(S.wpm >= 150 && S.wpm <= 700)) S.wpm = 300;
@@ -284,15 +284,15 @@
     $("#fplay", el).onclick = toggle;
     $("#fback", el).onclick = back;
     $("#frestart", el).onclick = restart;
-    $("#fwpm", el).oninput = function () { S.wpm = +this.value; $("#fwpmv", el).textContent = S.wpm; ls("spreeder.wpm", S.wpm); reflow(); };
+    $("#fwpm", el).oninput = function () { S.wpm = +this.value; $("#fwpmv", el).textContent = S.wpm; ls("swiftread.wpm", S.wpm); reflow(); };
     $("#fchunk", el).onclick = function (e) {
       var b = e.target.closest("button"); if (!b) return;
-      S.chunk = +b.getAttribute("data-n"); ls("spreeder.chunk", S.chunk);
+      S.chunk = +b.getAttribute("data-n"); ls("swiftread.chunk", S.chunk);
       $$("button", this).forEach(function (x) { x.classList.toggle("on", x === b); });
       reflow(); if (!playing && idx > 0 && !finished) show(idx);
     };
     $("#ffocus", el).onclick = function () {
-      S.focus = !S.focus; ls("spreeder.focus", S.focus ? "1" : "0");
+      S.focus = !S.focus; ls("swiftread.focus", S.focus ? "1" : "0");
       this.classList.toggle("on", S.focus); this.setAttribute("aria-pressed", S.focus);
       var o = $(".orp", wl); if (o) o.classList.toggle("hl", S.focus);
     };
@@ -303,7 +303,7 @@
       else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         e.preventDefault();
         S.wpm = Math.max(150, Math.min(700, S.wpm + (e.key === "ArrowUp" ? 25 : -25)));
-        $("#fwpm", el).value = S.wpm; $("#fwpmv", el).textContent = S.wpm; ls("spreeder.wpm", S.wpm); reflow();
+        $("#fwpm", el).value = S.wpm; $("#fwpmv", el).textContent = S.wpm; ls("swiftread.wpm", S.wpm); reflow();
       }
     }
     document.addEventListener("keydown", key);
@@ -508,7 +508,7 @@
   function check(pid, qid, choice) {
     if (!EP) return Promise.resolve({ ok: false, error: "offline" });
     var ctl = window.AbortController ? new AbortController() : null, to = setTimeout(function () { if (ctl) ctl.abort(); }, 15000);
-    return fetch(EP, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "spreed.check", set: S.set, pid: pid, qid: qid, choice: choice }), signal: ctl ? ctl.signal : undefined })
+    return fetch(EP, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "swift.check", set: S.set, pid: pid, qid: qid, choice: choice }), signal: ctl ? ctl.signal : undefined })
       .then(function (r) { return r.json(); })
       .catch(function () { return { ok: false, error: "network" }; })
       .then(function (x) { clearTimeout(to); return x; });
@@ -524,7 +524,7 @@
         '<div class="ctl"><button class="btn primary big" type="button" id="rread">' + I.book + ' Read</button><button class="btn navy big" type="button" id="rflash">' + I.flash + " Flash</button></div>" +
         (p.recall.length ? "" : '<p class="note">Coming soon</p>') + "</div>";
       $("#rwpm", v).oninput = function () {
-        S.wpm = +this.value; ls("spreeder.wpm", S.wpm); $("#rwpmv", v).textContent = S.wpm;
+        S.wpm = +this.value; ls("swiftread.wpm", S.wpm); $("#rwpmv", v).textContent = S.wpm;
         $(".intro p", v).textContent = n + " words · " + clock(Math.round(n / S.wpm * 60) * 1000);
       };
       $("#rread", v).onclick = timedRead;

@@ -1,7 +1,7 @@
-/* Spreeder offline cache: network first, cached copy when offline. Only this folder's GET requests. */
-var C = "spreeder-v1";
+/* Swiftread offline cache: network first, cached copy when offline. Only this folder's GET requests. */
+var C = "swiftread-v1";
 self.addEventListener("install", function (e) {
-  e.waitUntil(caches.open(C).then(function (c) { return c.addAll(["./", "spreeder.css", "spreeder.js", "../config.js", "data/y8-en-1-1.json"]); }).then(function () { return self.skipWaiting(); }));
+  e.waitUntil(caches.open(C).then(function (c) { return c.addAll(["./", "swiftread.css", "swiftread.js", "../config.js", "data/y8-en-1-1.json"]); }).then(function () { return self.skipWaiting(); }));
 });
 self.addEventListener("activate", function (e) { e.waitUntil(self.clients.claim()); });
 self.addEventListener("fetch", function (e) {

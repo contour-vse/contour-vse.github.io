@@ -878,7 +878,7 @@ window.QUESTIONS = {
      "8:15 am",
      "8:30 am"
     ],
-    "topic": "Proving a Detail"
+    "topic": "Reworded Details"
    },
    {
     "id": "w2",
@@ -891,20 +891,20 @@ window.QUESTIONS = {
      "She is worried she left her umbrella at school.",
      "She is upset that her umbrella is now lost for good."
     ],
-    "topic": "Linking Lines"
+    "topic": "Inference Across Lines"
    },
    {
     "id": "w3",
     "text": "The old footbridge over the creek was so narrow that riders had to climb off and walk. Hugo was already late for training, but he waited at one end while an older man wheeled his bike slowly across. The man gave Hugo a grateful nod as he passed.",
     "img": null,
-    "ask": "In the text, the word 'passed' means",
+    "ask": "Why did Hugo wait at one end of the footbridge?",
     "options": [
-     "threw a ball to someone",
-     "did well in a test",
-     "handed something over",
-     "went by him"
+     "He was too tired to ride any further.",
+     "He wanted to say hello to the older man.",
+     "He was early and had time to spare.",
+     "The bridge was too narrow for both of them."
     ],
-    "topic": "Words in Context"
+    "topic": "Reworded Details"
    },
    {
     "id": "w4",
@@ -917,7 +917,7 @@ window.QUESTIONS = {
      "about three months",
      "many months"
     ],
-    "topic": "Proving a Detail"
+    "topic": "Reworded Details"
    },
    {
     "id": "w5",
@@ -930,20 +930,20 @@ window.QUESTIONS = {
      "getting ready for her gran's birthday",
      "hosting a dinner for her school friends"
     ],
-    "topic": "Linking Lines"
+    "topic": "Inference Across Lines"
    },
    {
     "id": "w6",
     "text": "After the long hike up the hill and back, Kip was spent. He flopped onto the couch, kicked off his muddy boots and fell asleep before anyone had even started cooking dinner. His little sister had to pull a blanket over him.",
     "img": null,
-    "ask": "In the text, the word 'spent' means",
+    "ask": "A question asks: “What happened after Kip got home?” One option says: “His sister cooked dinner for him.” Which trap is this option?",
     "options": [
-     "out of money",
-     "very hungry",
-     "a bit bored",
-     "worn out"
+     "Wrong Person: it is what someone else did.",
+     "Says More: it makes a line stronger than it is.",
+     "Next Door Line: it is the line beside the answer.",
+     "Not There: the passage never says it."
     ],
-    "topic": "Words in Context"
+    "topic": "Name the Trap"
    },
    {
     "id": "w7",
@@ -956,7 +956,7 @@ window.QUESTIONS = {
      "12",
      "14"
     ],
-    "topic": "Linking Lines"
+    "topic": "Inference Across Lines"
    },
    {
     "id": "w8",
@@ -969,7 +969,7 @@ window.QUESTIONS = {
      "proud",
      "relaxed"
     ],
-    "topic": "Linking Lines"
+    "topic": "Inference Across Lines"
    }
   ],
   "challenge": [
@@ -997,7 +997,7 @@ window.QUESTIONS = {
      "The first three had gone perfectly for the pair.",
      "It seemed a closer match to the map."
     ],
-    "topic": "True but Not the Answer"
+    "topic": "Question Targets"
    },
    {
     "id": "c3",
@@ -1010,7 +1010,7 @@ window.QUESTIONS = {
      "Most were hung at about the height of a head.",
      "A few were hidden so well that no pair found them."
     ],
-    "topic": "Proving a Detail"
+    "topic": "Reworded Details"
    },
    {
     "id": "c4",
@@ -1019,24 +1019,24 @@ window.QUESTIONS = {
     "ask": "The passage suggests that the pair’s card was the only one with all twelve squares punched because",
     "options": [
      "they kept searching for a hidden one that most pairs skipped.",
-     "they ran faster than the other pairs for most of the day.",
+     "they ran much faster than all the other pairs for most of the day.",
      "each clipper left a pattern of holes no other could make.",
      "Imogen knew the quickest route around the whole course."
     ],
-    "topic": "Linking Lines"
+    "topic": "Inference Across Lines"
    },
    {
     "id": "c5",
     "text": "The Fourth Control\n\nIn Year 7, my school spent one day each autumn orienteering in a state forest an hour north of the city. Each pair was given a map, a compass that neither person knew how to use, and a card with twelve numbered squares. Somewhere in the bush were twelve controls. You had to find them in order and be back at the car park before the bus left at three. I was twelve, I had studied the map twice on the bus, and I was certain I would be brilliant at it.\n\nMy partner was Imogen, who sat at the back of our maths class and had said perhaps ten words to me all year. When the maps were handed out, I took ours without asking. Imogen didn’t argue. She zipped the compass into her jacket pocket and followed me to the start, where our PE teacher was reading out the rules from a clipboard.\n\nAt each control, a metal clipper hung on a string. You pressed it into the right square on your card, and its teeth left a pattern of tiny holes that no other clipper could make, so nobody could pretend to have been somewhere they hadn’t. Most controls, the teacher said, were tied at about head height to a tree or a post, though a few were tucked low behind logs or rocks, “where only the patient will find them.” She called those ones sleepers. Pairs who couldn’t find one were allowed to move on to the next, but an empty square would cost them.\n\nThe first three went perfectly. I found them so quickly that I began to look at the map less and run more. Imogen kept up without complaint. Now and then she glanced at the map over my shoulder, and once she seemed about to say something, but she only pushed her hair behind her ear and kept walking. I decided she was bored. She had the look, I thought, of someone counting the minutes until the bus.\n\nThe fourth control was meant to be where a creek met a walking track. When the track split in two, I chose the wider side because it looked more like the line on the map, and for a while I was sure of it. Then the track began to climb, though the map showed the creek in a gully below us. I told myself the map was probably out of date. Soon the track narrowed to a path, the path to a strip of flattened grass, and then it stopped altogether at a wire fence. Beyond it was a paddock, where three cows watched us with mild interest. That was when I finally admitted that we were lost.\n\nImogen took the map from me gently, the way you might take scissors off a small child. She turned it until the creek on the paper ran the same way as the gully below us, put her thumb on a spot beside the fence and said, “We’re here.” Then she walked us back down. Her thumb never left the map; she slid it along as we went, like someone keeping their place in a book. Within fifteen minutes we were standing beside the creek, and there, tucked under a fallen log, was the fourth control.\n\nShe held the map for the rest of the day. We found every control after that, but we were the last pair back, and the bus had been waiting for twenty minutes. The PE teacher looked at her watch, then at our card, and wrote something on her clipboard that I couldn’t read. I spent the ride home sure that we were in trouble.\n\nWe weren’t. The next week our card was pinned to the noticeboard outside the staffroom: the only one in Year 7 with all twelve squares punched. Most pairs had skipped at least one of the hidden controls so they could make the bus. It was years before I learnt the rest. At a friend’s birthday dinner, long after we had all left school, Imogen’s mother told me that Imogen had been orienteering with her family most weekends since she was seven, and that she had come home that day saying the girl she had been partnered with was “fast, but in the wrong direction.”\n\nI have thought about that day more often than I would have expected. I had taken her silence for boredom, when it was something much closer to patience. She had let me be wrong until it mattered, and then she had fixed it without once making me feel small. I still read maps too quickly. But I have learnt to watch for the person glancing over my shoulder.",
     "img": null,
-    "ask": "In the passage, a “sleeper” is",
+    "ask": "A question asks how Imogen knew where they were at the fence. One option says “She checked their spot on a phone she had brought.” Which trap is this option?",
     "options": [
-     "a log lying across the walking track.",
-     "a control tucked low where it is hard to see.",
-     "a pair who has stopped to rest in the bush.",
-     "a pair who misses the bus home at three."
+     "Wrong Person: it is what someone else did.",
+     "Not There: the passage never says it.",
+     "Says More: it makes a line stronger than it is.",
+     "Next Door Line: it is the line beside the answer."
     ],
-    "topic": "Words in Context"
+    "topic": "Name the Trap"
    },
    {
     "id": "c6",
@@ -1127,7 +1127,7 @@ window.QUESTIONS = {
      "The squatter has stopped coming round.",
      "Rain has finally come after the drought.",
      "The gates have stopped working properly.",
-     "Blucher has run off across the border."
+     "Blucher has run off across the Queensland border."
     ],
     "topic": "Exam Sprint"
    },
@@ -1196,20 +1196,20 @@ window.QUESTIONS = {
      "make the loaf rise higher and more evenly.",
      "escape through tiny holes without much change."
     ],
-    "topic": "Proving a Detail"
+    "topic": "Reworded Details"
    },
    {
     "id": "lq2",
     "text": "Look closely at a loaf from a good bakery and you will often see shallow cuts across the top. Bakers call this scoring, and it is not just decoration.\n\nAs bread bakes, the water inside the dough turns to steam and the loaf swells quickly. If the crust has already begun to harden, that pressure has to escape somewhere, and it usually bursts the loaf open at its weakest point. A cut made with a sharp blade just before baking gives the loaf a chosen place to open instead.\n\nSome bakers go further and treat the cut as a signature. In old villages where several families shared one oven, a loaf's pattern of cuts showed whose bread was whose when it came out. Today most scoring is simpler, but a baker who cuts carelessly still ends up with a lopsided, torn loaf.",
     "img": null,
-    "ask": "In the text, the word 'signature' is closest in meaning to",
+    "ask": "Why do bakers cut the top of a loaf before baking?",
     "options": [
-     "a name signed by hand.",
-     "a decoration that makes it look better.",
-     "a mark that shows who it belongs to.",
-     "a pattern bakers are taught to use."
+     "To show which family the loaf belongs to.",
+     "To make the top of the loaf look more decorated.",
+     "To give the steam a chosen place to escape.",
+     "To stop the crust from hardening too soon."
     ],
-    "topic": "Words in Context"
+    "topic": "Question Targets"
    },
    {
     "id": "lq3",
@@ -1235,7 +1235,7 @@ window.QUESTIONS = {
      "Saoirse often looked after the house for the family.",
      "Mum wanted Saoirse to keep the key safe."
     ],
-    "topic": "Linking Lines"
+    "topic": "Inference Across Lines"
    },
    {
     "id": "lq5",
@@ -1248,7 +1248,7 @@ window.QUESTIONS = {
      "She knew the narrator would turn up for a key.",
      "Rosa had told her about the missing spare key."
     ],
-    "topic": "Assumptions"
+    "topic": "Inference Across Lines"
    },
    {
     "id": "lq6",
@@ -1274,20 +1274,20 @@ window.QUESTIONS = {
      "A platypus usually surfaces to find new prey.",
      "Young platypuses have no teeth for chewing."
     ],
-    "topic": "Proving a Detail"
+    "topic": "Reworded Details"
    },
    {
     "id": "lq8",
     "text": "A platypus hunting on the bottom of a creek cannot see, hear or smell its food. As it dives, folds of skin close over its eyes and ears, and its nostrils seal shut. For most animals that would mean hunting blind. The platypus has another way.\n\nIts soft, rubbery bill is covered in tens of thousands of tiny sensors. Some respond to touch, while others pick up the faint electric signals given off by the muscles of moving prey, such as shrimps and insect larvae. By sweeping its bill from side to side, a platypus can usually work out where a meal is hiding under the stones.\n\nIt does not eat straight away. Food is stored in pouches in its cheeks until the platypus returns to the surface. There it floats and chews with rough pads, since adult platypuses have no teeth.",
     "img": null,
-    "ask": "The phrase 'hunting blind' suggests hunting",
+    "ask": "A question asks: “How does a platypus find food under the stones?” One option says: “It always knows exactly where every meal is hiding.” Which trap is this option?",
     "options": [
-     "at night, when it is too dark to see.",
-     "without knowing what kind of prey is near.",
-     "in deep water, far below the surface.",
-     "without the senses most animals rely on."
+     "Wrong Person: it is what someone else did.",
+     "Next Door Line: it is the line beside the answer.",
+     "Not There: the passage never says it.",
+     "Says More: it makes a line stronger than it is."
     ],
-    "topic": "Words in Context"
+    "topic": "Name the Trap"
    }
   ]
  },

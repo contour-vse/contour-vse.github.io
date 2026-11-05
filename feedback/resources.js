@@ -80,13 +80,13 @@ window.FEEDBACK_RESOURCES = {
   "y8-en-1-1-wb": {
     title: "VSE-08EN [1.1] - Advanced Reading - Workbook",
     year: 8, subject: "Reading", week: 1, type: "wb",
-    sections: ["Your Selective Exam", "Mini Diagnostic", "What the Question Asks", "From Detail to Inference", "Narrator Knowledge", "Review & Redo", "Exam Sprint"],
+    sections: ["Your Selective Exam", "Mini Diagnostic", "What the Question Asks", "Prove It and Link It", "Narrator Knowledge", "Name the Trap", "Review & Redo", "Exam Sprint"],
     skills: [
       "say exactly what a question is asking for",
-      "point to the line that proves my answer",
+      "name the trap in a wrong option",
       "tell what a narrator can and can't know"
     ],
-    struggles: ["Knowing what the question asks", "Finding the proof line", "Inferring too far", "Tricky words", "Narrator questions", "Working too slowly"]
+    struggles: ["Knowing what the question asks", "Finding the proof line", "Inferring too far", "Naming the trap", "Narrator questions", "Working too slowly"]
   },
   "y8-en-1-1-hw": {
     title: "VSE-08EN [1.1] - Advanced Reading - Homework",
@@ -94,21 +94,21 @@ window.FEEDBACK_RESOURCES = {
     sections: ["Fluency", "Application", "Exam Style"],
     skills: [
       "say exactly what a question is asking for",
-      "point to the line that proves my answer",
+      "name the trap in a wrong option",
       "tell what a narrator can and can't know"
     ],
-    struggles: ["Knowing what the question asks", "Finding the proof line", "Inferring too far", "Tricky words", "Narrator questions", "Working too slowly"]
+    struggles: ["Knowing what the question asks", "Finding the proof line", "Inferring too far", "Naming the trap", "Narrator questions", "Working too slowly"]
   },
   "y8-en-1-1-quiz": {
     title: "VSE-08EN [1.1] - Advanced Reading - Quiz",
     year: 8, subject: "Reading", week: 1, type: "quiz",
-    sections: ["Question Targets", "Evidence", "Inference", "Narrator Knowledge"],
+    sections: ["Question Targets", "Reworded Details", "Inference Across Lines", "Narrator Knowledge", "Name the Trap"],
     skills: [
       "say exactly what a question is asking for",
-      "point to the line that proves my answer",
+      "name the trap in a wrong option",
       "tell what a narrator can and can't know"
     ],
-    struggles: ["Knowing what the question asks", "Finding the proof line", "Inferring too far", "Tricky words", "Narrator questions", "Working too slowly"]
+    struggles: ["Knowing what the question asks", "Finding the proof line", "Inferring too far", "Naming the trap", "Narrator questions", "Working too slowly"]
   },
   "y8-qr-1-1-wb": {
     title: "VSE-08MA [1.1] - Advanced Quantitative Reasoning - Workbook",

@@ -1,5 +1,5 @@
 /* Swiftread offline cache: network first, cached copy when offline. Only this folder's GET requests. */
-var C = "swiftread-v2";
+var C = "swiftread-v3";
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(C).then(function (c) { return c.addAll(["./", "swiftread.css", "swiftread.js", "../config.js", "data/y8-en-1-1.json", "data/y7-en-1-1.json"]); }).then(function () { return self.skipWaiting(); }));
 });

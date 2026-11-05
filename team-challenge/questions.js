@@ -3,7 +3,7 @@
    No answer keys here: they live in keys.js (demo mode) and in the backend Code.gs (live mode). */
 window.QUESTIONS = {
  "y7-en-1-1-wb": {
-  "title": "Intermediate Reading 1.1 Workbook",
+  "title": "VSE-07EN [1.1] - Intermediate Reading - Workbook",
   "year": 7,
   "warmup": [
    {
@@ -405,7 +405,7 @@ window.QUESTIONS = {
   ]
  },
  "y7-qr-1-1-wb": {
-  "title": "Intermediate Quantitative Reasoning 1.1 Workbook",
+  "title": "VSE-07MA [1.1] - Intermediate Quantitative Reasoning - Workbook",
   "year": 7,
   "warmup": [
    {
@@ -864,7 +864,7 @@ window.QUESTIONS = {
   ]
  },
  "y8-en-1-1-wb": {
-  "title": "Advanced Reading 1.1 Workbook",
+  "title": "VSE-08EN [1.1] - Advanced Reading - Workbook",
   "year": 8,
   "warmup": [
    {
@@ -1292,7 +1292,7 @@ window.QUESTIONS = {
   ]
  },
  "y8-qr-1-1-wb": {
-  "title": "Advanced Quantitative Reasoning 1.1 Workbook",
+  "title": "VSE-08MA [1.1] - Advanced Quantitative Reasoning - Workbook",
   "year": 8,
   "warmup": [
    {

@@ -11,6 +11,39 @@ window.CAMPUSES = [
 ];
 
 window.FEEDBACK_RESOURCES = {
+  "y8-wr-1-1-wb": {
+    title: "VSE-08WR [1.1] - Advanced Narrative - Workbook",
+    year: 8, subject: "Writing", week: 1, type: "wb",
+    sections: ["Your Writing Exam", "Cold Write", "Interrogate the Prompt", "The Five Minute Plan", "Ending Before Time"],
+    skills: [
+      "read a prompt three ways and pick the best one",
+      "plan a story in 5 minutes around one change",
+      "start my ending by minute 16"
+    ],
+    struggles: ["Finding a fresh idea", "Using the prompt all the way through", "A plan with no change", "A slow opening", "A rushed ending", "Finishing in 20 minutes"]
+  },
+  "y8-wr-1-1-hw": {
+    title: "VSE-08WR [1.1] - Advanced Narrative - Homework",
+    year: 8, subject: "Writing", week: 1, type: "hw",
+    sections: ["Narrative Writing Task", "Persuasive Writing Task", "Second Look", "Before You Go"],
+    skills: [
+      "write a whole story in 20 minutes from a five minute plan",
+      "write a 5 paragraph argument in 20 minutes",
+      "check my ending against my clock flags"
+    ],
+    struggles: ["Finding a hidden reading", "Showing the change through action", "Keeping to one scene", "Using both stimuli", "Explaining my evidence", "Finishing both tasks on time"]
+  },
+  "y8-wr-1-1-quiz": {
+    title: "VSE-08WR [1.1] - Advanced Narrative - Quiz",
+    year: 8, subject: "Writing", week: 1, type: "quiz",
+    sections: ["Recall", "Spot the Flaw", "Real Write"],
+    skills: [
+      "name the three readings of a prompt",
+      "say which plan lines come first and why",
+      "fix a story spread across too many scenes"
+    ],
+    struggles: ["Remembering the clock flags", "Spotting a literal reading", "Writing the change as an action", "Fixing a time jump ending", "Planning in 6 minutes", "Matching my last line to the change"]
+  },
   "y7-wr-1-1-wb": {
     title: "VSE-07WR [1.1] - Intermediate Narrative - Workbook",
     year: 7, subject: "Writing", week: 1, type: "wb",

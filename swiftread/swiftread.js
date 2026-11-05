@@ -260,7 +260,7 @@
       if (opts.onDone) return opts.onDone({ ms: elapsed, wpm: wpm, words: n });
       rs.classList.remove("multi"); rs.classList.add("idle");
       wl.className = "";
-      wl.innerHTML = '<div class="hint">' + I.tick + "<span>" + clock(elapsed) + " · " + (wpm > 1200 ? "1200+" : wpm) + ' wpm</span><span class="ctl">' +
+      wl.innerHTML = '<div class="hint">' + I.tick + "<span>" + clock(elapsed) + "</span><span>" + (wpm > 1200 ? "1200+" : wpm) + ' wpm</span><span class="ctl">' +
         '<button class="btn" type="button" data-go="again">' + I.restart + "</button>" +
         (p.recall.length ? '<button class="btn primary" type="button" data-go="recall">' + I.recall + " Recall</button>" : "") +
         (p.drills.length ? '<button class="btn navy" type="button" data-go="scan">' + I.scan + " Scan</button>" : "") + "</span></div>";
@@ -398,7 +398,7 @@
     }
     function need() { var R = st.R; return R.need || (d.type === "qual" ? R.at.length : 1); }
     function drawCue() {
-      var R = st.R, h = '<div class="row"><span class="ins">' + (r + 1) + "/" + d.rounds.length + " · ";
+      var R = st.R, h = '<div class="row"><span class="ins">' + (r + 1) + "/" + d.rounds.length + "</span> <span class=\"ins\">";
       if (st.phase === "pick") h += esc(R.pick.ask);
       else if (st.phase === "after") h += esc(R.pick.ask);
       else if (d.type === "qual") h += esc(T.ins) + " " + st.hits.length + "/" + R.at.length;
@@ -519,13 +519,13 @@
     function setup() {
       if (stop) stop();
       var est = Math.round(n / S.wpm * 60);
-      v.innerHTML = head(p) + '<div class="intro"><div class="ico">' + I.recall + '</div><p>' + n + " words · " + clock(est * 1000) + "</p>" +
+      v.innerHTML = head(p) + '<div class="intro"><div class="ico">' + I.recall + '</div><p>' + n + " words, about " + clock(est * 1000) + "</p>" +
         '<div class="set"><label class="rng"><span class="lbl">WPM</span><input id="rwpm" type="range" min="150" max="700" step="25" value="' + S.wpm + '"><b id="rwpmv">' + S.wpm + "</b></label></div>" +
         '<div class="ctl"><button class="btn primary big" type="button" id="rread">' + I.book + ' Read</button><button class="btn navy big" type="button" id="rflash">' + I.flash + " Flash</button></div>" +
         (p.recall.length ? "" : '<p class="note">Coming soon</p>') + "</div>";
       $("#rwpm", v).oninput = function () {
         S.wpm = +this.value; ls("swiftread.wpm", S.wpm); $("#rwpmv", v).textContent = S.wpm;
-        $(".intro p", v).textContent = n + " words · " + clock(Math.round(n / S.wpm * 60) * 1000);
+        $(".intro p", v).textContent = n + " words, about " + clock(Math.round(n / S.wpm * 60) * 1000);
       };
       $("#rread", v).onclick = timedRead;
       $("#rflash", v).onclick = flashRead;
@@ -560,7 +560,7 @@
       function draw() {
         var Q = qs[k];
         v.innerHTML = head(p) + '<div class="dots">' + qs.map(function (x, i) { return '<i class="' + (res[i] || "") + '"></i>'; }).join("") + "</div>" +
-          '<div class="qcard"><span class="qn">' + (k + 1) + "/" + qs.length + (EP ? "" : " · Offline") + '</span><p class="qq">' + esc(Q.q) + '</p><div class="opts">' +
+          '<div class="qcard"><span class="qn">' + (k + 1) + "/" + qs.length + (EP ? "" : " (Offline)") + '</span><p class="qq">' + esc(Q.q) + '</p><div class="opts">' +
           Q.opts.map(function (o, i) { return '<button type="button" class="opt" data-i="' + i + '"><span class="l">' + "ABCD".charAt(i) + "</span><span>" + esc(o) + '</span><span class="r"></span></button>'; }).join("") + "</div></div>";
         $(".opts", v).onclick = function (e) {
           var b = e.target.closest(".opt"); if (!b || b.disabled) return;
@@ -608,7 +608,7 @@
 
   fetch("data/" + S.set + ".json", { cache: "no-cache" }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
     S.data = d;
-    $("#psel").innerHTML = d.passages.map(function (p) { return '<option value="' + esc(p.id) + '">' + esc(p.title) + " · " + esc(p.skill) + "</option>"; }).join("");
+    $("#psel").innerHTML = d.passages.map(function (p) { return '<option value="' + esc(p.id) + '">' + esc(p.title) + " (" + esc(p.skill) + ")" + "</option>"; }).join("");
     if (S.pid && !passage()) S.pid = "";
     render();
   }).catch(function () {

@@ -83,7 +83,7 @@
   function yearOf(id) { var m = /:y(\d+)-/.exec(id || ""); return m ? m[1] : ""; }
   function qcount(r) { var st = (window.QUESTIONS || {})[r.resource]; return st && st[r.type] ? st[r.type].length : (r.type === "quiz" ? 12 : 10); }
   $("demoChip").hidden = !Live.demo;
-  function label(id) { var l = Live.weekLabel(id); return l.week + (l.dates ? " · " + l.dates : "") + (l.title ? " · " + l.title : ""); }
+  function label(id) { var l = Live.weekLabel(id); return l.week + (l.dates ? ", " + l.dates : "") + (l.title ? ", " + l.title : ""); }
 
   function render(h) {
     if (!h.ok) { $("hero").innerHTML = "<div><h2>Can't load the Hall of Fame</h2><p>Check the connection and refresh.</p></div>"; return; }
@@ -97,15 +97,15 @@
     function champs(type) { var l = h.rows.filter(function (x) { return x.type === type; }); l.sort(function (a, b) { return (b.score - a.score) || (a.ms - b.ms); }); return l; }
     var sprint = champs("sprint"), quiz = champs("quiz");
     var l = Live.weekLabel(h.week);
-    $("hero").innerHTML = '<div><div class="wk">' + esc(l.week || "This week") + (l.dates ? " · " + esc(l.dates) : "") + "</div><h2>" +
+    $("hero").innerHTML = '<div><div class="wk">' + esc(l.week || "This week") + (l.dates ? ", " + esc(l.dates) : "") + "</div><h2>" +
       (r.classes.length ? "Top class: " + esc(r.classes[0].cls) : "No winners yet") + "</h2><p>" +
-      (r.classes.length ? esc(r.classes[0].campus) + " · " + esc(r.classes[0].teams.map(function (t) { return t.team; }).join(" and ")) : "Winners appear here when a tutor finishes the Team Challenge.") + (l.title ? " · " + esc(l.title) : "") + "</p></div>" +
+      (r.classes.length ? esc(r.classes[0].campus) + ", " + esc(r.classes[0].teams.map(function (t) { return t.team; }).join(" and ")) : "Winners appear here when a tutor finishes the Team Challenge.") + (l.title ? ", " + esc(l.title) : "") + "</p></div>" +
       '<div class="nums"><div class="n"><b>' + r.classes.length + "</b><span>Classes</span></div><div class=\"n\"><b>" + r.campuses.length + "</b><span>Campuses</span></div><div class=\"n\"><b>" + (sprint.length + quiz.length) + "</b><span>Champions</span></div></div>";
 
     $("classes").innerHTML = r.classes.length ? r.classes.map(function (c) {
       return '<li class="cl' + (c.rank === 1 ? " first" : "") + '"><span class="rk">' + c.rank + "</span><div>" +
         c.teams.map(function (t) { return '<div class="team">' + esc(t.team) + '</div><div class="names">' + esc(t.names || "") + "</div>"; }).join("") +
-        '<div class="where">' + esc(c.cls) + " · " + esc(c.campus) + '</div></div><span class="sc">' + c.score + "<small>points</small></span></li>";
+        '<div class="where">' + esc(c.cls) + ", " + esc(c.campus) + '</div></div><span class="sc">' + c.score + "<small>points</small></span></li>";
     }).join("") : '<li class="empty"><b>Nothing yet</b>Finish a Team Challenge to fill this up.</li>';
 
     var max = r.campuses.length ? Math.max(1, r.campuses[0].avg) : 1;
@@ -118,7 +118,7 @@
 
     function champList(list, what) {
       return list.length ? list.map(function (x, i) {
-        return '<li class="cl' + (i === 0 ? " first" : "") + '"><span class="rk">' + (i + 1) + '</span><div><div class="team">' + esc(x.names) + '</div><div class="where">' + (x.team ? esc(x.team) + " · " : "") + esc(x.cls) + " · " + esc(x.campus) + '</div></div><span class="sc">' + x.score + "/" + qcount(x) + "<small>" + Live.clock(x.ms) + "</small></span></li>";
+        return '<li class="cl' + (i === 0 ? " first" : "") + '"><span class="rk">' + (i + 1) + '</span><div><div class="team">' + esc(x.names) + '</div><div class="where">' + (x.team ? esc(x.team) + ", " : "") + esc(x.cls) + ", " + esc(x.campus) + '</div></div><span class="sc">' + x.score + "/" + qcount(x) + "<small>" + Live.clock(x.ms) + "</small></span></li>";
       }).join("") : '<li class="empty"><b>Nothing yet</b>Champions appear when a tutor ends the ' + what + ".</li>";
     }
     $("sprint").innerHTML = champList(sprint, "Sprint");

@@ -186,7 +186,7 @@ body{font-size:18px}
       '<div class="f"><label for="cls">Class</label><input id="cls" maxlength="40" placeholder="e.g. Sat 10am Y8 QR" value="' + esc(Live.ls("cl-class") || "") + '"></div>' +
       '<div class="f"><label for="res">Resource</label><select id="res">' + Object.keys(window.QUESTIONS).map(function (k) {
         var st = window.QUESTIONS[k];
-        return '<option value="' + esc(k) + '"' + (k === (Live.ls("cl-res") || "y8-qr-1-1-wb") ? " selected" : "") + ">" + esc((st.year ? "Year " + st.year + " · " : "") + (st.title || k)) + "</option>";
+        return '<option value="' + esc(k) + '"' + (k === (Live.ls("cl-res") || "y8-qr-1-1-wb") ? " selected" : "") + ">" + esc((st.year ? "Year " + st.year + ", " : "") + (st.title || k)) + "</option>";
       }).join("") + "</select></div>" +
       '<div class="f"><label>This class runs</label><div class="parts" id="parts">' + PARTS.map(function (p) {
         return '<label><input type="checkbox" value="' + p[0] + '"' + (lastParts.indexOf(p[0]) >= 0 ? " checked" : "") + "><span>" + p[1] + "<small>" + p[2] + "</small></span></label>";
@@ -221,7 +221,7 @@ body{font-size:18px}
       });
     };
   }
-  var PARTS = [["warmup", "Warm Up", "Teams · easy questions"], ["challenge", "Challenge", "Teams · Mini Diagnostic"], ["sprint", "Exam Sprint", "Solo · 12 min"], ["quiz", "Quiz", "Solo · end of class · 12 min"]];
+  var PARTS = [["warmup", "Warm Up", "Teams, easy questions"], ["challenge", "Challenge", "Teams, Mini Diagnostic"], ["sprint", "Exam Sprint", "Solo, 12 min"], ["quiz", "Quiz", "Solo, end of class, 12 min"]];
   var SOLO = { sprint: { name: "Exam Sprint", champ: "Sprint champion" }, quiz: { name: "Quiz", sub: "End of class quiz", champ: "Quiz champion" } };
   /* "Workbook Q34 to Q43" when the set's questions carry workbook labels. */
   function soloSub(kind) {
@@ -304,7 +304,7 @@ body{font-size:18px}
     stage('<div class="lobby"><div class="qr" id="qr"></div><div>' +
       '<p class="eyebrow">Join on your phone</p><div class="bigcode">' + esc(B.room) + '</div><p class="url">' + esc(url.replace(/^https?:\/\//, "")) + "</p>" +
       '<ol class="steps"><li><b>1</b>Scan the code</li><li><b>2</b>Type your first name</li>' + (v.teamMode ? "<li><b>3</b>Tap your team</li>" : "") + "</ol></div></div>" +
-      (!v.teamMode ? '<p class="rankline">' + v.players + " joined · today: " + flow(v).map(function (f) { return SOLO[f].name; }).join(" then ") + "</p>" :
+      (!v.teamMode ? '<p class="rankline">' + v.players + " joined, today: " + flow(v).map(function (f) { return SOLO[f].name; }).join(" then ") + "</p>" :
       '<div style="margin-top:22px"><p class="eyebrow">Teams <span class="small" style="text-transform:none;letter-spacing:0;font-family:var(--sans)">(4 to 8, tap a name to edit)</span></p><div class="tset" id="tset">' + teams + "</div>" +
       '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" id="addT" type="button"' + (v.teams.length >= 8 ? " disabled" : "") + '>Add team</button><button class="btn" id="rmT" type="button"' + (v.teams.length <= 4 ? " disabled" : "") + '>Remove last</button><button class="btn navy" id="saveT" type="button">Save names</button></div></div>'), v);
     $("qr").innerHTML = QR.svg(url, { dark: "#0B3D91" });
@@ -330,10 +330,10 @@ body{font-size:18px}
       var on = v.locked.indexOf(i) >= 0, cls = "lk";
       if (v.revealed) cls += !on ? "" : (v.picks[i] === v.key ? " ok" : " no");
       else if (on) cls += " on";
-      return '<span class="' + cls + '">' + esc(t.n) + (v.revealed && on ? " · " + v.picks[i] : "") + "</span>";
+      return '<span class="' + cls + '">' + esc(t.n) + (v.revealed && on ? ", " + v.picks[i] : "") + "</span>";
     }).join("");
-    stage('<div class="qtop"><span class="eyebrow" style="margin:0">' + (v.round === "warmup" ? "Round 1 · Warm Up" : "Round 2 · Challenge") + "</span>" +
-      '<span class="chip">Q' + (v.qi + 1) + " of " + total + " · " + pts + (pts === 1 ? " point" : " points") + "</span></div>" +
+    stage('<div class="qtop"><span class="eyebrow" style="margin:0">' + (v.round === "warmup" ? "Round 1: Warm Up" : "Round 2: Challenge") + "</span>" +
+      '<span class="chip">Q' + (v.qi + 1) + " of " + total + ", " + pts + (pts === 1 ? " point" : " points") + "</span></div>" +
       '<div class="locks"><span class="small" style="font-weight:800">' + (v.revealed ? "Answers:" : v.locked.length + " of " + v.teams.length + " locked in") + "</span>" + locks + "</div>" +
       (q.text ? '<p class="qtext' + (q.text.length > 500 ? ' long' : '') + '">' + esc(q.text) + "</p>" : "") + Live.imgs(q, "../") + '<p class="qask">' + esc(q.ask) + "</p>" +
       '<div class="bopts">' + opts + "</div>", v);
@@ -347,7 +347,7 @@ body{font-size:18px}
     var cards = w.map(function (t, i) {
       return '<div class="win" style="animation-delay:' + (0.2 + i * 0.3) + 's"><div class="tn">' + esc(t.n) + '</div><div class="names">' + esc(t.names.join(", ") || "No names yet") + '</div><div class="pts">' + t.s + " points</div></div>";
     }).join("");
-    stage('<p class="eyebrow">Team Challenge results · ' + esc(v.cls) + " · " + esc(v.campus) + "</p><h2>" + (w.length > 1 ? "Joint winners" : w.length ? "Winning team" : "No points this time") + "</h2>" + cards +
+    stage('<p class="eyebrow">Team Challenge results: ' + esc(v.cls) + ", " + esc(v.campus) + "</p><h2>" + (w.length > 1 ? "Joint winners" : w.length ? "Winning team" : "No points this time") + "</h2>" + cards +
       '<p class="rankline" id="rankLine"></p>' +
       '<p style="font-size:20px;font-weight:700;margin:12px 0 0">' + esc(v.hof) + (v.prize.tutor ? ", plus " + esc(lc(v.prize.tutor)) : "") + ".</p>" + hofLink(v), v);
     Live.hallOfFame(v.weekId).then(function (h) {
@@ -368,14 +368,14 @@ body{font-size:18px}
       var others = Math.max(0, (sp.people || 0) - (sp.top || []).length);
       panel = '<p class="eyebrow">' + K.name + ' results</p><h2>Top 5</h2>' +
         (top ? '<ol class="podium">' + top + "</ol>" : '<p class="small">Nobody answered this time.</p>') +
-        '<p class="small" style="margin-top:14px;font-size:18px;font-weight:700">' + sp.finished + " students finished" + (others ? " · " + others + " more took part" : "") + ". Ties go to the faster finish.</p>" +
+        '<p class="small" style="margin-top:14px;font-size:18px;font-weight:700">' + sp.finished + " students finished" + (others ? ", " + others + " more took part" : "") + ". Ties go to the faster finish.</p>" +
         (sp.top && sp.top.length ? '<p style="font-size:20px;font-weight:700;margin:12px 0 0">' + esc(sp.top[0].n) + " is the " + K.champ + ": " + esc(v.hof.charAt(0).toLowerCase() + v.hof.slice(1)) + (v.prize.tutor ? ", plus " + esc(lc(v.prize.tutor)) : "") + ".</p>" : "") + hofLink(v);
     } else if (sp.status === "running") {
-      panel = '<p class="eyebrow">' + K.name + " · " + soloSub(kind) + '</p><div class="huge" id="tm">12:00</div>' +
+      panel = '<p class="eyebrow">' + K.name + ", " + soloSub(kind) + '</p><div class="huge" id="tm">12:00</div>' +
         '<div class="meter"><i style="width:' + (sp.people ? (sp.answered / (sp.people * sp.n) * 100) : 0) + '%"></i></div>' +
         '<div class="stats"><div><b>' + (sp.answered || 0) + "</b><span>Answers locked</span></div><div><b>" + (sp.people || 0) + "</b><span>Students going</span></div><div><b>" + sp.finished + "</b><span>Finished</span></div></div>";
     } else {
-      panel = '<p class="eyebrow">' + K.name + " · " + soloSub(kind) + "</p><h2>" + sp.n + " questions · 12 minutes · just you</h2>" +
+      panel = '<p class="eyebrow">' + K.name + ", " + soloSub(kind) + "</p><h2>" + sp.n + " questions, 12 minutes, just you</h2>" +
         '<ol class="steps"><li><b>1</b>Each answer locks. No changing it.</li><li><b>2</b>Skip slow ones, come back to them later.</li><li><b>3</b>Most right wins. Ties go to the faster finish.</li></ol>' +
         '<div style="display:flex;gap:20px;align-items:center;margin-top:22px"><div class="qr" id="qr" style="width:180px"></div><div><p class="eyebrow">Late? Join with</p><div class="bigcode" style="font-size:64px">' + esc(B.room) + "</div></div></div>";
     }
@@ -430,7 +430,7 @@ body{font-size:18px}
     var names = { warmup: "Warm Up", challenge: "Challenge", teamDone: "Results", sprint: "Sprint", quiz: "Quiz" };
     var tabs = [["lobby", "Lobby"]].concat(flow(v).map(function (f) { return [f, names[f]]; }));
     var cur = v.mode === "team" ? v.round : v.mode;
-    $("topRight").innerHTML = '<span class="classchip">' + esc(v.cls) + " · " + esc(v.campus) + "</span>" + '<div class="modes" id="modes">' + tabs.map(function (t) { return '<button type="button" data-m="' + t[0] + '" class="' + (t[0] === cur ? "on" : "") + '">' + t[1] + "</button>"; }).join("") + "</div>" +
+    $("topRight").innerHTML = '<span class="classchip">' + esc(v.cls) + ", " + esc(v.campus) + "</span>" + '<div class="modes" id="modes">' + tabs.map(function (t) { return '<button type="button" data-m="' + t[0] + '" class="' + (t[0] === cur ? "on" : "") + '">' + t[1] + "</button>"; }).join("") + "</div>" +
       '<span class="codechip" title="Room code">' + esc(B.room) + "</span>" + '<span class="chip">' + (v.players || 0) + " joined</span>";
     $("modes").onclick = function (e) {
       var b = e.target.closest("button"); if (!b || b.classList.contains("on")) return;

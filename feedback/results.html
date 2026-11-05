@@ -200,7 +200,7 @@ function view(id, rows){
   var chips = []; S.forEach(function(a){ (a.chips||[]).forEach(function(c){ chips.push(c); }); });
   var texts = rows.filter(function(r){ return r.role !== "tutor" && r.a.change; });
   h += '<section class="panel"><h2>One thing to change</h2><p class="sub">Quick taps.</p>' + hbars(count(chips)) + '</section>';
-  h += '<section class="panel"><h2>In their words</h2><p class="sub">'+texts.length+' written answers.</p>' + (texts.length ? '<ul class="list">' + texts.map(function(r){ return '<li>'+esc(r.a.change)+'<small>'+esc([r.a.name, r.campus].filter(Boolean).join(" · "))+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">Nothing yet.</p>') + '</section>';
+  h += '<section class="panel"><h2>In their words</h2><p class="sub">'+texts.length+' written answers.</p>' + (texts.length ? '<ul class="list">' + texts.map(function(r){ return '<li>'+esc(r.a.change)+'<small>'+esc([r.a.name, r.campus].filter(Boolean).join(", "))+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">Nothing yet.</p>') + '</section>';
 
   // tutor timing
   var tt = '<div class="scroll"><table><thead><tr><th>Section</th><th class="n">Under</th><th class="n">On time</th><th class="n">Over</th><th class="n">Avg over</th><th class="n">Avg under</th><th class="n">Didn’t land</th></tr></thead><tbody>';
@@ -213,7 +213,7 @@ function view(id, rows){
   h += '<section class="panel full"><h2>Tutor timing</h2><p class="sub">'+T.length+' tutor responses. Counts per section, with the average minutes over or under.</p>' + tt + '</tbody></table></div></section>';
 
   // errors
-  var errs = []; T.forEach(function(r){ (r.a.errors||[]).forEach(function(e){ errs.push({p:e.page, t:e.text, who:[r.a.name, r.campus].filter(Boolean).join(" · ")}); }); });
+  var errs = []; T.forEach(function(r){ (r.a.errors||[]).forEach(function(e){ errs.push({p:e.page, t:e.text, who:[r.a.name, r.campus].filter(Boolean).join(", ")}); }); });
   errs.sort(function(a,b){ return (parseInt(a.p,10)||9999) - (parseInt(b.p,10)||9999); });
   h += '<section class="panel"><h2>Errors found</h2><p class="sub">Sorted by page.</p>' + (errs.length ? '<ul class="list">' + errs.map(function(e){ return '<li><span class="pg">p'+esc(e.p||"?")+'</span>'+esc(e.t)+'<small>'+esc(e.who)+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">None reported.</p>') + '</section>';
 
@@ -221,7 +221,7 @@ function view(id, rows){
   var st = []; T.forEach(function(r){ (r.a.struggles||[]).forEach(function(c){ st.push(c); }); });
   var notes = T.filter(function(r){ return r.a.struggle_note || r.a.note || r.a.flat_note; });
   h += '<section class="panel"><h2>Students struggled with</h2><p class="sub">Tutor taps.</p>' + hbars(count(st)) + '</section>';
-  h += '<section class="panel"><h2>Tutor notes</h2><p class="sub">Free text.</p>' + (notes.length ? '<ul class="list">' + notes.map(function(r){ return '<li>'+[r.a.flat_note,r.a.struggle_note,r.a.note].filter(Boolean).map(esc).join("<br>")+'<small>'+esc([r.a.name, r.campus].filter(Boolean).join(" · "))+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">Nothing yet.</p>') + '</section>';
+  h += '<section class="panel"><h2>Tutor notes</h2><p class="sub">Free text.</p>' + (notes.length ? '<ul class="list">' + notes.map(function(r){ return '<li>'+[r.a.flat_note,r.a.struggle_note,r.a.note].filter(Boolean).map(esc).join("<br>")+'<small>'+esc([r.a.name, r.campus].filter(Boolean).join(", "))+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">Nothing yet.</p>') + '</section>';
 
   // order suggestions
   var ords = T.filter(function(r){ return r.a.order && r.a.order.length; });
@@ -229,7 +229,7 @@ function view(id, rows){
 
   // rewards
   var tk = rows.filter(function(r){ return r.a.golden || r.a.pass; });
-  h += '<section class="panel full"><h2>Rewards issued</h2><p class="sub">Golden Tickets and Class Passes, so tutors can check a code against a name.</p>' + (tk.length ? '<ul class="list">' + tk.map(function(r){ return '<li><span class="pg">'+esc(r.a.golden ? "GOLD "+r.a.golden : "PASS "+r.a.pass)+'</span>'+esc(r.a.name || "No name")+'<small>'+esc([r.campus, r.ts].filter(Boolean).join(" · "))+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">None yet.</p>') + '</section>';
+  h += '<section class="panel full"><h2>Rewards issued</h2><p class="sub">Golden Tickets and Class Passes, so tutors can check a code against a name.</p>' + (tk.length ? '<ul class="list">' + tk.map(function(r){ return '<li><span class="pg">'+esc(r.a.golden ? "GOLD "+r.a.golden : "PASS "+r.a.pass)+'</span>'+esc(r.a.name || "No name")+'<small>'+esc([r.campus, r.ts].filter(Boolean).join(", "))+'</small></li>'; }).join("") + '</ul>' : '<p class="empty">None yet.</p>') + '</section>';
 
   return h + '</div>';
 }

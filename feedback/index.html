@@ -260,11 +260,11 @@ function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(
 function uid(){ try{ return crypto.randomUUID(); }catch(e){ return "s"+Date.now().toString(36)+Math.random().toString(36).slice(2,10); } }
 function rand(){ try{ var a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] / 4294967296; }catch(e){ return Math.random(); } }
 
-document.getElementById("resTitle").textContent = RES.title + (RES.year ? "  ·  Year " + RES.year : "");
+document.getElementById("resTitle").textContent = RES.title + (RES.year ? ", Year " + RES.year : "");
 var rc = document.getElementById("roleChip");
 rc.textContent = ROLE === "tutor" ? "Tutor" : "Student";
 if (ROLE === "tutor") rc.classList.add("tutor");
-document.title = (ROLE === "tutor" ? "Tutor Feedback" : "Feedback") + " · " + RES.title;
+document.title = (ROLE === "tutor" ? "Tutor Feedback" : "Feedback") + ": " + RES.title;
 
 /* ---------- weeks, streaks and codes ---------- */
 function isoWeek(d){
@@ -447,7 +447,7 @@ function renderVibe(el){
 }
 function meHtml(){
   var label = ROLE === "tutor" ? "Your name" : "First name";
-  if (me.name && !me.edit) return '<div class="me">Sending as <span class="who">'+esc(me.name)+(me.campus ? " · "+esc(me.campus) : "")+'</span><button type="button" class="linkish" data-me-edit>Change</button></div>';
+  if (me.name && !me.edit) return '<div class="me">Sending as <span class="who">'+esc(me.name)+(me.campus ? ", "+esc(me.campus) : "")+'</span><button type="button" class="linkish" data-me-edit>Change</button></div>';
   var opts = '<option value="">Campus</option>' + CAMPUSES.map(function(c){ return '<option'+(me.campus===c?" selected":"")+'>'+esc(c)+'</option>'; }).join("");
   return '<div class="me"><input id="meName" maxlength="30" autocomplete="given-name" placeholder="'+label+' (optional)" value="'+esc(me.name)+'" aria-label="'+label+'"><select id="meCampus" aria-label="Campus">'+opts+'</select></div>';
 }
@@ -656,8 +656,8 @@ function showStudentDone(st, before, weeks, reward){
   h += '<h1 class="q" tabindex="-1">'+(st>before ? (st===1 ? "Streak started!" : st+" week streak!") : "Thanks, got it!")+'</h1>';
   h += '<div class="weeks">'+cells+'</div>';
   if (!reward) h += '<p class="progress">'+(toGo===4 ? "Class Pass unlocked" : toGo+" more week"+(toGo>1?"s":"")+" to a Class Pass")+'</p>';
-  if (reward && reward.kind === "pass") h += '<div class="ticket pass"><span class="k">Class Pass · '+st+' weeks</span><h2>You earned a Class Pass</h2><p>Show your tutor this screen and pick one for next class:</p><div class="perks"><span>Choose the team names</span><span>Pick the break song</span><span>Sit in the Champion’s Chair</span></div><span class="code">'+reward.code+'</span></div>';
-  if (reward && reward.kind === "gold") h += '<div class="ticket gold"><span class="k">1 in 20 · Golden Ticket</span><h2>You found a Golden Ticket!</h2><p>Show your tutor this code before class ends for a class privilege.</p><span class="code">'+reward.code+'</span></div>';
+  if (reward && reward.kind === "pass") h += '<div class="ticket pass"><span class="k">Class Pass: '+st+' weeks</span><h2>You earned a Class Pass</h2><p>Show your tutor this screen and pick one for next class:</p><div class="perks"><span>Choose the team names</span><span>Pick the break song</span><span>Sit in the Champion’s Chair</span></div><span class="code">'+reward.code+'</span></div>';
+  if (reward && reward.kind === "gold") h += '<div class="ticket gold"><span class="k">1 in 20: Golden Ticket</span><h2>You found a Golden Ticket!</h2><p>Show your tutor this code before class ends for a class privilege.</p><span class="code">'+reward.code+'</span></div>';
   h += '<p class="thanks">Your answers go straight to the people who write these booklets.</p>';
   if (!ENDPOINT || queue().length) h += '<p class="qnote">Saved on this device. It will send next time you are online.</p>';
   body.className = "body fin fadein"; body.innerHTML = h;

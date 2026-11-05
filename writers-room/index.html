@@ -408,7 +408,7 @@ const TUTOR={
 };
 
 /* EX: worked example on "The last one to leave…" */
-const EXT="Worked example · The last one to leave…";
+const EXT="Worked example: The last one to leave…";
 const EX={
  belief:{w:[["Mood","Mira is sad that her friends quit the trio."],["Trait","Mira is loyal."]],s:["Belief shown as behaviour","Mira thinks quitting means you never really cared, so every Thursday she still sets out three stools."]},
  dilemma:{goal:"Play at the end of year concert, the spot Mr Hale has offered her.",cost:"She can only enter as a solo, which takes the trio off the program for good.",lazy:"Just ask Tess to come back? Tess already said no. Either choice still costs Mira something she loves."},
@@ -461,11 +461,11 @@ function exBlock(k,m){
   let b="",tag=EXT;
   if(k==="prompt"){tag="This card";b=`<div class="pair">${m.d.map((x,i)=>`<div class="xc info"><span class="l">Meaning ${i+1}</span>${esc(x)}</div>`).join("")}</div>`}
   else if(k==="call"){tag="This card";b=`<div class="pair">${m.o.map(x=>`<div class="xc note"><span class="l">What everyone writes</span>${esc(x)}</div>`).join("")}</div>`}
-  else if(k==="read"){tag="This card";b=`<div class="pair">${["Literal","Metaphorical","Inverted"].map((t,i)=>`<div class="xc ${i===1?"strong":"info"}"><span class="l">${t}${i===1?" · sweet spot":""}</span>${esc(m.r[i])}</div>`).join("")}</div>`}
+  else if(k==="read"){tag="This card";b=`<div class="pair">${["Literal","Metaphorical","Inverted"].map((t,i)=>`<div class="xc ${i===1?"strong":"info"}"><span class="l">${t}${i===1?" (sweet spot)":""}</span>${esc(m.r[i])}</div>`).join("")}</div>`}
   else if(k==="belief"){const e=EX.belief;b=`<div class="pair">${e.w.map(w=>`<div class="xc weak"><span class="l">${w[0]}</span>${w[1]}</div>`).join("")}<div class="xc strong"><span class="l">${e.s[0]}</span>${e.s[1]}</div></div>`}
   else if(k==="dilemma"){const e=EX.dilemma;b=`<div class="pair"><div class="xc info"><span class="l">Goal</span>${e.goal}</div><div class="xc info"><span class="l">Cost</span>${e.cost}</div></div><div class="xc note"><span class="l">Lazy Reader Test</span>${e.lazy}</div>`}
   else if(k==="stretch"){const e=EX.stretch;b=`<div class="pair"><div class="xc weak"><span class="l">Weak</span>${e.w}</div><div class="xc strong"><span class="l">Strong</span>${e.s}</div></div><div class="pair"><div class="xc info"><span class="l">New information</span>${e.info}</div><div class="xc note"><span class="l">Delay device</span>${e.dev}</div></div>`}
-  else if(k==="twist"){const e=EX.twist;b=`<div class="pair"><div class="xc info"><span class="l">Seed · first line</span>${e.seed}</div><div class="xc strong"><span class="l">Twist · last paragraph</span>${e.tw}</div></div><div class="pair">${e.checks.map(c=>`<div class="xc note"><span class="l">${c[0]}</span>${c[1]}</div>`).join("")}</div>`}
+  else if(k==="twist"){const e=EX.twist;b=`<div class="pair"><div class="xc info"><span class="l">Seed: first line</span>${e.seed}</div><div class="xc strong"><span class="l">Twist, last paragraph</span>${e.tw}</div></div><div class="pair">${e.checks.map(c=>`<div class="xc note"><span class="l">${c[0]}</span>${c[1]}</div>`).join("")}</div>`}
   else if(k==="verdict"){b=`<div class="xc strong"><span class="l">Strong editor feedback</span>${EX.verdict}</div>`}
   return `<section class="ex" aria-label="Exemplar"><div class="hd"><span>Exemplar</span><span>${tag}</span></div><div class="bd">${b}</div></section>`;
 }
@@ -476,7 +476,7 @@ function render(){
   const P=PH().k,m=P_(),r=roles(),R=S.R;
   let h="";
   if(P==="prompt"){
-    h=`<p class="eyebrow">Phase 1 · Prompt</p>
+    h=`<p class="eyebrow">Phase 1: Prompt</p>
     ${m?`<p class="prompt">${esc(m.p)}</p>
       <p class="say"><span class="ca">${N(r.a)}</span> and <span class="cb">${N(r.b)}</span> write. <span class="ce">${N(r.e)}</span> edits.</p>
       <div class="fuzzy"><span class="lbl">Define</span><span class="word">${esc(m.w)}</span><input id="defIn" aria-label="Our meaning" placeholder="Our meaning" value="${esc(R.def)}"></div>`
@@ -486,31 +486,31 @@ function render(){
   else if(P==="call"){
     const list=x=>`<ul class="calls">${R.calls.map((c,i)=>c.by!==x?"":`<li class="${c.ban?"ban":""}"><span>${esc(c.t)}</span><span class="row" style="gap:4px"><button type="button" class="chip ${c.ban?"on":""}" data-ban="${i}">${c.ban?"Banned":"Ban"}</button><button type="button" class="x" data-del="${i}" aria-label="Remove">×</button></span></li>`).join("")}</ul>
       <div class="fld"><label for="call-${x}">What everyone writes</label><input id="call-${x}" data-call="${x}" placeholder="Type it, press Enter"></div>`;
-    h=`<p class="eyebrow">Phase 2 · Call It</p><h2>What would everyone write?</h2>${promptLine(m)}
+    h=`<p class="eyebrow">Phase 2: Call It</p><h2>What would everyone write?</h2>${promptLine(m)}
     <div class="duo">${wcard("a",list("a"))}${wcard("b",list("b"))}</div>
     ${R.usual?`<div class="usual"><p class="eyebrow" style="color:var(--orange-ink)">What everyone writes</p><ul class="calls">${R.calls.map((c,i)=>c.by!=="u"?"":`<li class="ban"><span>${esc(c.t)}</span></li>`).join("")}</ul></div>`:""}`;
   } else if(P==="read"){
     const L=["Literal","Metaphorical","Inverted"];
-    h=`<p class="eyebrow">Phase 3 · Three Readings</p><h2>Pick a reading and pitch one line</h2>${promptLine(m)}${offLimits()}
+    h=`<p class="eyebrow">Phase 3: Three Readings</p><h2>Pick a reading and pitch one line</h2>${promptLine(m)}${offLimits()}
     <div class="reads">${L.map((t,i)=>`<div class="rd ${R.w.a.reading===i?"pa":""} ${R.w.b.reading===i?"pb":""}"><b>${t}</b><div class="pk"><button type="button" class="chip pickA ${R.w.a.reading===i?"on":""}" data-cw="a" data-cf="reading" data-cv="${i}">Writer A</button><button type="button" class="chip pickB ${R.w.b.reading===i?"on":""}" data-cw="b" data-cf="reading" data-cv="${i}">Writer B</button></div></div>`).join("")}</div>
-    <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"pitch","One line pitch"+(R.w[x].reading!=null?" · "+L[R.w[x].reading]:""),"Character, place, problem",true))).join("")}</div>`;
+    <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"pitch","One line pitch"+(R.w[x].reading!=null?", "+L[R.w[x].reading]:""),"Character, place, problem",true))).join("")}</div>`;
   } else if(P==="belief"){
-    h=`<p class="eyebrow">Phase 4 · Belief</p><h2>Show a belief through behaviour</h2>${promptLine(m)}${offLimits()}
+    h=`<p class="eyebrow">Phase 4: Belief</p><h2>Show a belief through behaviour</h2>${promptLine(m)}${offLimits()}
     <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"belief","Belief shown as behaviour","She thinks… so she…",true),chips(x,"bcheck",["Belief","Mood","Trait"],[0]))).join("")}</div>`;
   } else if(P==="dilemma"){
-    h=`<p class="eyebrow">Phase 5 · Dilemma</p><h2>Give your character two goods to choose between</h2>${promptLine(m)}${offLimits()}
+    h=`<p class="eyebrow">Phase 5: Dilemma</p><h2>Give your character two goods to choose between</h2>${promptLine(m)}${offLimits()}
     <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"goal","Goal","What they want")+fld(x,"cost","Cost","What getting it costs them"),`<span class="who" style="margin-right:0">Lazy Reader Test</span>`+chips(x,"lazy",["Holds up","Skim reader solves it"],[0]))).join("")}</div>`;
   } else if(P==="stretch"){
-    h=`<p class="eyebrow">Phase 6 · Stretch</p><h2>Slow down the climax</h2>${promptLine(m)}${offLimits()}
+    h=`<p class="eyebrow">Phase 6: Stretch</p><h2>Slow down the climax</h2>${promptLine(m)}${offLimits()}
     <div class="row" style="margin-bottom:14px"><button type="button" class="chip pickA ${R.turn==="a"?"on":""}" data-turn="a">Writer A on the clock</button><button type="button" class="chip pickB ${R.turn==="b"?"on":""}" data-turn="b">Writer B on the clock</button></div>
     <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"stretch","The slowed moment","One second, stretched",true)+fld(x,"info","New information","What the reader learns")+`<div class="fld"><label>Delay device</label><div class="row" style="gap:6px">${DEVICES.map((d,i)=>`<button type="button" class="chip ${x==="a"?"pickA":"pickB"} ${R.w[x].device===i?"on":""}" data-cw="${x}" data-cf="device" data-cv="${i}">${d}</button>`).join("")}</div></div>`)).join("")}</div>`;
   } else if(P==="twist"){
     const tc=["Seed","Reread","Guardrail"];
-    h=`<p class="eyebrow">Phase 7 · Twist</p><h2>Plant the seed, then the twist</h2>${promptLine(m)}${offLimits()}
+    h=`<p class="eyebrow">Phase 7: Twist</p><h2>Plant the seed, then the twist</h2>${promptLine(m)}${offLimits()}
     <div class="duo">${["a","b"].map(x=>wcard(x,fld(x,"seed","Seed line","Planted early, looks ordinary")+fld(x,"twist","Twist","What it really meant",true),tc.map((t,i)=>`<button type="button" class="chip good ${R.w[x].tc[i]?"on":""}" data-tc="${x}" data-ti="${i}" aria-pressed="${R.w[x].tc[i]}">${R.w[x].tc[i]?"✓ ":""}${t}</button>`).join(""))).join("")}</div>`;
   } else if(P==="verdict"){
     const t=x=>R.scores[x].reduce((a,b)=>a+b,0);
-    h=`<p class="eyebrow">Phase 8 · Verdict</p><h2><span class="ce">${N(r.e)}</span> scores the room</h2>
+    h=`<p class="eyebrow">Phase 8: Verdict</p><h2><span class="ce">${N(r.e)}</span> scores the room</h2>
     <div class="gridwrap"><table class="score"><thead><tr><th style="color:var(--navy)">Criterion</th><th class="ca">${N(r.a)}</th><th class="cb">${N(r.b)}</th></tr></thead><tbody>
     ${CRIT.map((c,ci)=>`<tr><td><b>${c[0]}</b><small>${c[1]}</small></td>${["a","b"].map(x=>`<td data-l="${esc(S.names[r[x]]||"")}"><div class="pick ${x}">${[1,2,3,4,5].map(v=>`<button type="button" class="${R.scores[x][ci]===v?"on":""}" data-s="${x}" data-c="${ci}" data-v="${v}" aria-label="${c[0]} ${v}">${v}</button>`).join("")}</div></td>`).join("")}</tr>`).join("")}
     <tr><td><b>Total</b></td><td class="tot" id="totA" data-l="${esc(S.names[r.a]||"")}">${t("a")}/20</td><td class="tot" id="totB" data-l="${esc(S.names[r.b]||"")}">${t("b")}/20</td></tr></tbody></table></div>
@@ -553,7 +553,7 @@ function drawTutor(){
   const P=PH().k,t=TUTOR[P],m=P_(),r=roles();
   const shown=!!S.R.ex[P];
   const usualBtn=P==="call"&&m?`<button type="button" class="btn sm ${S.R.usual?"on":""}" id="usualBtn">${S.R.usual?"Hide the usual":"Show the usual"}</button>`:"";
-  el.innerHTML=`<div class="th"><b>Tutor · ${PH().name}</b><div class="row">${usualBtn}<button type="button" class="btn sm ${shown?"on":""}" id="exBtn" ${m?"":"disabled"}>${shown?"Hide exemplar":"Reveal exemplar"}</button></div></div>
+  el.innerHTML=`<div class="th"><b>Tutor: ${PH().name}</b><div class="row">${usualBtn}<button type="button" class="btn sm ${shown?"on":""}" id="exBtn" ${m?"":"disabled"}>${shown?"Hide exemplar":"Reveal exemplar"}</button></div></div>
   <div class="tgrid">
     <div class="tcol"><h4>Run it</h4><p>${t.run}</p><div class="trap"><b>Trap:</b> ${t.trap}</div>${m&&S.phase<7?`<div class="cardn"><b>Card nudge:</b> ${esc(m.n[S.phase])}</div>`:""}</div>
     <div class="tcol"><h4>Listen for</h4><ul>${t.listen.map(x=>`<li>${x}</li>`).join("")}</ul>${m&&P==="call"?`<h4>What everyone writes</h4><ul>${m.o.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div>

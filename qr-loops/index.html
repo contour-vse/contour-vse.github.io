@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Step through flowcharts, find far rounds and undo processes.">
-<title>Forwards and Backwards · Contour</title>
+<title>Forwards and Backwards</title>
 <style>
 :root{
   color-scheme:light;
@@ -672,7 +672,7 @@ function stepTwo(root, api){
   inp.addEventListener('change', function(){ T = Math.max(1, Math.min(999, parseInt(inp.value, 10) || 1)); inp.value = T; lvl = 0; paint(); });
   var ways = h('div', { class: 'ways' }), sum = h('div', { class: 'ansblock' });
   main.appendChild(h('div', { class: 'ctl' },
-    h('div', { class: 'rule', style: 'font-size:19px;text-align:left' }, 'Even: halve N  ·  Odd: add 5'),
+    h('div', { class: 'rule', style: 'font-size:19px;text-align:left' }, 'Even: halve N.   Odd: add 5.'),
     h('span', { class: 'field' }, 'After one round, N ='), seg, h('label', { class: 'field' }, inp)));
   main.appendChild(h('p', { class: 'prompt', id: 'tq' }));
   main.appendChild(ways); main.appendChild(sum);

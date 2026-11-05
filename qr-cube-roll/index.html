@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Roll a lettered cube along a grid path and track the top face.">
-<title>Cube Rolls · Contour</title>
+<title>Cube Rolls</title>
 <style>
 :root{
   color-scheme:light;
@@ -273,7 +273,7 @@ var Lab = (function(){
   function guard(p){ if(p && p.catch) p.catch(function(){}); }
   function init(c){
     cfg = c;
-    document.title = c.title + ' · Contour';
+    document.title = c.title ;
     $('title').textContent = c.title;
     c.steps.forEach(function(s, i){
       var b = el('button', '', '<span class="n">' + (i + 1) + '</span>' + s.name);

@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Contour Writing Board: write, read and vote in class.">
+<meta name="robots" content="noindex">
+<title>Writing Board</title>
+<link rel="stylesheet" href="../team-challenge/live.css">
+<link rel="stylesheet" href="wb.css">
+<style>
+.wrap{max-width:680px;margin:0 auto;padding:14px 16px 130px;display:flex;flex-direction:column;gap:14px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.me{display:flex;gap:6px;align-items:center}
+h2{font-size:28px;font-weight:850;letter-spacing:-.025em;color:var(--navy);margin:2px 0 12px;line-height:1.12}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.field input{border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:20px;background:#fff;min-width:0;width:100%}
+.field input.code{font-family:var(--mono);font-size:32px;font-weight:800;letter-spacing:.25em;text-transform:uppercase;text-align:center;color:var(--navy)}
+.field input:focus{border-color:var(--blue);outline:none}
+.err{color:var(--orange-ink);font-weight:700;min-height:1.4em;margin:0 0 8px}
+
+.strip{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--navy);color:#fff;border-radius:16px;padding:12px 16px}
+.strip .lab{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.8}
+.strip .an{font-weight:850;font-size:22px;letter-spacing:-.01em;line-height:1.1}
+.strip .nm{font-size:14px;font-weight:700;opacity:.8}
+.strip .tm{text-align:right;line-height:1.05}
+.strip .tm b{display:block;font-family:var(--mono);font-size:28px;font-variant-numeric:tabular-nums}
+.strip .tm b.low{color:#FFD08A}
+
+.task{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.task h3{margin:0;font-size:21px;font-weight:850;color:var(--navy);letter-spacing:-.015em}
+.prompt{background:var(--navy-soft);border-radius:14px;padding:12px 14px;font-size:18px;font-weight:650;line-height:1.45;white-space:pre-line}
+.writebox{width:100%;min-height:46vh;border:2px solid var(--line);border-radius:16px;padding:14px 16px;font-size:18px;line-height:1.55;background:#fff;resize:vertical;display:block}
+.writebox:focus{border-color:var(--blue);outline:none}
+.writebox:disabled{background:var(--wash)}
+.wstat{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:700;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.wstat .ok{color:var(--green-ink)}
+.wstat .warn{color:var(--orange-ink)}
+.bar{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to top,var(--bg) 70%,rgba(242,246,252,0));padding:18px 16px calc(14px + env(safe-area-inset-bottom));z-index:5}
+.bar .in{max-width:680px;margin:0 auto;display:flex;gap:10px}
+.bar .btn{flex:1}
+
+.note{border-radius:14px;padding:12px 14px;font-weight:750;font-size:16px}
+.note.blue{background:var(--blue-soft);color:var(--blue-ink)}
+.note.green{background:var(--green-soft);color:var(--green-ink)}
+.note.orange{background:var(--orange-soft);color:var(--orange-ink)}
+.pc{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:14px 16px}
+.pc.voted{border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+.pc.mine{border-style:dashed}
+.pc .ph{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.pc .an{font-weight:850;font-size:19px;color:var(--navy)}
+.pc .piece{font-size:17px}
+.pc .piece.clamp{max-height:13.5em;overflow:hidden;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+.pc .acts{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.linkbtn{background:none;border:0;color:var(--blue-ink);font-weight:750;text-decoration:underline;padding:4px 0}
+.vbtn{margin-left:auto}
+.btn.voted{background:var(--green-ink);border-color:var(--green-ink);color:#fff}
+.sec{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-ink);margin:10px 2px -2px}
+.fb h4{font-size:13px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--blue-ink);margin:16px 0 8px}
+.fb .whole{background:var(--navy-soft);border-radius:12px;padding:10px 12px;font-weight:650;white-space:pre-line}
+.place{display:flex;gap:14px;align-items:center}
+.place b{font-size:52px;font-weight:850;color:var(--navy);letter-spacing:-.03em;line-height:1}
+.mini{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.mini li{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;border:2px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;opacity:0;transform:translateY(14px);animation:rise .5s forwards}
+.mini li:first-child{border-color:var(--orange);background:var(--orange-soft)}
+.mini .pos{font-family:var(--mono);font-weight:850;font-size:20px;color:var(--navy)}
+.mini .an{font-weight:850;font-size:19px;color:var(--navy)}
+.mini .pp{font-family:var(--mono);font-weight:800;color:var(--navy)}
+.mini li.me{box-shadow:0 0 0 3px var(--blue)}
+.wait{text-align:center;padding:28px 16px}
+.wait .big{font-size:24px;font-weight:850;color:var(--navy);margin:0 0 6px}
+.wait p{margin:0;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true" id="markIcon"></div>
+      <h1>Writing Board</h1>
+    </div>
+    <div class="me" id="meChip"></div>
+  </header>
+  <main id="app"></main>
+</div>
+<div class="bar" id="bar" hidden><div class="in" id="barIn"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="../config.js"></script>
+<script src="wb-engine.js"></script>
+<script src="wb-api.js"></script>
+<script src="wb-ui.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = Board.esc;
+  var params = new URLSearchParams(location.search);
+  var S = {
+    room: (params.get("room") || Board.mine("wb-room") || "").toUpperCase(),
+    pid: Board.mine("wb-pid") || Board.uid(),
+    name: Board.mine("wb-name") || "",
+    joined: false, view: null, offset: 0, lastKey: "", sending: false, open: {}, autoSent: 0
+  };
+  Board.mine("wb-pid", S.pid);
+  $("markIcon").innerHTML = UI.PEN;
+  if (S.room && S.name && Board.mine("wb-joined") === S.room && (!params.get("room") || params.get("room").toUpperCase() === S.room)) S.joined = true;
+
+  function toast(m) { var t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
+  function bar(html) { $("bar").hidden = !html; $("barIn").innerHTML = html || ""; }
+  function now() { return Date.now() + S.offset; }
+  function draftKey() { return "wb-draft-" + S.room + "-" + S.pid; }
+  function draft(v) { return Board.ls(draftKey(), v); }
+
+  /* ---------- join ---------- */
+  function renderJoin(msg) {
+    bar(""); $("meChip").innerHTML = Board.demo ? '<span class="chip orange">Demo</span>' : "";
+    $("app").innerHTML = '<section class="card"><h2>Join the Writing Board</h2>' +
+      '<div class="field"><label for="code">Room code</label><input id="code" class="code" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' + esc(S.room) + '"></div>' +
+      '<div class="field"><label for="nm">First name</label><input id="nm" maxlength="20" autocomplete="given-name" value="' + esc(S.name) + '"></div>' +
+      '<p class="small muted" style="margin:-6px 0 14px;font-weight:650">Your class sees a made up name, never your real one</p>' +
+      '<p class="err" id="err">' + esc(msg || "") + '</p><button class="btn primary big block" id="go" type="button">Join</button></section>';
+    $("code").addEventListener("input", function (e) { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); });
+    $("go").onclick = function () {
+      var code = $("code").value.trim().toUpperCase(), name = $("nm").value.trim(), btn = this;
+      if (code.length !== 6) { $("err").textContent = "The room code has 6 characters"; return; }
+      if (!name) { $("err").textContent = "Type your first name"; return; }
+      btn.disabled = true;
+      Board.call("wb.join", { room: code, pid: S.pid, name: name }).then(function (r) {
+        btn.disabled = false;
+        if (!r.ok) { $("err").textContent = r.error === "room" ? "No room with that code. Check the board." : (r.message || "Try again"); return; }
+        S.room = code; S.name = name; S.joined = true;
+        Board.mine("wb-room", code); Board.mine("wb-name", name); Board.mine("wb-joined", code);
+        history.replaceState(null, "", "?room=" + code);
+        poller.reset(); S.lastKey = ""; poller.now();
+      });
+    };
+  }
+
+  function strip(v) {
+    var t = v.phase === "writing" && v.endAt ? '<div class="tm"><b id="tm">' + Board.clock(v.endAt - now()) + '</b><span class="lab">Time left</span></div>' : "";
+    return '<div class="strip"><div><div class="lab">You are</div><div class="an">' + esc(v.me.a) + '</div><div class="nm">' + esc(v.me.n) + ", only you see this</div></div>" + t + "</div>";
+  }
+  function taskHead(v) {
+    return '<div class="task"><span class="typechip">' + esc(v.type) + "</span><h3>" + esc(v.title) + "</h3></div>";
+  }
+
+  /* ---------- writing ---------- */
+  function renderWriting(v) {
+    var me = v.me, saved = draft();
+    var text = saved != null && saved !== "" ? saved : me.t;
+    $("app").innerHTML = '<div id="stripBox">' + strip(v) + "</div>" +
+      '<section class="card">' + taskHead(v) + '<div class="prompt">' + esc(v.prompt) + "</div></section>" +
+      '<textarea class="writebox" id="wb" maxlength="' + WB.MAX_TEXT + '" placeholder="Start writing here" aria-label="Your writing"></textarea>' +
+      '<div class="wstat"><span id="wc"></span><span id="ws"></span></div>';
+    $("wb").value = text || "";
+    $("wb").addEventListener("input", function () { draft(this.value); status(); });
+    bar('<button class="btn primary big" id="send" type="button"></button>');
+    $("send").onclick = submit;
+    status();
+  }
+  function status() {
+    var v = S.view, el = $("wb"); if (!el || !v) return;
+    var t = el.value, w = WB.words(t), sent = v.me.t, same = WB.cleanText(t, WB.MAX_TEXT) === sent;
+    $("wc").textContent = w + (w === 1 ? " word" : " words");
+    var ws = $("ws");
+    if (!sent) { ws.className = ""; ws.textContent = t ? "Saved on this phone" : ""; }
+    else if (same) { ws.className = "ok"; ws.textContent = "Submitted, you can edit until writing closes"; }
+    else { ws.className = "warn"; ws.textContent = "Changes not sent yet"; }
+    var b = $("send"); if (b) { b.textContent = !sent ? "Submit" : same ? "Submitted" : "Send changes"; b.disabled = S.sending || !t.trim() || (sent && same); }
+  }
+  function submit() {
+    var el = $("wb"); if (!el || S.sending) return;
+    S.sending = true; status();
+    Board.call("wb.submit", { room: S.room, pid: S.pid, text: el.value }).then(function (r) {
+      S.sending = false;
+      if (!r.ok) { toast(r.message || "Try again"); status(); return; }
+      S.view.me.t = r.t; S.view.me.w = r.w; status();
+      toast("Submitted"); poller.now();
+    });
+  }
+
+  /* ---------- reading, feedback, leaderboard ---------- */
+  function pieceCard(p, v, opts) {
+    opts = opts || {};
+    var voted = v.me.vote === p.k, canVote = v.phase === "reading" || v.phase === "feedback";
+    var showMk = opts.marks && p.mk, long = p.t.length > 600 && !S.open[p.k] && !opts.full;
+    var acts = (long ? '<button class="linkbtn" type="button" data-more="' + esc(p.k) + '">Read the whole piece</button>' : "") +
+      (p.mine ? "" : canVote ? '<button class="btn vbtn' + (voted ? " voted" : "") + '" type="button" data-vote="' + esc(p.k) + '">' + (voted ? "Your vote" : "Vote") + "</button>" : "");
+    return '<section class="pc' + (voted ? " voted" : "") + (p.mine ? " mine" : "") + '"><div class="ph"><span class="an">' + esc(p.a) + "</span>" +
+      (p.mine ? '<span class="chip">Yours</span>' : showMk && p.mk.star ? '<span class="starchip">' + UI.starSvg(16) + "Tutor star</span>" : '<span class="chip">' + p.w + " words</span>") + "</div>" +
+      '<div class="piece' + (long ? " clamp" : "") + '">' + UI.pieceHtml(p.t, showMk ? p.mk.h : []) + "</div>" +
+      (showMk ? '<div class="fb">' + (p.mk.h.length ? "<h4>Highlights</h4>" + UI.notesHtml(p.t, p.mk, { quote: false }) : "") + (p.mk.c ? '<h4>Whole piece</h4><div class="whole">' + esc(p.mk.c) + "</div>" : "") + "</div>" : "") +
+      (acts ? '<div class="acts">' + acts + "</div>" : "") + "</section>";
+  }
+  function myFeedback(v) {
+    var p = (v.pieces || []).filter(function (x) { return x.mine; })[0];
+    if (!p) return '<section class="card wait"><p class="big">No piece from you this time</p><p>You can still read and vote</p></section>';
+    var mk = p.mk;
+    var any = mk && (mk.h.length || mk.c || Object.keys(mk.r || {}).length || mk.star);
+    return '<p class="sec">Your Feedback</p><section class="pc mine fb"><div class="ph"><span class="an">' + esc(p.a) + "</span>" + (mk && mk.star ? '<span class="starchip">' + UI.starSvg(16) + "Tutor star</span>" : '<span class="chip">' + p.w + " words</span>") + "</div>" +
+      '<div class="piece">' + UI.pieceHtml(p.t, mk ? mk.h : []) + "</div>" +
+      (!any ? '<p class="note blue" style="margin:12px 0 0">Your tutor has not marked yours yet</p>' :
+        (mk.h.length ? "<h4>Highlights</h4>" + UI.notesHtml(p.t, mk, { quote: false }) : "") +
+        (mk.c ? '<h4>Whole piece</h4><div class="whole">' + esc(mk.c) + "</div>" : "") +
+        (v.rubric && Object.keys(mk.r || {}).length ? "<h4>Rubric</h4>" + UI.rubricHtml(mk.r) : "")) + "</section>";
+  }
+  function voteNote(v) {
+    var others = (v.pieces || []).filter(function (p) { return !p.mine; });
+    if (!others.length) return '<p class="note blue">No other pieces yet</p>';
+    var mine = others.filter(function (p) { return p.k === v.me.vote; })[0];
+    return mine ? '<p class="note green">You voted for ' + esc(mine.a) + ". Tap another piece to change it</p>" : '<p class="note orange">Pick your favourite. You have one vote</p>';
+  }
+  function renderReading(v) {
+    bar("");
+    var others = (v.pieces || []).filter(function (p) { return !p.mine; }), mine = (v.pieces || []).filter(function (p) { return p.mine; });
+    $("app").innerHTML = strip(v) + '<section class="card"><h2 style="margin-bottom:6px">Read and Vote</h2>' + taskHead(v) + "</section>" + voteNote(v) +
+      others.map(function (p) { return pieceCard(p, v); }).join("") + mine.map(function (p) { return pieceCard(p, v); }).join("");
+  }
+  function renderFeedback(v) {
+    bar("");
+    var focus = (v.pieces || []).filter(function (p) { return p.k === v.focus && !p.mine; })[0];
+    var others = (v.pieces || []).filter(function (p) { return !p.mine; });
+    $("app").innerHTML = strip(v) +
+      (focus ? '<p class="sec">On the Board Now</p>' + pieceCard(focus, v, { marks: true, full: true }) : '<section class="card wait"><div class="pulse"></div><p class="big">Feedback time</p><p>Watch the board. Your own feedback is below</p></section>') +
+      myFeedback(v) + '<p class="sec">All Pieces</p>' + voteNote(v) + others.map(function (p) { return pieceCard(p, v); }).join("");
+  }
+  function renderLeaderboard(v) {
+    bar("");
+    var top = (v.top || []).map(function (r, i) {
+      return '<li class="' + (r.k === v.me.k ? "me" : "") + '" style="animation-delay:' + (0.2 + i * 0.25) + 's"><span class="pos">' + UI.ordinal(r.rank) + '</span><span class="an">' + esc(r.a) + (r.star ? " " + UI.starSvg(16, "#E8A400") : "") + '</span><span class="pp">' + UI.pts(r.pts) + "</span></li>";
+    }).join("");
+    var me = v.me;
+    $("app").innerHTML = strip(v) + '<section class="card"><h2>Class Favourites</h2>' + (top ? '<ol class="mini">' + top + "</ol>" : '<p class="muted">No pieces came in</p>') + "</section>" +
+      (me.rank ? '<section class="card place"><b>' + UI.ordinal(me.rank) + '</b><div><div style="font-weight:850;font-size:19px;color:var(--navy)">Your place of ' + v.of + "</div>" +
+        '<div class="muted" style="font-weight:700">' + UI.votes(me.votes) + (me.star ? ", plus a tutor star" : "") + ", " + UI.pts(me.pts) + "</div></div></section>" : "") +
+      myFeedback(v);
+    if (top && S.party !== S.room) { S.party = S.room; setTimeout(function () { UI.confetti(3200); }, 900); }
+  }
+
+  $("app").addEventListener("click", function (e) {
+    var m = e.target.closest("[data-more]");
+    if (m) { S.open[m.dataset.more] = 1; S.lastKey = ""; render(S.view, false); return; }
+    var b = e.target.closest("[data-vote]"); if (!b || S.sending) return;
+    var k = b.dataset.vote, undo = S.view.me.vote === k;
+    S.sending = true;
+    Board.call("wb.vote", { room: S.room, pid: S.pid, k: undo ? "" : k }).then(function (r) {
+      S.sending = false;
+      if (!r.ok) { toast(r.message || "Try again"); return; }
+      S.view.me.vote = r.vote; toast(r.vote ? "Vote saved" : "Vote removed"); S.lastKey = ""; render(S.view, false); poller.now();
+    });
+  });
+
+  var tickInt = setInterval(function () {
+    var v = S.view, el = $("tm"); if (!v || !el || !v.endAt) return;
+    var ms = v.endAt - now();
+    el.textContent = ms > 0 ? Board.clock(ms) : "0:00"; el.classList.toggle("low", ms < 60000);
+    /* Time is up: send the latest draft once, so nothing is lost. */
+    if (ms <= 0 && S.autoSent !== v.endAt && $("wb")) {
+      S.autoSent = v.endAt;
+      var t = $("wb").value;
+      if (t.trim() && WB.cleanText(t, WB.MAX_TEXT) !== v.me.t) { toast("Time is up, sending your writing"); submit(); }
+    }
+  }, 250);
+
+  function render(v, same) {
+    if (!S.joined || !v) return;
+    if (!v.ok) { if (v.error === "room") { S.joined = false; Board.mine("wb-joined", null); renderJoin("That room has closed. Ask for the new code."); } return; }
+    if (!v.me) { S.joined = false; Board.mine("wb-joined", null); renderJoin(); return; }
+    S.view = v; S.offset = v.now - Date.now();
+    $("meChip").innerHTML = (Board.demo ? '<span class="chip orange">Demo</span>' : "") + '<span class="chip">' + esc(S.room) + "</span>";
+    if (same) return;
+    if (v.phase === "writing") {
+      if ($("wb") && S.lastPhase === "writing") {  /* keep the text box: refresh the strip and the status only */
+        $("stripBox").innerHTML = strip(v); status(); return;
+      }
+      S.lastPhase = "writing"; renderWriting(v); return;
+    }
+    var key = [v.v, v.phase, v.focus, v.me.vote, JSON.stringify(S.open)].join("|");
+    if (key === S.lastKey) return;
+    var first = S.lastPhase !== v.phase;
+    S.lastKey = key; S.lastPhase = v.phase;
+    var sy = window.scrollY;
+    if (v.phase === "reading") renderReading(v);
+    else if (v.phase === "feedback") renderFeedback(v);
+    else renderLeaderboard(v);
+    window.scrollTo(0, first ? 0 : sy);
+  }
+
+  var poller = Board.poll(function () { return S.joined ? { room: S.room, extra: { pid: S.pid } } : null; }, render);
+  if (!S.joined) renderJoin();
+})();
+</script>
+</body>
+</html>

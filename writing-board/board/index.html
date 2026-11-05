@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Contour Writing Board tutor screen: collect anonymous writing, mark it live and run the class vote.">
+<meta name="robots" content="noindex">
+<title>Writing Board</title>
+<link rel="stylesheet" href="../../team-challenge/live.css">
+<link rel="stylesheet" href="../wb.css">
+<style>
+body{font-size:18px}
+.wrap{max-width:1600px;margin:0 auto;padding:16px 22px 110px;display:flex;flex-direction:column;gap:16px;min-height:100vh}
+body.screen .wrap{padding-bottom:22px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.top .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.codechip{font-family:var(--mono);font-weight:800;font-size:22px;letter-spacing:.16em;background:var(--navy);color:#fff;border-radius:12px;padding:6px 14px}
+.classchip{font-weight:800;font-size:15px;color:var(--navy);background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.modes{display:flex;gap:6px;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:4px}
+.modes button{border:0;background:none;border-radius:10px;padding:8px 14px;font-weight:800;font-size:16px;color:var(--muted)}
+.modes button.on{background:var(--navy);color:#fff}
+body.screen .modes button{cursor:default}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(360px,1fr);gap:18px;flex:1;align-items:start}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:22px;padding:24px 26px;min-width:0}
+.panel h2{font-weight:850;font-size:clamp(28px,2.7vw,42px);letter-spacing:-.025em;color:var(--navy);margin:0 0 14px;line-height:1.08}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.prompt{background:var(--navy-soft);border-radius:16px;padding:16px 20px;font-size:clamp(20px,1.7vw,26px);font-weight:650;line-height:1.4;color:var(--ink);white-space:pre-line;max-height:34vh;overflow:auto}
+.duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:16px;margin-top:16px}
+.box{border:2px solid var(--line);border-radius:18px;padding:16px 18px;min-width:0}
+.huge{font-family:var(--mono);font-weight:850;font-size:clamp(64px,7vw,116px);line-height:1;color:var(--navy);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.huge.low{color:var(--orange)}
+.huge.off{font-size:clamp(28px,2.6vw,40px);font-family:var(--sans);letter-spacing:-.02em}
+.join{display:flex;gap:16px;align-items:center}
+.qr{width:150px;flex:none;aspect-ratio:1;border-radius:12px;overflow:hidden;border:2px solid var(--line);background:#fff}
+.qr svg{display:block;width:100%;height:100%}
+.bigcode{font-family:var(--mono);font-weight:850;font-size:clamp(40px,4vw,64px);letter-spacing:.08em;color:var(--navy);line-height:1}
+.url{font-family:var(--mono);font-size:15px;color:var(--muted);word-break:break-all;margin:8px 0 0}
+.steps{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:10px;font-size:clamp(20px,1.7vw,24px);font-weight:700}
+.steps li{display:flex;gap:12px;align-items:center}
+.steps b{flex:none;width:36px;height:36px;border-radius:50%;background:var(--blue-soft);color:var(--blue-ink);display:grid;place-items:center;font-family:var(--mono)}
+.stats{display:flex;gap:36px;flex-wrap:wrap;margin-top:20px}
+.stats b{display:block;font-family:var(--mono);font-size:52px;color:var(--navy);line-height:1.05}
+.stats span{font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.meter{height:22px;border-radius:999px;background:var(--wash);border:2px solid var(--line);overflow:hidden;margin:16px 0 0}
+.meter i{display:block;height:100%;background:var(--green);border-radius:999px;transition:width .8s}
+
+/* response cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.cards.wide{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.wc{position:relative;text-align:left;border:2px solid var(--line);border-radius:16px;background:#fff;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-height:82px;min-width:0}
+button.wc:hover{border-color:var(--navy)}
+.wc .an{font-weight:850;font-size:19px;color:var(--navy);letter-spacing:-.01em}
+.wc .rn{font-size:14px;font-weight:700;color:var(--blue-ink)}
+.wc .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:auto;font-size:14px;font-weight:700;color:var(--muted)}
+.wc .tag{border-radius:999px;padding:2px 9px;font-size:13px;font-weight:800}
+.wc .tag.in{background:var(--green-soft);color:var(--green-ink)}
+.wc .tag.wait{background:var(--wash);color:var(--muted);border:1px dashed var(--line)}
+.wc .tag.mk{background:var(--blue-soft);color:var(--blue-ink)}
+.wc .tag.v{background:var(--navy);color:#fff}
+.wc.out{background:var(--wash);border-style:dashed}
+.wc.cur{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+.wc .snip{font-size:15px;color:var(--ink);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:2px 0 4px}
+.wc .st{position:absolute;top:10px;right:10px;color:#E8A400}
+
+/* piece view */
+.pv{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(360px,1fr);gap:18px;align-items:start}
+.pv .panel{padding:22px 28px}
+.ptop{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.ptop .who{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ptop .an{font-weight:850;font-size:clamp(28px,2.6vw,40px);color:var(--navy);letter-spacing:-.025em;line-height:1}
+.ptop .rn{font-weight:800;color:var(--blue-ink);font-size:18px}
+.nav{display:flex;gap:6px}
+.pv .piece{font-size:clamp(21px,1.75vw,27px);line-height:1.62}
+.pv .piece.long{font-size:clamp(18px,1.4vw,22px)}
+.pv .pbody{max-height:calc(100vh - 260px);overflow:auto;padding-right:6px}
+body.screen .pv .pbody{max-height:calc(100vh - 170px)}
+.pv .side{position:sticky;top:12px;max-height:calc(100vh - 190px);overflow:auto}
+body.screen .pv .side{max-height:calc(100vh - 110px)}
+.hint{display:flex;gap:10px;align-items:center;background:var(--blue-soft);color:var(--blue-ink);border-radius:12px;padding:10px 12px;font-weight:750;font-size:15px;margin-bottom:12px}
+.side h3{font-size:13px;font-family:var(--mono);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-ink);margin:18px 0 8px}
+.side h3:first-child{margin-top:0}
+.ed li{grid-template-columns:auto minmax(0,1fr) auto}
+.ed input{width:100%;border:2px solid var(--line);border-radius:10px;padding:6px 9px;font-size:15px;margin-top:6px;background:#fff}
+.ed .x{border:0;background:none;color:var(--muted);font-size:22px;line-height:1;padding:0 4px}
+.whole{width:100%;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:16px;min-height:76px;resize:vertical;line-height:1.4}
+.whole:focus,.ed input:focus{border-color:var(--blue);outline:none}
+.wholeshow{background:var(--navy-soft);border-radius:14px;padding:12px 14px;font-weight:650;font-size:18px;white-space:pre-line}
+.rgrid{display:grid;gap:8px}
+.rrow{display:grid;grid-template-columns:96px repeat(5,1fr);gap:5px;align-items:center}
+.rrow span{font-weight:800;color:var(--navy);font-size:15px}
+.rrow button{border:2px solid var(--line);background:#fff;border-radius:10px;height:38px;font-family:var(--mono);font-weight:800;font-size:16px;color:var(--navy);padding:0}
+.rrow button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.rrow button.lo{background:var(--blue-soft);border-color:#B9D8FF}
+.star{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:2px solid #FFD27A;background:#FFFBEF;color:#8A5A00;border-radius:14px;padding:12px;font-weight:850;font-size:18px}
+.star.on{background:#FFC24B;border-color:#E8A400;color:#4A3000}
+.star small{font-weight:700;opacity:.8}
+
+/* highlight palette */
+.pal{position:fixed;z-index:40;width:min(460px,calc(100vw - 24px));background:#fff;border:2px solid var(--navy);border-radius:16px;padding:12px 14px;box-shadow:0 18px 40px rgba(11,61,145,.22)}
+.pal input{width:100%;border:2px solid var(--line);border-radius:10px;padding:8px 10px;font-size:15px}
+.pal input:focus{border-color:var(--blue);outline:none}
+.pal .grp:first-of-type{margin-top:10px}
+
+/* leaderboard */
+.lb{max-width:1200px;margin:0 auto;width:100%}
+.lb h2{text-align:center;font-size:clamp(34px,3.6vw,56px)}
+.rest{list-style:none;margin:22px auto 0;padding:0;display:grid;gap:8px;max-width:860px}
+.rest li{display:grid;grid-template-columns:52px 1fr auto auto;gap:14px;align-items:center;border:2px solid var(--line);border-radius:14px;padding:8px 16px;background:#fff;font-size:19px}
+.rest .pos{font-family:var(--mono);font-weight:850;color:var(--muted)}
+.rest .an{font-weight:850;color:var(--navy)}
+.rest .pp{font-family:var(--mono);font-weight:800;color:var(--navy)}
+
+.controls{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:2px solid var(--line);padding:12px 22px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;z-index:10}
+.controls .sep{width:2px;height:30px;background:var(--line)}
+.controls select{border:2px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;font-weight:750;font-size:16px;background:#fff}
+.setup{max-width:720px;margin:4vh auto;width:100%}
+.setup h2{text-align:center}
+.f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.f label,.f .lab{font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.f input,.f select,.f textarea{border:2px solid var(--line);border-radius:12px;padding:11px 14px;font:inherit;font-size:19px;background:#fff;color:var(--ink);min-width:0;width:100%}
+.f textarea{min-height:110px;resize:vertical;line-height:1.4}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--blue);outline:none}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.types{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.types label{display:flex;flex-direction:column;gap:2px;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-weight:800;color:var(--navy);font-size:17px;cursor:pointer;text-transform:none;letter-spacing:0}
+.types label small{font-weight:600;color:var(--muted);font-size:13px}
+.types input{position:absolute;opacity:0;pointer-events:none}
+.types label:has(input:checked){border-color:var(--navy);background:var(--navy-soft)}
+.types label:has(input:focus-visible){outline:3px solid var(--blue);outline-offset:2px}
+.f label.tick{text-transform:none;letter-spacing:0;font-size:17px;color:var(--navy)}
+.tick{display:flex;align-items:center;gap:12px;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-weight:800;color:var(--navy);cursor:pointer}
+.tick small{display:block;font-weight:600;color:var(--muted);font-size:14px}
+.tick input{width:22px;height:22px;accent-color:var(--navy);flex:none}
+.tick:has(input:checked){border-color:var(--navy);background:var(--navy-soft)}
+.err{color:var(--orange-ink);font-weight:700;min-height:1.4em;margin:0 0 8px}
+.small{font-size:15px;color:var(--muted)}
+.empty{text-align:center;padding:30px 10px;color:var(--muted);font-size:19px;font-weight:700}
+@media (max-width:1100px){.grid,.pv{grid-template-columns:1fr}.duo{grid-template-columns:1fr}.types{grid-template-columns:1fr 1fr}.pod{grid-template-columns:1fr}.pod .p{order:0!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true" id="markIcon"></div>
+      <h1>Writing Board</h1>
+      <span class="chip orange" id="demoChip" hidden>Demo mode</span>
+    </div>
+    <div class="right" id="topRight"></div>
+  </header>
+  <main id="main"></main>
+</div>
+<div class="controls" id="controls" hidden></div>
+<div class="pal" id="pal" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="../../config.js"></script>
+<script src="../../feedback/resources.js"></script>
+<script src="../../team-challenge/qr.js"></script>
+<script src="../wb-engine.js"></script>
+<script src="../wb-api.js"></script>
+<script src="../wb-ui.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = Board.esc;
+  var params = new URLSearchParams(location.search);
+  var SCREEN = params.get("screen") === "1";
+  var B = { room: (params.get("room") || Board.ls("wb-board-room") || "").toUpperCase(), tk: null, view: null, offset: 0, open: null, priv: false, lastKey: "", hl: null, sel: null, busy: false, confettiFor: "" };
+  B.tk = B.room ? Board.ls("wb-tk-" + B.room) : null;
+  $("demoChip").hidden = !Board.demo;
+  $("markIcon").innerHTML = UI.PEN;
+  if (SCREEN) document.body.classList.add("screen");
+  var PH = [["writing", "Writing"], ["reading", "Reading"], ["feedback", "Feedback"], ["leaderboard", "Leaderboard"]];
+
+  function toast(m) { var t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
+  function now() { return Date.now() + B.offset; }
+  function studentUrl() { var u = new URL("../", location.href); u.search = "?room=" + B.room; return u.href; }
+  function players(v) { return (v.players || []).filter(function (p) { return p.s; }); }
+  function byK(v, k) { var l = v.players || []; for (var i = 0; i < l.length; i++) if (l[i].k === k) return l[i]; return null; }
+  function call(action, body) {
+    return Board.call(action, Object.assign({ room: B.room, tk: B.tk }, body)).then(function (r) {
+      if (!r.ok) toast(r.message || "Try again");
+      return r;
+    });
+  }
+  function phase(op, extra) {
+    if (B.busy) return Promise.resolve({ ok: false });
+    B.busy = true;
+    return call("wb.phase", Object.assign({ op: op }, extra || {})).then(function (r) { B.busy = false; refresh(); return r; });
+  }
+  function mark(k, op, extra) { return call("wb.mark", Object.assign({ k: k, op: op }, extra || {})).then(function (r) { refresh(); return r; }); }
+  function refresh() { B.lastKey = ""; poller.now(); }
+
+  /* ---------- no room: set up the task ---------- */
+  function renderEmpty(msg) {
+    $("controls").hidden = true; $("topRight").innerHTML = "";
+    if (SCREEN) { $("main").innerHTML = '<section class="panel setup"><h2>Screen not linked</h2><p class="empty">' + esc(msg || "Open the projector screen from the tutor board.") + "</p></section>"; return; }
+    var camps = window.CAMPUSES || ["Glen Waverley", "Box Hill", "Narre Warren", "Springvale", "Bentleigh", "Epping", "CBD", "Point Cook", "Online"];
+    var last = function (k, d) { return Board.ls("wb-" + k) || d; };
+    var type = last("type", "Paragraph"), mins = +last("mins", "10");
+    $("main").innerHTML = '<section class="panel setup"><h2>Start a Writing Board</h2>' +
+      '<p class="small" style="text-align:center;font-size:18px;margin:0 0 18px">' + esc(msg || "Students write on their phones, you mark on the big screen") + "</p>" +
+      '<div class="two"><div class="f"><label for="campus">Campus</label><select id="campus"><option value="">Pick a campus</option>' +
+      camps.map(function (c) { return "<option" + (c === last("campus", "") ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("") + "</select></div>" +
+      '<div class="f"><label for="cls">Class</label><input id="cls" maxlength="40" placeholder="e.g. Sat 10am Y8 Writing" value="' + esc(last("cls", "")) + '"></div></div>' +
+      '<div class="f"><label for="title">Task title</label><input id="title" maxlength="80" placeholder="e.g. Opening Paragraph" value="' + esc(last("title", "")) + '"></div>' +
+      '<div class="f"><span class="lab">Task type</span><div class="types" id="types">' + WB.TYPES.map(function (t) {
+        return '<label><input type="radio" name="type" value="' + t + '"' + (t === type ? " checked" : "") + "><span>" + t + "</span><small>" + UI.TYPE_HINT[t] + "</small></label>";
+      }).join("") + "</div></div>" +
+      '<div class="f"><label for="prompt">Prompt</label><textarea id="prompt" maxlength="2000" placeholder="e.g. Write the opening paragraph of a narrative titled The Last Bus">' + esc(last("prompt", "")) + "</textarea></div>" +
+      '<div class="two"><div class="f"><label for="mins">Time limit</label><select id="mins">' + WB.LIMITS.map(function (m) {
+        return '<option value="' + m + '"' + (m === mins ? " selected" : "") + ">" + (m ? m + " minutes" : "No time limit") + "</option>";
+      }).join("") + "</select></div>" +
+      '<div class="f"><span class="lab">Rubric</span><label class="tick"><input type="checkbox" id="rubric"' + (last("rubric", "1") === "1" ? " checked" : "") + '><span>Mark with the rubric<small>Ideas, Structure, Language, Control, 1 to 5</small></span></label></div></div>' +
+      '<p class="err" id="err"></p><button class="btn primary big block" id="mk" type="button">Create room</button></section>';
+    $("mk").onclick = function () {
+      var t = document.querySelector('input[name="type"]:checked');
+      var body = { campus: $("campus").value, cls: $("cls").value.trim(), title: $("title").value.trim(), type: t ? t.value : "", prompt: $("prompt").value.trim(), mins: +$("mins").value, rubric: $("rubric").checked };
+      if (!body.campus) { $("err").textContent = "Pick the campus"; return; }
+      if (!body.cls) { $("err").textContent = "Type the class"; return; }
+      if (!body.title) { $("err").textContent = "Type the task title"; return; }
+      if (!body.prompt) { $("err").textContent = "Type the prompt"; return; }
+      this.disabled = true;
+      Board.call("wb.create", body).then(function (r) {
+        if (!r.ok) { renderEmpty(r.message || "Could not create a room"); return; }
+        ["campus", "cls", "title", "type", "prompt", "mins"].forEach(function (k) { Board.ls("wb-" + k, String(body[k])); });
+        Board.ls("wb-rubric", body.rubric ? "1" : "0");
+        B.room = r.code; B.tk = r.tk;
+        Board.ls("wb-tk-" + r.code, r.tk); Board.ls("wb-board-room", r.code);
+        history.replaceState(null, "", "?room=" + r.code);
+        poller.reset(); refresh();
+      });
+    };
+  }
+
+  /* ---------- pieces as cards ---------- */
+  function card(p, v, opts) {
+    opts = opts || {};
+    var mk = p.mk || {}, hl = (mk.h || []).length, tags = [];
+    if (!p.s) tags.push('<span class="tag wait">Writing</span>');
+    else {
+      tags.push('<span class="tag in">In</span>');
+      tags.push("<span>" + p.w + " words</span>");
+      if (hl || mk.c || (mk.r && Object.keys(mk.r).length)) tags.push('<span class="tag mk">Marked</span>');
+      if (B.priv && !SCREEN && v.phase !== "writing") tags.push('<span class="tag v">' + UI.votes(p.votes || 0) + "</span>");
+    }
+    var inner = (mk.star ? '<span class="st" title="Tutor star">' + UI.starSvg(22) + "</span>" : "") +
+      '<span class="an">' + esc(p.a) + "</span>" + (B.priv && !SCREEN ? '<span class="rn">' + esc(p.n) + "</span>" : "") +
+      (opts.snip && p.t ? '<span class="snip">' + esc(p.t) + "</span>" : "") + '<span class="meta">' + tags.join("") + "</span>";
+    var cls = "wc" + (p.s ? "" : " out") + (v.focus && v.focus === p.k ? " cur" : "");
+    if (!p.s || SCREEN) return '<div class="' + cls + '">' + inner + "</div>";
+    return '<button type="button" class="' + cls + '" data-open="' + esc(p.k) + '">' + inner + "</button>";
+  }
+  function cardsPanel(v, title) {
+    var list = v.players || [], inN = players(v).length;
+    return '<div class="head"><p class="eyebrow" style="margin:0">' + (title || "Responses") + '</p><span class="chip green">' + inN + " of " + list.length + " in</span></div>" +
+      (list.length ? '<div class="cards">' + list.map(function (p) { return card(p, v); }).join("") + "</div>" : '<p class="empty">Nobody has joined yet</p>');
+  }
+  function joinBox() {
+    return '<div class="box join"><div class="qr" id="qr"></div><div style="min-width:0"><p class="eyebrow">Join on your phone</p><div class="bigcode">' + esc(B.room) + '</div><p class="url">' + esc(studentUrl().replace(/^https?:\/\//, "")) + "</p></div></div>";
+  }
+  function drawQr() { if ($("qr")) $("qr").innerHTML = QR.svg(studentUrl(), { dark: "#0B3D91" }); }
+
+  /* ---------- phases ---------- */
+  function renderWriting(v) {
+    var timer = v.endAt ? '<div class="huge" id="tm">' + Board.clock(v.endAt - now()) + "</div>" :
+      '<div class="huge off">' + (v.mins ? v.mins + " minutes" : "No time limit") + "</div>";
+    $("main").innerHTML = '<div class="grid"><section class="panel"><div class="head"><p class="eyebrow" style="margin:0">Writing</p><span class="typechip">' + esc(v.type) + "</span></div>" +
+      "<h2>" + esc(v.title) + '</h2><div class="prompt">' + esc(v.prompt) + "</div>" +
+      '<div class="duo"><div class="box"><p class="eyebrow">' + (v.endAt ? "Time left" : "Time") + "</p>" + timer + "</div>" + joinBox() + "</div></section>" +
+      '<section class="panel" id="side">' + cardsPanel(v) + "</section></div>";
+    drawQr(); tick();
+  }
+  function renderReading(v) {
+    var pct = v.joined ? Math.round(v.voted / v.joined * 100) : 0;
+    $("main").innerHTML = '<div class="grid"><section class="panel"><div class="head"><p class="eyebrow" style="margin:0">Reading</p><span class="typechip">' + esc(v.type) + "</span></div>" +
+      "<h2>Read and vote</h2>" +
+      '<ol class="steps"><li><b>1</b>Read every piece on your phone</li><li><b>2</b>Tap Vote on the one you think works best</li><li><b>3</b>One vote each, not your own, and you can change it</li></ol>' +
+      '<div class="stats"><div><b>' + v.submitted + "</b><span>Pieces in</span></div><div><b>" + v.voted + "</b><span>Votes cast</span></div><div><b>" + v.joined + "</b><span>Students</span></div></div>" +
+      '<div class="meter"><i style="width:' + pct + '%"></i></div>' +
+      '<p class="eyebrow" style="margin-top:22px">Prompt</p><div class="prompt" style="font-size:19px">' + esc(v.prompt) + "</div></section>" +
+      '<section class="panel" id="side">' + cardsPanel(v, "Pieces") + "</section></div>";
+  }
+  function renderFeedbackPick(v) {
+    var list = players(v);
+    $("main").innerHTML = '<section class="panel"><div class="head"><p class="eyebrow" style="margin:0">Feedback</p><span class="chip">' + list.length + " pieces</span></div>" +
+      "<h2>" + (SCREEN ? "Feedback is next" : "Pick a piece to put on the screen") + "</h2>" +
+      (list.length ? '<div class="cards wide">' + list.map(function (p) { return card(p, v, { snip: true }); }).join("") + "</div>" : '<p class="empty">No pieces came in</p>') + "</section>";
+  }
+  function renderLeaderboard(v) {
+    var lb = v.board || [], top = lb.slice(0, 3), rest = lb.slice(3);
+    var pods = top.map(function (r, i) {
+      return '<div class="p p' + (i + 1) + '" style="animation-delay:' + ((2 - i) * 0.45 + 0.2) + 's"><div class="pl">' + UI.ordinal(r.rank) + '</div><div class="an">' + esc(r.a) + "</div>" +
+        (B.priv && !SCREEN ? '<div class="small" style="font-weight:800;color:var(--blue-ink)">' + esc((byK(v, r.k) || {}).n || "") + "</div>" : "") +
+        '<div class="ps">' + UI.pts(r.pts) + '</div><div class="bits"><span class="chip">' + UI.votes(r.votes) + "</span>" + (r.star ? '<span class="starchip">' + UI.starSvg(16) + "Tutor star</span>" : "") + "</div></div>";
+    }).join("");
+    $("main").innerHTML = '<section class="panel lb"><p class="eyebrow" style="text-align:center">' + esc(v.title) + "</p><h2>Class Favourites</h2>" +
+      (top.length ? '<div class="pod">' + pods + "</div>" : '<p class="empty">No pieces came in</p>') +
+      (rest.length ? '<ol class="rest">' + rest.map(function (r) {
+        return '<li><span class="pos">' + UI.ordinal(r.rank) + '</span><span class="an">' + esc(r.a) + (B.priv && !SCREEN ? ' <span class="small">' + esc((byK(v, r.k) || {}).n || "") + "</span>" : "") + "</span>" +
+          (r.star ? '<span class="starchip">' + UI.starSvg(14) + "Star</span>" : "<span></span>") + '<span class="pp">' + UI.pts(r.pts) + "</span></li>";
+      }).join("") + "</ol>" : "") +
+      '<p class="small" style="text-align:center;margin-top:18px;font-weight:700">One point per student vote, ' + WB.STAR + " points for a tutor star</p></section>";
+    if (B.confettiFor !== B.room && top.length) { B.confettiFor = B.room; setTimeout(function () { UI.confetti(); }, 1300); }
+  }
+
+  /* ---------- one piece, full screen ---------- */
+  function renderPiece(v, k) {
+    var list = players(v), i = -1;
+    list.forEach(function (p, j) { if (p.k === k) i = j; });
+    var p = list[i]; if (!p) { B.open = null; return renderPhase(v); }
+    var mk = p.mk || { h: [], c: "", r: {}, star: 0 }, long = p.t.length > 1800;
+    var left = '<section class="panel"><div class="ptop"><div class="who"><span class="an">' + esc(p.a) + "</span>" +
+      (B.priv && !SCREEN ? '<span class="rn">' + esc(p.n) + "</span>" : "") + '<span class="chip">' + p.w + " words</span>" +
+      (mk.star ? '<span class="starchip">' + UI.starSvg(16) + "Tutor star</span>" : "") + "</div>" +
+      (SCREEN ? '<span class="typechip">' + esc(v.type) + "</span>" :
+        '<div class="nav"><button class="btn" type="button" data-go="-1"' + (i <= 0 ? " disabled" : "") + '>Back</button><button class="btn" type="button" data-go="1"' + (i >= list.length - 1 ? " disabled" : "") + '>Next</button><button class="btn navy" type="button" id="closeP">All pieces</button></div>') +
+      '</div><div class="pbody"><div class="piece' + (long ? " long" : "") + '" id="ptext">' + UI.pieceHtml(p.t, mk.h, B.hl) + "</div></div></section>";
+    var side;
+    if (SCREEN) {
+      side = '<section class="panel side"><h3>Feedback</h3>' + UI.notesHtml(p.t, mk, { empty: "No highlights yet" }) +
+        (mk.c ? '<h3>Whole piece</h3><div class="wholeshow">' + esc(mk.c) + "</div>" : "") +
+        (v.rubric && Object.keys(mk.r || {}).length ? "<h3>Rubric</h3>" + UI.rubricHtml(mk.r) : "") + "</section>";
+    } else {
+      var notes = UI.located(p.t, mk.h).map(function (x) {
+        var h = x.h, q = p.t.slice(x.s, x.e);
+        return '<li class="' + (h.g ? "hg" : "hf") + '" data-id="' + esc(h.id) + '"><span class="nb">' + x.n + '</span><div><span class="cat">' + esc(h.cat) + '</span><span class="quote">' + esc(q.length > 70 ? q.slice(0, 67) + "..." : q) + "</span>" +
+          '<input data-note="' + esc(h.id) + '" maxlength="400" placeholder="Add a comment" value="' + esc(h.c || "") + '"></div><button class="x" type="button" data-del="' + esc(h.id) + '" aria-label="Remove highlight">&times;</button></li>';
+      }).join("");
+      var rub = v.rubric ? "<h3>Rubric</h3><div class=\"rgrid\">" + WB.CRIT.map(function (c) {
+        var n = (mk.r || {})[c] || 0, b = "";
+        for (var s = 1; s <= 5; s++) b += '<button type="button" data-crit="' + c + '" data-n="' + s + '" class="' + (s === n ? "on" : s < n ? "lo" : "") + '">' + s + "</button>";
+        return '<div class="rrow"><span>' + c + "</span>" + b + "</div>";
+      }).join("") + '<div class="rtot"><span>Total</span><b>' + WB.CRIT.reduce(function (t, c) { return t + ((mk.r || {})[c] || 0); }, 0) + " / 20</b></div></div>" : "";
+      side = '<section class="panel side"><div class="hint">Select words in the piece, then pick a category</div>' +
+        "<h3>Highlights</h3>" + (notes ? '<ol class="notes ed">' + notes + "</ol>" : '<p class="muted" style="margin:0">None yet</p>') +
+        '<h3>Whole piece</h3><textarea class="whole" id="whole" maxlength="1200" placeholder="A comment on the whole piece">' + esc(mk.c || "") + "</textarea>" + rub +
+        "<h3>Tutor star</h3>" + '<button type="button" class="star' + (mk.star ? " on" : "") + '" id="starBtn">' + UI.starSvg(24) + (mk.star ? "Starred" : "Give a tutor star") + "<small>+" + WB.STAR + " points</small></button></section>";
+    }
+    $("main").innerHTML = '<div class="pv">' + left + side + "</div>";
+    if (SCREEN) return;
+    wirePiece(v, p, list, i);
+  }
+
+  function wirePiece(v, p, list, i) {
+    var el = $("ptext");
+    Array.prototype.forEach.call(document.querySelectorAll("[data-go]"), function (b) { b.onclick = function () { openPiece(list[i + (+b.dataset.go)].k); }; });
+    $("closeP").onclick = function () { closePiece(); };
+    el.addEventListener("mouseup", function () { setTimeout(function () { showPalette(el, p); }, 0); });
+    el.addEventListener("touchend", function () { setTimeout(function () { showPalette(el, p); }, 250); });
+    el.addEventListener("click", function (e) {
+      var m = e.target.closest("mark.hl"); if (!m || !window.getSelection().isCollapsed) return;
+      B.hl = m.dataset.id; render(B.view, false, true);
+      var inp = document.querySelector('[data-note="' + B.hl + '"]'); if (inp) inp.focus();
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-note]"), function (inp) {
+      inp.onchange = function () { mark(p.k, "hl.note", { id: inp.dataset.note, c: inp.value }); };
+      inp.onkeydown = function (e) { if (e.key === "Enter") inp.blur(); };
+      inp.onfocus = function () { B.hl = inp.dataset.note; Array.prototype.forEach.call(el.querySelectorAll("mark.hl"), function (m) { m.classList.toggle("on", m.dataset.id === B.hl); }); };
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-del]"), function (b) { b.onclick = function () { mark(p.k, "hl.del", { id: b.dataset.del }); }; });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-crit]"), function (b) {
+      b.onclick = function () { var n = +b.dataset.n; mark(p.k, "rubric", { crit: b.dataset.crit, n: b.classList.contains("on") ? 0 : n }); };
+    });
+    $("whole").onchange = function () { mark(p.k, "note", { c: this.value }).then(function (r) { if (r.ok) toast("Comment saved"); }); };
+    $("starBtn").onclick = function () { mark(p.k, "star", { on: !(p.mk && p.mk.star) }); };
+  }
+
+  function showPalette(el, p) {
+    var o = UI.selOffsets(el, p.t), pal = $("pal");
+    if (!o) return;
+    B.sel = { k: p.k, s: o.s, e: o.e };
+    var grp = function (g, list, label) { return '<p class="grp ' + g + '">' + label + '</p><div class="cats ' + g + '">' + list.map(function (c) { return '<button type="button" data-cat="' + esc(c) + '">' + esc(c) + "</button>"; }).join("") + "</div>"; };
+    pal.innerHTML = '<input id="palNote" maxlength="400" placeholder="Comment (optional), then pick a category">' + grp("hg", WB.GOOD, "Done Well") + grp("hf", WB.FIX, "Fix");
+    pal.hidden = false;
+    var r = o.rect, w = pal.offsetWidth, h = pal.offsetHeight;
+    var top = r.bottom + 10; if (top + h > innerHeight - 80) top = Math.max(10, r.top - h - 10);
+    pal.style.top = top + "px"; pal.style.left = Math.max(12, Math.min(innerWidth - w - 12, r.left + r.width / 2 - w / 2)) + "px";
+  }
+  function hidePalette() { $("pal").hidden = true; B.sel = null; }
+  $("pal").addEventListener("mousedown", function (e) { if (e.target.tagName !== "INPUT") e.preventDefault(); });
+  $("pal").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-cat]"); if (!b || !B.sel) return;
+    var s = B.sel, note = $("palNote").value;
+    hidePalette(); window.getSelection().removeAllRanges();
+    mark(s.k, "hl.add", { s: s.s, e: s.e, cat: b.dataset.cat, c: note }).then(function (r) { if (r.ok) B.hl = r.id; });
+  });
+  $("pal").addEventListener("keydown", function (e) { if (e.key === "Escape") hidePalette(); });
+  document.addEventListener("mousedown", function (e) { if (!$("pal").hidden && !$("pal").contains(e.target)) hidePalette(); });
+
+  function openPiece(k) { B.open = k; B.hl = null; hidePalette(); B.lastKey = ""; render(B.view, false, true); phase("focus", { k: k }); window.scrollTo(0, 0); }
+  function closePiece() { B.open = null; B.hl = null; hidePalette(); B.lastKey = ""; render(B.view, false, true); phase("focus", { k: "" }); }
+
+  function renderPhase(v) {
+    if (v.phase === "writing") renderWriting(v);
+    else if (v.phase === "reading") renderReading(v);
+    else if (v.phase === "feedback") renderFeedbackPick(v);
+    else renderLeaderboard(v);
+  }
+
+  /* ---------- top bar and controls ---------- */
+  function topRight(v) {
+    $("topRight").innerHTML = '<span class="classchip">' + esc(v.cls) + ", " + esc(v.campus) + "</span>" +
+      '<div class="modes" id="modes">' + PH.map(function (t) { return '<button type="button" data-m="' + t[0] + '" class="' + (t[0] === v.phase ? "on" : "") + '"' + (SCREEN ? " disabled" : "") + ">" + t[1] + "</button>"; }).join("") + "</div>" +
+      '<span class="codechip" title="Room code">' + esc(B.room) + '</span><span class="chip">' + v.joined + " joined</span>";
+    if (!SCREEN) $("modes").onclick = function (e) { var b = e.target.closest("button"); if (b && !b.classList.contains("on")) go(b.dataset.m); };
+  }
+  function go(ph) {
+    var v = B.view;
+    if (v.phase === "writing" && ph !== "writing") {
+      var wait = v.joined - v.submitted;
+      if (wait > 0 && !confirm(wait + (wait === 1 ? " student has" : " students have") + " not submitted. Close writing anyway?")) return;
+    }
+    B.open = null; B.hl = null;
+    phase(ph).then(function () { if (B.view && B.view.focus) phase("focus", { k: "" }); });
+  }
+  function controls(v) {
+    if (SCREEN) { $("controls").hidden = true; return; }
+    var c = [];
+    if (v.phase === "writing") {
+      var running = v.endAt && v.endAt > now();
+      if (running) { c.push('<button class="btn" data-op="timerAdd" type="button">Add 1 minute</button>'); c.push('<button class="btn" data-op="timerClear" type="button">Stop timer</button>'); }
+      else {
+        c.push('<select id="minsSel" aria-label="Minutes">' + WB.LIMITS.filter(Boolean).map(function (m) { return '<option value="' + m + '"' + (m === (v.mins || 10) ? " selected" : "") + ">" + m + " min</option>"; }).join("") + "</select>");
+        c.push('<button class="btn green big" data-op="timerStart" type="button">' + (v.endAt ? "Restart timer" : "Start timer") + "</button>");
+      }
+      c.push('<button class="btn primary big" data-phase="reading" type="button">Close writing</button>');
+    } else if (v.phase === "reading") {
+      c.push('<button class="btn" data-phase="writing" type="button">Reopen writing</button>');
+      c.push('<button class="btn primary big" data-phase="feedback" type="button">Start feedback</button>');
+    } else if (v.phase === "feedback") {
+      c.push('<button class="btn" data-phase="reading" type="button">Back to reading</button>');
+      c.push('<button class="btn orange big" data-phase="leaderboard" type="button">Show leaderboard</button>');
+    } else {
+      c.push('<button class="btn" data-phase="feedback" type="button">Back to feedback</button>');
+      c.push('<button class="btn" id="again" type="button">Replay celebration</button>');
+    }
+    c.push('<span class="sep"></span><label class="sw"><input type="checkbox" id="priv"' + (B.priv ? " checked" : "") + '>Names and votes</label>');
+    c.push('<button class="btn" id="proj" type="button">Projector screen</button><button class="btn" id="fs" type="button">Full screen<span class="k">F</span></button>');
+    c.push('<button class="btn" id="newRoom" type="button">New room</button>');
+    $("controls").innerHTML = c.join(""); $("controls").hidden = false;
+    $("fs").onclick = fullscreen;
+    $("priv").onchange = function () { B.priv = this.checked; if (B.priv) toast("Names show on this screen only. Use Projector screen for the class."); B.lastKey = ""; render(B.view, false, true); };
+    $("proj").onclick = function () { window.open("?room=" + B.room + "&screen=1", "wb-screen-" + B.room); };
+    $("newRoom").onclick = function () { if (!confirm("Leave this room and set up a new one?")) return; Board.ls("wb-board-room", null); B.room = ""; B.view = null; history.replaceState(null, "", "./"); poller.reset(); renderEmpty(); };
+    if ($("again")) $("again").onclick = function () { UI.confetti(); };
+  }
+  function fullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+  $("controls").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.phase) go(b.dataset.phase);
+    else if (b.dataset.op === "timerStart") phase("timerStart", { mins: +$("minsSel").value });
+    else if (b.dataset.op) phase(b.dataset.op);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (!B.view || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+    if (e.key.toLowerCase() === "f") fullscreen();
+    if (e.key === "Escape" && B.open && $("pal").hidden) closePiece();
+  });
+
+  var tickInt = setInterval(tick, 250);
+  function tick() {
+    var v = B.view, el = $("tm"); if (!v || !el || !v.endAt) return;
+    var ms = v.endAt - now(); el.textContent = ms > 0 ? Board.clock(ms) : "Time is up"; el.classList.toggle("low", ms < 60000);
+    el.classList.toggle("off", ms <= 0);
+    if (ms <= 0 && !B.timeUpDone) { B.timeUpDone = v.endAt; controls(v); }
+  }
+
+  function render(v, same, force) {
+    if (!B.room || !v) return;
+    if (!v.ok) { if (v.error === "room") { Board.ls("wb-board-room", null); B.room = ""; renderEmpty("That room has closed. Make a new one."); } return; }
+    if (!v.tutor) { B.room = ""; renderEmpty("This screen is not the tutor board for that room. Make a new room here."); return; }
+    B.view = v; B.offset = v.now - Date.now();
+    if (same && !force) return;
+    var open = SCREEN ? (v.focus && v.phase !== "leaderboard" ? v.focus : null) : B.open;
+    var key = [v.v, open, B.priv, B.hl].join("|");
+    if (key === B.lastKey && !force) return;
+    var ae = document.activeElement;
+    if (!force && ae && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && $("main").contains(ae)) { topRight(v); return; }
+    if (!force && !$("pal").hidden) return;
+    B.lastKey = key;
+    var sy = window.scrollY, pb = document.querySelector(".pbody"), psy = pb ? pb.scrollTop : 0;
+    if (open) renderPiece(v, open); else renderPhase(v);
+    window.scrollTo(0, sy); pb = document.querySelector(".pbody"); if (pb) pb.scrollTop = psy;
+    topRight(v); controls(v);
+    document.title = (SCREEN ? "Screen" : "Writing Board") + ", " + B.room;
+  }
+  $("main").addEventListener("click", function (e) { var b = e.target.closest("[data-open]"); if (b) openPiece(b.dataset.open); });
+  document.addEventListener("focusout", function () { setTimeout(function () { if (B.view && !/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || "")) render(B.view, false); }, 50); });
+
+  var poller = Board.poll(function () { return B.room && B.tk ? { room: B.room, extra: { tk: B.tk } } : null; }, render);
+  if (!B.room || !B.tk) { B.room = ""; renderEmpty(SCREEN ? "" : undefined); }
+})();
+</script>
+</body>
+</html>

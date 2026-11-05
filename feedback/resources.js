@@ -11,6 +11,39 @@ window.CAMPUSES = [
 ];
 
 window.FEEDBACK_RESOURCES = {
+  "y7-wr-1-1-wb": {
+    title: "VSE-07WR [1.1] - Intermediate Narrative - Workbook",
+    year: 7, subject: "Writing", week: 1, type: "wb",
+    sections: ["Your Writing Exam", "Write the Whole Story", "A Fresh Angle", "An Arc of Change", "An Ending That Lands", "Mark It Like a Marker"],
+    skills: [
+      "write a whole story in 20 minutes on my own",
+      "make my character cause the turning point",
+      "mark my own story with the Marker's Checklist"
+    ],
+    struggles: ["Finding a fresh idea", "Picking an angle I can control", "A slow opening", "A lucky turning point", "Ending on a moral or a dream", "Running out of time"]
+  },
+  "y7-wr-1-1-hw": {
+    title: "VSE-07WR [1.1] - Intermediate Narrative - Homework",
+    year: 7, subject: "Writing", week: 1, type: "hw",
+    sections: ["Skill Practice", "Exam Style", "Before You Go"],
+    skills: [
+      "find a fresh angle on a picture prompt",
+      "rewrite an outline so the character makes the change",
+      "choose 1 of 2 tasks and finish it in 25 minutes"
+    ],
+    struggles: ["Choosing a task quickly", "Ideas that are too similar", "A turning point from someone else", "Telling instead of showing", "Using facts not in the stimulus", "Not finishing in time"]
+  },
+  "y7-wr-1-1-quiz": {
+    title: "VSE-07WR [1.1] - Intermediate Narrative - Quiz",
+    year: 7, subject: "Writing", week: 1, type: "quiz",
+    sections: ["Recall", "Spot the Flaw", "Real Write"],
+    skills: [
+      "explain why markers reward a fresh angle",
+      "spot a lucky turning point or a moral ending",
+      "write an opening and last line in 6 minutes"
+    ],
+    struggles: ["Knowing what counts as fresh", "Finding the turning point", "Fixing a lucky turning point", "Cutting the lesson line", "Avoiding the obvious idea", "Ending on an action"]
+  },
   "y7-qr-1-1-wb": {
     title: "VSE-07MA [1.1] - Intermediate Quantitative Reasoning - Workbook",
     year: 7, subject: "Quantitative Reasoning", week: 1, type: "wb",

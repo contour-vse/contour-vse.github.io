@@ -1,7 +1,7 @@
 /* Swiftread offline cache: network first, cached copy when offline. Only this folder's GET requests. */
-var C = "swiftread-v1";
+var C = "swiftread-v2";
 self.addEventListener("install", function (e) {
-  e.waitUntil(caches.open(C).then(function (c) { return c.addAll(["./", "swiftread.css", "swiftread.js", "../config.js", "data/y8-en-1-1.json"]); }).then(function () { return self.skipWaiting(); }));
+  e.waitUntil(caches.open(C).then(function (c) { return c.addAll(["./", "swiftread.css", "swiftread.js", "../config.js", "data/y8-en-1-1.json", "data/y7-en-1-1.json"]); }).then(function () { return self.skipWaiting(); }));
 });
 self.addEventListener("activate", function (e) { e.waitUntil(self.clients.claim()); });
 self.addEventListener("fetch", function (e) {

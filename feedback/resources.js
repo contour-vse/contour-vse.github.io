@@ -44,6 +44,39 @@ window.FEEDBACK_RESOURCES = {
     ],
     struggles: ["Reading the question", "Spotting the pattern", "Keeping track of cases", "Picturing cubes and nets", "Working too slowly", "Careless mistakes"]
   },
+  "y7-en-1-1-wb": {
+    title: "Intermediate Reading 1.1 Workbook",
+    year: 7, subject: "Reading", week: 1, type: "wb",
+    sections: ["Your Selective Exam", "Mini Diagnostic", "What the Question Asks", "Prove It and Link It", "Narrator Knowledge", "Review & Redo", "Exam Sprint"],
+    skills: [
+      "say exactly what a question is asking for",
+      "check that my line answers this question",
+      "tell what a narrator can and can't know"
+    ],
+    struggles: ["Knowing what the question asks", "Picking the right line", "Reworded options", "Linking two lines", "Narrator questions", "Working too slowly"]
+  },
+  "y7-en-1-1-hw": {
+    title: "Intermediate Reading 1.1 Homework",
+    year: 7, subject: "Reading", week: 1, type: "hw",
+    sections: ["Fluency", "Application", "Exam Style"],
+    skills: [
+      "say exactly what a question is asking for",
+      "check that my line answers this question",
+      "tell what a narrator can and can't know"
+    ],
+    struggles: ["Knowing what the question asks", "Picking the right line", "Reworded options", "Linking two lines", "Narrator questions", "Working too slowly"]
+  },
+  "y7-en-1-1-quiz": {
+    title: "Intermediate Reading 1.1 Quiz",
+    year: 7, subject: "Reading", week: 1, type: "quiz",
+    sections: ["Question Targets", "Good Evidence", "Reworded Details", "Linking Lines", "Narrator Knowledge"],
+    skills: [
+      "say exactly what a question is asking for",
+      "check that my line answers this question",
+      "tell what a narrator can and can't know"
+    ],
+    struggles: ["Knowing what the question asks", "Picking the right line", "Reworded options", "Linking two lines", "Narrator questions", "Working too slowly"]
+  },
   "y8-en-1-1-wb": {
     title: "Advanced Reading 1.1 Workbook",
     year: 8, subject: "Reading", week: 1, type: "wb",

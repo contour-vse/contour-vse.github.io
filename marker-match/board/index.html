@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Contour Marker Match tutor screen: put a piece up, let the class mark it, then reveal your marks.">
+<meta name="robots" content="noindex">
+<title>Marker Match</title>
+<link rel="stylesheet" href="../../team-challenge/live.css">
+<link rel="stylesheet" href="../mm.css">
+<style>
+body{font-size:18px}
+.wrap{max-width:1600px;margin:0 auto;padding:16px 22px 110px;display:flex;flex-direction:column;gap:16px;min-height:100vh}
+body.screen .wrap{padding-bottom:22px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.top .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.codechip{font-family:var(--mono);font-weight:800;font-size:22px;letter-spacing:.16em;background:var(--navy);color:#fff;border-radius:12px;padding:6px 14px}
+.classchip{font-weight:800;font-size:15px;color:var(--navy);background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(360px,1fr);gap:18px;flex:1;align-items:start}
+.grid.even{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:22px;padding:22px 26px;min-width:0}
+.panel h2{font-weight:850;font-size:clamp(28px,2.7vw,42px);letter-spacing:-.025em;color:var(--navy);margin:0 0 14px;line-height:1.08}
+.panel h3{font-size:13px;font-family:var(--mono);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-ink);margin:18px 0 8px}
+.panel h3:first-child{margin-top:0}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.join{display:flex;gap:18px;align-items:center}
+.qr{width:170px;flex:none;aspect-ratio:1;border-radius:12px;overflow:hidden;border:2px solid var(--line);background:#fff}
+.qr.sm{width:110px}
+.qr svg{display:block;width:100%;height:100%}
+.bigcode{font-family:var(--mono);font-weight:850;font-size:clamp(40px,4vw,68px);letter-spacing:.08em;color:var(--navy);line-height:1}
+.url{font-family:var(--mono);font-size:15px;color:var(--muted);word-break:break-all;margin:8px 0 0}
+.stats{display:flex;gap:36px;flex-wrap:wrap;margin-top:6px}
+.stats b{display:block;font-family:var(--mono);font-size:56px;color:var(--navy);line-height:1.05}
+.stats span{font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.meter{height:22px;border-radius:999px;background:var(--wash);border:2px solid var(--line);overflow:hidden;margin:16px 0 0}
+.meter i{display:block;height:100%;background:var(--green);border-radius:999px;transition:width .8s}
+.empty{text-align:center;padding:30px 10px;color:var(--muted);font-size:19px;font-weight:700}
+.small{font-size:15px;color:var(--muted)}
+.err{color:var(--orange-ink);font-weight:700;min-height:1.4em;margin:0 0 8px}
+
+/* the piece on screen: the panel fills the window and the text is sized to fit it */
+.ptitle{font-size:clamp(30px,3vw,50px)}
+.pprompt{font-size:clamp(17px,1.4vw,22px)}
+.pv{display:flex;flex-direction:column;height:calc(100vh - 200px);min-height:420px}
+body.screen .pv{height:calc(100vh - 112px)}
+.pbody{flex:1;min-height:0;margin-top:14px;overflow:auto;padding-right:8px}
+body.screen .pbody{overflow:hidden}
+.pbody .ptext{font-size:24px;height:100%}
+.pbody.cols .ptext{column-count:2;column-gap:44px;column-rule:2px solid var(--line);column-fill:auto}
+.mini{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mini .codechip{font-size:18px}
+
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.pp{border:2px solid var(--line);border-radius:12px;padding:7px 10px;background:#fff;min-width:0}
+.pp .an{font-weight:850;color:var(--navy);font-size:16px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp .rn{font-size:13px;font-weight:800;color:var(--blue-ink)}
+.pp.in{border-color:#A9DFBF;background:var(--green-soft)}
+.pp .st{font-size:12px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pp.in .st{color:var(--green-ink)}
+.tmbox{border:2px dashed var(--line);border-radius:14px;padding:12px 14px}
+.tmrow{display:grid;grid-template-columns:100px repeat(5,1fr);gap:5px;align-items:center;margin-top:6px}
+.tmrow span{font-weight:800;color:var(--navy);font-size:15px}
+.tmrow i{height:30px;border-radius:8px;background:var(--wash);border:2px solid var(--line);display:grid;place-items:center;font-style:normal;font-family:var(--mono);font-weight:800;color:var(--muted);font-size:14px}
+.tmrow i.on{background:var(--orange);border-color:var(--orange);color:#fff}
+
+/* reveal */
+.rtop{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rtop li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;border:2px solid var(--line);border-radius:14px;padding:8px 12px;background:#fff;opacity:0;transform:translateY(14px);animation:rise .5s forwards}
+.rtop li:first-child{border-color:var(--orange);background:var(--orange-soft)}
+.rtop .pos{font-family:var(--mono);font-weight:850;color:var(--navy)}
+.rtop .an{font-weight:850;color:var(--navy);font-size:19px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rtop .an small{font-weight:800;color:var(--blue-ink);font-size:14px;margin-left:6px}
+.rtop .ps{font-family:var(--mono);font-weight:850;color:var(--navy);font-size:20px}
+.why{font-size:clamp(18px,1.4vw,23px);margin-top:18px}
+.tmtot{display:flex;align-items:baseline;gap:10px;font-weight:850;color:var(--navy)}
+.tmtot b{font-family:var(--mono);font-size:34px;color:var(--orange-ink)}
+
+/* picker */
+.pick{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:18px;align-items:start}
+.plist{display:grid;gap:8px}
+.pbtn{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;width:100%;text-align:left;border:2px solid var(--line);border-radius:14px;background:#fff;padding:12px 14px;min-width:0}
+.pbtn:hover{border-color:var(--navy)}
+.pbtn.on{border-color:var(--blue);background:var(--blue-soft)}
+.pbtn b{font-weight:850;font-size:19px;color:var(--navy)}
+.pbtn small{grid-column:1/-1;color:var(--muted);font-weight:650;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pbtn .played{font-size:12px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--wash);border-radius:999px;padding:2px 9px;align-self:center}
+.pbtn .tot{font-family:var(--mono);font-weight:850;color:var(--orange-ink);align-self:center}
+.pbtn.new{border-style:dashed;display:block;text-align:center;color:var(--blue-ink);font-weight:850}
+.prv{max-height:34vh;overflow:auto;border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-size:16px;margin-bottom:12px;background:var(--wash)}
+.f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.f label,.f .lab{font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.f input,.f select,.f textarea{border:2px solid var(--line);border-radius:12px;padding:11px 14px;font:inherit;font-size:18px;background:#fff;color:var(--ink);min-width:0;width:100%}
+.f textarea{min-height:90px;resize:vertical;line-height:1.4}
+.f textarea.tall{min-height:220px}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--blue);outline:none}
+.rgrid{display:grid;gap:8px}
+.rrow{display:grid;grid-template-columns:100px repeat(5,1fr);gap:5px;align-items:center}
+.rrow span{font-weight:800;color:var(--navy);font-size:15px}
+.rrow button{border:2px solid var(--line);background:#fff;border-radius:10px;height:40px;font-family:var(--mono);font-weight:800;font-size:16px;color:var(--navy);padding:0}
+.rrow button.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.setup{max-width:720px;margin:4vh auto;width:100%}
+.setup h2{text-align:center}
+
+/* leaderboard */
+.lb{max-width:1200px;margin:0 auto;width:100%}
+.lb h2{text-align:center;font-size:clamp(34px,3.6vw,56px)}
+.rest{list-style:none;margin:22px auto 0;padding:0;display:grid;gap:8px;max-width:860px}
+.rest li{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;border:2px solid var(--line);border-radius:14px;padding:8px 16px;background:#fff;font-size:19px}
+.rest .pos{font-family:var(--mono);font-weight:850;color:var(--muted)}
+.rest .an{font-weight:850;color:var(--navy)}
+.rest .an small{color:var(--blue-ink);font-size:15px;margin-left:6px}
+.rest .ps{font-family:var(--mono);font-weight:800;color:var(--navy)}
+.controls{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:2px solid var(--line);padding:12px 22px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;z-index:10}
+.controls .sep{width:2px;height:30px;background:var(--line)}
+@media (max-width:1100px){.grid,.grid.even,.pick{grid-template-columns:1fr}.pod{grid-template-columns:1fr}.pod .p{order:0!important}.join{flex-wrap:wrap}}
+@media (max-width:560px){.wrap{padding:12px 12px 150px}.two{grid-template-columns:1fr}.panel{padding:16px}.dp.big{grid-template-columns:92px minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true" id="markIcon"></div>
+      <h1>Marker Match</h1>
+      <span class="chip orange" id="demoChip" hidden>Demo mode</span>
+    </div>
+    <div class="right" id="topRight"></div>
+  </header>
+  <main id="main"></main>
+</div>
+<div class="controls" id="controls" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="../../config.js"></script>
+<script src="../../feedback/resources.js"></script>
+<script src="../../team-challenge/qr.js"></script>
+<script src="../mm-engine.js"></script>
+<script src="../mm-api.js"></script>
+<script src="../mm-ui.js"></script>
+<script src="../sets.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = Net.esc;
+  var params = new URLSearchParams(location.search);
+  var SCREEN = params.get("screen") === "1";
+  var SETS = window.MM_SETS || [];
+  var B = { room: (params.get("room") || Net.ls("mm-board-room") || "").toUpperCase(), tk: null, view: null, priv: false, peek: false, lastKey: "", busy: false, picking: false, draft: null, party: "" };
+  B.tk = B.room ? Net.ls("mm-tk-" + B.room) : null;
+  $("demoChip").hidden = !Net.demo;
+  $("markIcon").innerHTML = UI.ICON;
+  if (SCREEN) document.body.classList.add("screen");
+
+  function toast(m) { var t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
+  function studentUrl() { var u = new URL("../", location.href); u.search = "?room=" + B.room; return u.href; }
+  function call(action, body) { return Net.call(action, Object.assign({ room: B.room, tk: B.tk }, body)).then(function (r) { if (!r.ok) toast(r.message || "Try again"); return r; }); }
+  function phase(op, extra) {
+    if (B.busy) return Promise.resolve({ ok: false });
+    B.busy = true;
+    return call("mm.phase", Object.assign({ op: op }, extra || {})).then(function (r) { B.busy = false; refresh(); return r; });
+  }
+  function refresh() { B.lastKey = ""; poller.now(); }
+  function force() { B.lastKey = ""; render(B.view, false, true); }
+  function setOf(title) { for (var i = 0; i < SETS.length; i++) if (SETS[i].title === title) return SETS[i]; return null; }
+  function nameOf(v, k) { var l = v.players || []; for (var i = 0; i < l.length; i++) if (l[i].k === k) return l[i].n; return ""; }
+
+  /* ---------- set up ---------- */
+  function renderEmpty(msg) {
+    $("controls").hidden = true; $("topRight").innerHTML = "";
+    if (SCREEN) { $("main").innerHTML = '<section class="panel setup"><h2>Screen Not Linked</h2><p class="empty">' + esc(msg || "Open the projector screen from the tutor board") + "</p></section>"; return; }
+    var camps = window.CAMPUSES || ["Glen Waverley", "Box Hill", "Narre Warren", "Springvale", "Bentleigh", "Epping", "CBD", "Point Cook", "Online"];
+    var last = function (k, d) { return Net.ls("mm-" + k) || d; };
+    $("main").innerHTML = '<section class="panel setup"><h2>Start Marker Match</h2>' +
+      '<p class="small" style="text-align:center;font-size:18px;margin:0 0 18px">' + esc(msg || "Students mark a piece, then see how close they came to you") + "</p>" +
+      '<div class="two"><div class="f"><label for="campus">Campus</label><select id="campus"><option value="">Pick a campus</option>' +
+      camps.map(function (c) { return "<option" + (c === last("campus", "") ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("") + "</select></div>" +
+      '<div class="f"><label for="cls">Class</label><input id="cls" maxlength="40" placeholder="e.g. Sat 10am Y8 Writing" value="' + esc(last("cls", "")) + '"></div></div>' +
+      '<div class="f"><label for="set">Set</label><select id="set">' + SETS.map(function (s) {
+        return "<option" + (s.title === last("set", "") ? " selected" : "") + ">" + esc(s.title) + "</option>";
+      }).join("") + '<option value="Your Own Pieces"' + (last("set", "") === "Your Own Pieces" ? " selected" : "") + ">Your own pieces</option></select></div>" +
+      '<p class="err" id="err"></p><button class="btn primary big block" id="mk" type="button">Create room</button></section>';
+    $("mk").onclick = function () {
+      var body = { campus: $("campus").value, cls: $("cls").value.trim(), set: $("set").value }, btn = this;
+      if (!body.campus) { $("err").textContent = "Pick the campus"; return; }
+      if (!body.cls) { $("err").textContent = "Type the class"; return; }
+      btn.disabled = true;
+      Net.call("mm.create", body).then(function (r) {
+        if (!r.ok) { btn.disabled = false; $("err").textContent = r.message || "Could not create a room"; return; }
+        ["campus", "cls", "set"].forEach(function (k) { Net.ls("mm-" + k, body[k]); });
+        B.room = r.code; B.tk = r.tk; Net.ls("mm-tk-" + r.code, r.tk); Net.ls("mm-board-room", r.code);
+        history.replaceState(null, "", "?room=" + r.code);
+        poller.reset(); refresh();
+      });
+    };
+  }
+
+  function joinBox(sm) {
+    return '<div class="join"><div class="qr' + (sm ? " sm" : "") + '" id="qr"></div><div style="min-width:0"><p class="eyebrow">Join on your phone</p><div class="bigcode"' + (sm ? ' style="font-size:40px"' : "") + ">" + esc(B.room) + '</div><p class="url">' + esc(studentUrl().replace(/^https?:\/\//, "")) + "</p></div></div>";
+  }
+  function drawQr() { if ($("qr")) $("qr").innerHTML = QR.svg(studentUrl(), { dark: "#0B3D91" }); }
+  function people(v, marking) {
+    var l = v.players || [];
+    if (!l.length) return '<p class="empty">Nobody has joined yet</p>';
+    return '<div class="people">' + l.map(function (p) {
+      return '<div class="pp' + (marking && p.locked ? " in" : "") + '"><span class="an">' + esc(p.a) + "</span>" + (B.priv && !SCREEN ? '<span class="rn">' + esc(p.n) + "</span>" : "") +
+        (marking ? '<span class="st">' + (p.locked ? "Locked in" : "Marking") + "</span>" : '<span class="st">' + UI.pts(p.tot) + "</span>") + "</div>";
+    }).join("") + "</div>";
+  }
+
+  /* ---------- lobby ---------- */
+  function renderLobby(v) {
+    $("main").innerHTML = '<div class="grid even"><section class="panel"><p class="eyebrow">' + esc(v.set) + "</p><h2>Join Marker Match</h2>" + joinBox() +
+      '<div class="stats" style="margin-top:20px"><div><b>' + v.joined + "</b><span>Students</span></div>" + (v.rounds ? "<div><b>" + v.rounds + "</b><span>Pieces marked</span></div>" : "") + "</div></section>" +
+      '<section class="panel"><div class="head"><p class="eyebrow" style="margin:0">Markers</p><span class="chip green">' + v.joined + " joined</span></div>" + people(v, false) + "</section></div>";
+    drawQr();
+  }
+
+  /* ---------- picker ---------- */
+  function renderPicker(v) {
+    var d = B.draft, done = {};
+    (v.done || []).forEach(function (x) { done[x] = 1; });
+    var sets = setOf(v.set) ? [setOf(v.set)] : SETS;
+    var list = sets.map(function (s) {
+      var si = SETS.indexOf(s);
+      return "<h3>" + esc(s.title) + (s.sample ? ' <span class="chip orange" style="margin-left:6px">Sample</span>' : "") + '</h3><div class="plist">' + s.pieces.map(function (p, pi) {
+        var id = si + ":" + pi;
+        return '<button type="button" class="pbtn' + (d && d.id === id ? " on" : "") + '" data-pick="' + id + '"><b>' + esc(p.title) + "</b>" +
+          (done[id] ? '<span class="played">Done</span>' : '<span class="tot">' + UI.total(p.marks) + "</span>") + "<small>" + esc(p.prompt || p.text.slice(0, 90)) + "</small></button>";
+      }).join("") + "</div>";
+    }).join("") + '<h3>Your Own</h3><div class="plist"><button type="button" class="pbtn new' + (d && d.id === "new" ? " on" : "") + '" data-pick="new">Paste a piece</button></div>' +
+      (sets.length < SETS.length ? '<p class="small" style="margin-top:14px"><button class="btn" type="button" id="allSets">Show every set</button></p>' : "");
+    var right;
+    if (!d) right = '<p class="empty">Pick a piece on the left</p>';
+    else {
+      var own = d.id === "new";
+      right = (own ? '<div class="two"><div class="f"><label for="dt">Title</label><input id="dt" maxlength="80" value="' + esc(d.title) + '"></div>' +
+          '<div class="f"><label for="dk">Type</label><select id="dk">' + MM.KINDS.map(function (k) { return "<option" + (k === d.kind ? " selected" : "") + ">" + k + "</option>"; }).join("") + "</select></div></div>" +
+          '<div class="f"><label for="dp">Prompt</label><input id="dp" maxlength="300" value="' + esc(d.prompt) + '"></div>' +
+          '<div class="f"><label for="dx">Piece</label><textarea class="tall" id="dx" maxlength="8000">' + esc(d.text) + "</textarea></div>" :
+          '<h3 style="margin-top:0">' + esc(d.kind || "Piece") + '</h3><p class="ptitle" style="font-size:28px;margin-bottom:8px">' + esc(d.title) + '</p><div class="prv ptext">' + esc(d.text) + "</div>") +
+        '<div class="f"><span class="lab">Your marks</span><div class="rgrid" id="rg">' + MM.CRIT.map(function (c) {
+          var b = ""; for (var s = 1; s <= 5; s++) b += '<button type="button" data-c="' + c + '" data-n="' + s + '" class="' + (d.marks[c] === s ? "on" : "") + '">' + s + "</button>";
+          return '<div class="rrow"><span>' + c + "</span>" + b + "</div>";
+        }).join("") + '</div><p class="small" style="margin:6px 0 0;font-weight:700">Total <b id="dtot">' + UI.total(d.marks) + "</b> of 20, hidden from students until you reveal</p></div>" +
+        '<div class="f"><label for="dw">Why, in one line</label><textarea id="dw" maxlength="240" style="min-height:70px">' + esc(d.why) + "</textarea></div>" +
+        '<p class="err" id="perr"></p><button class="btn primary big block" id="startR" type="button">Put piece ' + (v.round + (v.phase === "marking" ? 0 : 1)) + " up</button>";
+    }
+    $("main").innerHTML = '<section class="panel"><div class="head"><h2 style="margin:0">Pick a Piece</h2><button class="btn" id="closePick" type="button">Back</button></div>' +
+      '<div class="pick"><div>' + list + '</div><div class="panel" style="padding:18px 20px">' + right + "</div></div></section>";
+    $("closePick").onclick = function () { B.picking = false; force(); };
+    if ($("allSets")) $("allSets").onclick = function () { v.set = ""; renderPicker(v); };
+    if (!d) return;
+    $("rg").onclick = function (e) {
+      var b = e.target.closest("[data-c]"); if (!b) return;
+      d.marks[b.dataset.c] = +b.dataset.n;
+      Array.prototype.forEach.call(this.querySelectorAll('[data-c="' + b.dataset.c + '"]'), function (x) { x.classList.toggle("on", x === b); });
+      $("dtot").textContent = UI.total(d.marks);
+    };
+    $("dw").oninput = function () { d.why = this.value; };
+    if ($("dt")) { $("dt").oninput = function () { d.title = this.value; }; $("dk").onchange = function () { d.kind = this.value; }; $("dp").oninput = function () { d.prompt = this.value; }; $("dx").oninput = function () { d.text = this.value; }; }
+    $("startR").onclick = function () {
+      if (!d.title.trim()) { $("perr").textContent = "Give the piece a title"; return; }
+      if (!d.text.trim()) { $("perr").textContent = "Paste the piece"; return; }
+      if (!MM.marks(d.marks)) { $("perr").textContent = "Set your marks for all four criteria"; return; }
+      phase("round", { idx: d.id, piece: { title: d.title, kind: d.kind, prompt: d.prompt, text: d.text, marks: d.marks, why: d.why, rubric: d.rubric } })
+        .then(function (r) { if (r.ok) { B.picking = false; B.draft = null; force(); } });
+    };
+  }
+  function pickPiece(id) {
+    if (id === "new") B.draft = { id: "new", title: "", kind: "Narrative", prompt: "", text: "", marks: {}, why: "", rubric: (SETS[0] || {}).rubric || {} };
+    else {
+      var bits = id.split(":"), s = SETS[+bits[0]], p = s.pieces[+bits[1]];
+      B.draft = { id: id, title: p.title, kind: p.kind, prompt: p.prompt, text: p.text, marks: Object.assign({}, p.marks), why: p.why, rubric: s.rubric || {} };
+    }
+    force();
+  }
+
+  /* ---------- marking ---------- */
+  function pieceBlock(v, right) {
+    var p = v.piece;
+    return '<div class="head"><p class="eyebrow" style="margin:0">Piece ' + v.round + "</p>" + '<div class="mini">' + (p.kind ? '<span class="kindchip">' + esc(p.kind) + "</span>" : "") + (right || "") + "</div></div>" +
+      '<h2 class="ptitle">' + esc(p.title) + "</h2>" + (p.prompt ? '<p class="pprompt">' + esc(p.prompt) + "</p>" : "") +
+      '<div class="pbody" id="pbody"><div class="ptext" id="ptext">' + esc(p.text) + "</div></div>";
+  }
+  function fitPiece() { UI.fit($("pbody"), $("ptext"), SCREEN ? 30 : 24, SCREEN ? 15 : 16); }
+  window.addEventListener("resize", function () { if ($("ptext")) fitPiece(); });
+  function renderMarking(v) {
+    var pct = v.joined ? Math.round(v.locked / v.joined * 100) : 0;
+    if (SCREEN) {
+      $("main").innerHTML = '<section class="panel pv">' + pieceBlock(v, '<span class="chip green" style="font-size:16px">' + v.locked + " of " + v.joined + ' locked in</span><span class="codechip">' + esc(B.room) + "</span>") + "</section>";
+      fitPiece(); return;
+    }
+    var side = '<section class="panel"><div class="head"><p class="eyebrow" style="margin:0">Marking</p><span class="chip green">' + v.locked + " of " + v.joined + " locked in</span></div>" +
+      '<div class="stats"><div><b>' + v.locked + "</b><span>Locked in</span></div><div><b>" + v.joined + '</b><span>Students</span></div></div><div class="meter"><i style="width:' + pct + '%"></i></div>' +
+      (SCREEN ? '<h3 style="margin-top:22px">Mark It on Your Phone</h3><p style="margin:0 0 14px;font-weight:700;font-size:19px">Ideas, Structure, Language and Control, 1 to 5 each, then lock in</p>' + joinBox(true) :
+        "<h3 style=\"margin-top:22px\">Your Marks</h3>" + (B.peek ? '<div class="tmbox">' + MM.CRIT.map(function (c) {
+          var b = ""; for (var s = 1; s <= 5; s++) b += '<i class="' + (v.tm[c] === s ? "on" : "") + '">' + s + "</i>";
+          return '<div class="tmrow"><span>' + c + "</span>" + b + "</div>";
+        }).join("") + (v.why ? '<p class="small" style="margin:10px 0 0;font-weight:700">' + esc(v.why) + "</p>" : "") + "</div>" : '<div class="tmbox small" style="font-weight:700">Hidden until you reveal. Switch on Show my marks to check them privately</div>') +
+        "<h3>Students</h3>" + people(v, true)) + "</section>";
+    $("main").innerHTML = '<div class="grid"><section class="panel pv">' + pieceBlock(v) + "</section>" + side + "</div>";
+    fitPiece();
+  }
+
+  /* ---------- reveal ---------- */
+  function renderReveal(v) {
+    var top = (v.top || []).slice(0, SCREEN ? 5 : 40);
+    var list = top.length ? '<ol class="rtop">' + top.map(function (r, i) {
+      return '<li style="animation-delay:' + (2.2 + i * 0.18).toFixed(2) + 's"><span class="pos">' + UI.ordinal(r.rank) + '</span><span class="an">' + esc(r.a) + (B.priv && !SCREEN ? "<small>" + esc(nameOf(v, r.k)) + "</small>" : "") + '</span><span class="ps">' + r.pts + "</span></li>";
+    }).join("") + "</ol>" : '<p class="empty">Nobody locked in</p>';
+    $("main").innerHTML = '<div class="grid"><section class="panel"><div class="head"><p class="eyebrow" style="margin:0">Piece ' + v.round + " Reveal</p>" +
+      '<span class="tmtot">Tutor total <b>' + UI.total(v.tm) + "</b>/ 20</span></div>" +
+      '<h2 class="ptitle" style="font-size:clamp(26px,2.4vw,40px);margin-bottom:18px">' + esc(v.piece.title) + "</h2>" +
+      UI.plots(v.spread, v.tm, { avg: v.avg, big: true }) +
+      '<div class="legend" style="margin-top:18px"><span><i></i>One student</span><span><i class="tm"></i>Tutor mark</span><span><i class="avg"></i>Class average</span></div></section>' +
+      '<section class="panel">' + (v.why ? '<div class="why" style="margin:0 0 18px"><span class="lab">Why</span>' + esc(v.why) + "</div>" : "") + '<div class="head"><p class="eyebrow" style="margin:0">Closest This Piece</p><span class="chip">' + v.locked + " marked</span></div>" + list +
+      '<p class="small" style="margin:14px 0 0;font-weight:700">20 points minus how far your marks are from the tutor\'s</p></section></div>';
+    if (B.party !== B.room + v.round && top.length) { B.party = B.room + v.round; setTimeout(function () { UI.confetti(2600); }, 2600); }
+  }
+
+  /* ---------- leaderboard ---------- */
+  function renderLeaderboard(v) {
+    var lb = v.board || v.top || [], top = lb.slice(0, 3), rest = lb.slice(3, SCREEN ? 10 : 80);
+    var pods = top.map(function (r, i) {
+      return '<div class="p p' + (i + 1) + '" style="animation-delay:' + ((2 - i) * 0.45 + 0.2) + 's"><div class="pl">' + UI.ordinal(r.rank) + '</div><div class="an">' + esc(r.a) + "</div>" +
+        (B.priv && !SCREEN ? '<div class="small" style="font-weight:800;color:var(--blue-ink)">' + esc(nameOf(v, r.k)) + "</div>" : "") + '<div class="ps">' + UI.pts(r.tot) + "</div></div>";
+    }).join("");
+    $("main").innerHTML = '<section class="panel lb"><p class="eyebrow" style="text-align:center">' + esc(v.set) + "</p><h2>Closest Markers</h2>" +
+      (top.length ? '<div class="pod">' + pods + "</div>" : '<p class="empty">Nobody has marked yet</p>') +
+      (rest.length ? '<ol class="rest">' + rest.map(function (r) {
+        return '<li><span class="pos">' + UI.ordinal(r.rank) + '</span><span class="an">' + esc(r.a) + (B.priv && !SCREEN ? "<small>" + esc(nameOf(v, r.k)) + "</small>" : "") + '</span><span class="ps">' + UI.pts(r.tot) + "</span></li>";
+      }).join("") + "</ol>" : "") +
+      '<p class="small" style="text-align:center;margin-top:18px;font-weight:700">' + v.rounds + (v.rounds === 1 ? " piece" : " pieces") + ", up to 20 points each</p></section>";
+    if (B.party !== B.room + "lb" + v.rounds && top.length) { B.party = B.room + "lb" + v.rounds; setTimeout(function () { UI.confetti(); }, 1300); }
+  }
+
+  /* ---------- top bar and controls ---------- */
+  function topRight(v) {
+    $("topRight").innerHTML = '<span class="classchip">' + esc(v.cls) + ", " + esc(v.campus) + "</span>" + (v.round ? '<span class="chip">Piece ' + v.round + "</span>" : "") +
+      '<span class="codechip" title="Room code">' + esc(B.room) + '</span><span class="chip">' + v.joined + " joined</span>";
+  }
+  function controls(v) {
+    if (SCREEN) { $("controls").hidden = true; return; }
+    var c = [];
+    if (B.picking) c.push('<button class="btn" id="cBack" type="button">Back</button>');
+    else if (v.phase === "lobby") { c.push('<button class="btn primary big" id="cPick" type="button">' + (v.rounds ? "Next piece" : "Pick a piece") + "</button>"); if (v.rounds) c.push('<button class="btn orange" data-op="leaderboard" type="button">Leaderboard</button>'); }
+    else if (v.phase === "marking") { c.push('<button class="btn orange big" data-op="reveal" type="button">Reveal</button>'); if (!v.locked) c.push('<button class="btn" id="cPick" type="button">Change piece</button>'); c.push('<label class="sw"><input type="checkbox" id="peek"' + (B.peek ? " checked" : "") + ">Show my marks</label>"); }
+    else if (v.phase === "reveal") { c.push('<button class="btn primary big" id="cPick" type="button">Next piece</button>'); c.push('<button class="btn orange big" data-op="leaderboard" type="button">Leaderboard</button>'); }
+    else { c.push('<button class="btn primary big" id="cPick" type="button">Next piece</button>'); c.push('<button class="btn" id="again" type="button">Replay celebration</button>'); }
+    c.push('<span class="sep"></span><label class="sw"><input type="checkbox" id="priv"' + (B.priv ? " checked" : "") + ">Names</label>");
+    c.push('<button class="btn" id="proj" type="button">Projector screen</button><button class="btn" id="fs" type="button">Full screen<span class="k">F</span></button>');
+    c.push('<button class="btn" id="newRoom" type="button">New room</button>');
+    $("controls").innerHTML = c.join(""); $("controls").hidden = false;
+    $("fs").onclick = fullscreen;
+    $("priv").onchange = function () { B.priv = this.checked; if (B.priv) toast("Names show on this screen only. Use Projector screen for the class."); force(); };
+    if ($("peek")) $("peek").onchange = function () { B.peek = this.checked; force(); };
+    $("proj").onclick = function () { window.open("?room=" + B.room + "&screen=1", "mm-screen-" + B.room); };
+    $("newRoom").onclick = function () { if (!confirm("Leave this room and set up a new one?")) return; Net.ls("mm-board-room", null); B.room = ""; B.view = null; history.replaceState(null, "", "./"); poller.reset(); renderEmpty(); };
+    if ($("again")) $("again").onclick = function () { UI.confetti(); };
+    if ($("cPick")) $("cPick").onclick = function () { B.picking = true; force(); window.scrollTo(0, 0); };
+    if ($("cBack")) $("cBack").onclick = function () { B.picking = false; force(); };
+  }
+  function fullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+  $("controls").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-op]"); if (!b) return;
+    if (b.dataset.op === "reveal" && B.view.locked < B.view.joined && !confirm((B.view.joined - B.view.locked) + " still marking. Reveal anyway?")) return;
+    phase(b.dataset.op);
+  });
+  $("main").addEventListener("click", function (e) { var p = e.target.closest("[data-pick]"); if (p) pickPiece(p.dataset.pick); });
+  document.addEventListener("keydown", function (e) {
+    if (!B.view || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+    if (e.key.toLowerCase() === "f") fullscreen();
+    if (e.key === "Escape" && B.picking) { B.picking = false; force(); }
+  });
+
+  function render(v, same, forced) {
+    if (!B.room || !v) return;
+    if (!v.ok) { if (v.error === "room") { Net.ls("mm-board-room", null); B.room = ""; renderEmpty("That room has closed. Make a new one."); } return; }
+    if (!v.tutor) { B.room = ""; renderEmpty("This screen is not the tutor board for that room. Make a new room here."); return; }
+    B.view = v;
+    if (same && !forced) return;
+    var key = [v.v, B.picking, B.priv, B.peek].join("|");
+    if (key === B.lastKey && !forced) return;
+    var ae = document.activeElement;
+    if (!forced && B.picking && ae && /INPUT|TEXTAREA|SELECT/.test(ae.tagName)) { topRight(v); return; }
+    if (!forced && B.picking) { topRight(v); controls(v); B.lastKey = key; return; }
+    B.lastKey = key;
+    var sy = window.scrollY, pb = document.querySelector(".pbody"), psy = pb ? pb.scrollTop : 0, same2 = B.lastRound === v.round && B.lastPhase === v.phase;
+    if (B.picking && !SCREEN) renderPicker(v);
+    else if (v.phase === "lobby") renderLobby(v);
+    else if (v.phase === "marking") renderMarking(v);
+    else if (v.phase === "reveal") { if (same2 && !forced) { topRight(v); controls(v); return; } renderReveal(v); }
+    else renderLeaderboard(v);
+    B.lastRound = v.round; B.lastPhase = v.phase;
+    window.scrollTo(0, sy); pb = document.querySelector(".pbody"); if (pb && same2) pb.scrollTop = psy;
+    topRight(v); controls(v);
+    document.title = (SCREEN ? "Screen" : "Marker Match") + ", " + B.room;
+  }
+
+  var poller = Net.poll(function () { return B.room && B.tk ? { room: B.room, extra: { tk: B.tk } } : null; }, render);
+  if (!B.room || !B.tk) { B.room = ""; renderEmpty(SCREEN ? "" : undefined); }
+})();
+</script>
+</body>
+</html>

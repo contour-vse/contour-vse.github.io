@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Contour Prompt Feud: guess how the class reads a writing prompt.">
+<meta name="robots" content="noindex">
+<title>Prompt Feud</title>
+<link rel="stylesheet" href="../team-challenge/live.css">
+<link rel="stylesheet" href="pf.css">
+<style>
+.wrap{max-width:680px;margin:0 auto;padding:14px 16px 130px;display:flex;flex-direction:column;gap:14px}
+#app{display:flex;flex-direction:column;gap:14px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.me{display:flex;gap:6px;align-items:center}
+h2{font-size:28px;font-weight:850;letter-spacing:-.025em;color:var(--navy);margin:2px 0 12px;line-height:1.12}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label,.field .lab{font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.field input{border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:20px;background:#fff;min-width:0;width:100%}
+.field input.code{font-family:var(--mono);font-size:32px;font-weight:800;letter-spacing:.25em;text-transform:uppercase;text-align:center;color:var(--navy)}
+.field input:focus{border-color:var(--blue);outline:none}
+.err{color:var(--orange-ink);font-weight:700;min-height:1.4em;margin:0 0 8px}
+.small{font-size:15px}
+
+.strip{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--navy);color:#fff;border-radius:16px;padding:12px 16px;border-left:10px solid var(--tc)}
+.strip .lab{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.8}
+.strip .an{font-weight:850;font-size:22px;letter-spacing:-.01em;line-height:1.1}
+.strip .nm{font-size:14px;font-weight:700;opacity:.8}
+.strip .tm{text-align:right;line-height:1.05}
+.strip .tm b{display:block;font-size:22px;font-weight:850}
+.strip .tm .sc{font-family:var(--mono);font-size:15px;font-weight:800;opacity:.85}
+
+.picks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pick{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:14px;background:#fff;padding:12px;font-weight:800;color:var(--navy);font-size:18px;text-align:left;min-width:0}
+.pick small{margin-left:auto;font-weight:700;color:var(--muted);font-size:14px;white-space:nowrap}
+.pick.on{border-color:var(--tc);background:var(--ts);box-shadow:0 0 0 3px var(--ts)}
+.pick.any{grid-column:1/-1;justify-content:center;color:var(--muted)}
+.pick.any.on{border-color:var(--navy);background:var(--navy-soft);color:var(--navy);box-shadow:none}
+
+.prompt{background:var(--navy-soft);border-radius:14px;padding:12px 14px;font-size:21px;font-weight:800;line-height:1.3;color:var(--navy);white-space:pre-line}
+.rowhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.rowhead .eyebrow{margin:0}
+.inbox{width:100%;border:2px solid var(--line);border-radius:14px;padding:14px 16px;font-size:19px;line-height:1.4;background:#fff;display:block;resize:none;min-height:96px}
+.inbox:focus{border-color:var(--blue);outline:none}
+.wstat{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:700;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.wstat .ok{color:var(--green-ink)}
+.wstat .warn{color:var(--orange-ink)}
+.bar{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to top,var(--bg) 70%,rgba(242,246,252,0));padding:18px 16px calc(14px + env(safe-area-inset-bottom));z-index:5}
+.bar .in{max-width:680px;margin:0 auto;display:flex;gap:10px}
+.bar .btn{flex:1}
+
+.note{border-radius:14px;padding:12px 14px;font-weight:750;font-size:17px;margin:0}
+.note.blue{background:var(--blue-soft);color:var(--blue-ink)}
+.note.green{background:var(--green-soft);color:var(--green-ink)}
+.note.orange{background:var(--orange-soft);color:var(--orange-ink)}
+.note.red{background:var(--red-soft);color:var(--red-ink)}
+.status{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.fboard{font-size:15px;padding:8px;gap:7px;border-radius:18px}
+.tile{min-height:46px}
+.face .tn{font-size:.95em}
+.face.back{padding-left:10px}
+.face .tt{font-size:16px}
+.tbar{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tcard{font-size:15px;padding:6px 10px}
+.tcard .tsc{font-size:1.4em}
+.sx{font-size:20px}
+.gl{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.gl li{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:12px;padding:8px 12px;background:#fff;font-weight:700}
+.gl li .r{margin-left:auto;font-size:13px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 9px}
+.gl li.h .r{background:var(--green-soft);color:var(--green-ink)}
+.gl li.x .r{background:var(--red-soft);color:var(--red-ink)}
+.gl li.p .r{background:var(--blue-soft);color:var(--blue-ink)}
+.gl li.d .r{background:var(--wash);color:var(--muted)}
+.wait{text-align:center;padding:28px 16px}
+.wait .big{font-size:24px;font-weight:850;color:var(--navy);margin:0 0 6px}
+.wait p{margin:0;color:var(--muted)}
+.mini{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.mini li{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;border:2px solid var(--line);border-left:10px solid var(--tc);border-radius:14px;padding:10px 12px;background:#fff;opacity:0;transform:translateY(14px);animation:rise .5s forwards}
+.mini li.me{box-shadow:0 0 0 3px var(--tc)}
+.mini .pos{font-family:var(--mono);font-weight:850;font-size:20px;color:var(--navy)}
+.mini .an{font-weight:850;font-size:19px;color:var(--navy)}
+.mini .pp{font-family:var(--mono);font-weight:800;color:var(--navy)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true" id="markIcon"></div>
+      <h1>Prompt Feud</h1>
+    </div>
+    <div class="me" id="meChip"></div>
+  </header>
+  <main id="app"></main>
+</div>
+<div class="bar" id="bar" hidden><div class="in" id="barIn"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="../config.js"></script>
+<script src="pf-engine.js"></script>
+<script src="pf-api.js"></script>
+<script src="pf-ui.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = Net.esc;
+  var params = new URLSearchParams(location.search);
+  var S = {
+    room: (params.get("room") || Net.mine("pf-room") || "").toUpperCase(),
+    pid: Net.mine("pf-pid") || Net.uid(),
+    name: Net.mine("pf-name") || "",
+    joined: false, view: null, lastKey: "", sending: false, team: -1, ev: null, party: ""
+  };
+  Net.mine("pf-pid", S.pid);
+  $("markIcon").innerHTML = UI.ICON;
+  if (S.room && S.name && Net.mine("pf-joined") === S.room && (!params.get("room") || params.get("room").toUpperCase() === S.room)) S.joined = true;
+
+  function toast(m) { var t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
+  function bar(html) { $("bar").hidden = !html; $("barIn").innerHTML = html || ""; }
+
+  /* ---------- join ---------- */
+  function renderJoin(msg, teams) {
+    bar(""); $("meChip").innerHTML = Net.demo ? '<span class="chip orange">Demo</span>' : "";
+    $("app").innerHTML = '<section class="card"><h2>Join Prompt Feud</h2>' +
+      '<div class="field"><label for="code">Room code</label><input id="code" class="code" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' + esc(S.room) + '"></div>' +
+      '<div class="field"><label for="nm">First name</label><input id="nm" maxlength="20" autocomplete="given-name" value="' + esc(S.name) + '"></div>' +
+      '<div class="field" id="teamBox"></div>' +
+      '<p class="small muted" style="margin:-6px 0 14px;font-weight:650">Your class sees a made up name, never your real one</p>' +
+      '<p class="err" id="err">' + esc(msg || "") + '</p><button class="btn primary big block" id="go" type="button">Join</button></section>';
+    $("code").addEventListener("input", function (e) { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); if (e.target.value.length === 6) peek(e.target.value); });
+    if (S.room.length === 6) peek(S.room);
+    $("go").onclick = function () {
+      var code = $("code").value.trim().toUpperCase(), name = $("nm").value.trim(), btn = this;
+      if (code.length !== 6) { $("err").textContent = "The room code has 6 characters"; return; }
+      if (!name) { $("err").textContent = "Type your first name"; return; }
+      btn.disabled = true;
+      Net.call("pf.join", { room: code, pid: S.pid, name: name, team: S.team >= 0 ? S.team : "" }).then(function (r) {
+        btn.disabled = false;
+        if (!r.ok) { $("err").textContent = r.error === "room" ? "No room with that code. Check the board." : (r.message || "Try again"); return; }
+        S.room = code; S.name = name; S.joined = true;
+        Net.mine("pf-room", code); Net.mine("pf-name", name); Net.mine("pf-joined", code);
+        history.replaceState(null, "", "?room=" + code);
+        poller.reset(); S.lastKey = ""; poller.now();
+      });
+    };
+  }
+  /* Show the room's teams on the join screen once the code is typed. */
+  function peek(code) {
+    Net.state(code, {}).then(function (v) {
+      var box = $("teamBox"); if (!box || !v || !v.ok) return;
+      S.peekTeams = v.teams;
+      box.innerHTML = '<span class="lab">Team</span><div class="picks">' + v.teams.map(function (t, i) {
+        return '<button type="button" class="pick' + (S.team === i ? " on" : "") + '" style="' + UI.teamStyle(i) + '" data-team="' + i + '"><span class="tdot"></span>' + esc(t.name) + "<small>" + t.n + "</small></button>";
+      }).join("") + '<button type="button" class="pick any' + (S.team < 0 ? " on" : "") + '" data-team="-1">Put me in any team</button></div>';
+      box.onclick = function (e) { var b = e.target.closest("[data-team]"); if (!b) return; S.team = +b.dataset.team; peek(code); };
+    });
+  }
+
+  function strip(v) {
+    var t = v.teams[v.me.team] || { name: "", score: 0 };
+    return '<div class="strip" style="' + UI.teamStyle(v.me.team) + '"><div><div class="lab">You are</div><div class="an">' + esc(v.me.a) + '</div><div class="nm">' + esc(v.me.n) + ", only you see this</div></div>" +
+      '<div class="tm"><span class="lab">Team</span><b>' + esc(t.name) + '</b><span class="sc">' + UI.pts(t.score) + "</span></div></div>";
+  }
+  function promptCard(v, extra) {
+    return '<section class="card"><div class="rowhead"><p class="eyebrow">Round ' + v.round + "</p>" + (v.kind ? '<span class="kindchip">' + esc(v.kind) + "</span>" : "") + "</div>" +
+      '<div class="prompt">' + esc(v.prompt) + "</div>" + (extra || "") + "</section>";
+  }
+
+  /* ---------- phases ---------- */
+  function renderLobby(v) {
+    bar("");
+    $("app").innerHTML = strip(v) + '<section class="card"><h2>Your Team</h2><div class="picks" id="sw">' + v.teams.map(function (t, i) {
+      return '<button type="button" class="pick' + (v.me.team === i ? " on" : "") + '" style="' + UI.teamStyle(i) + '" data-team="' + i + '"><span class="tdot"></span>' + esc(t.name) + "<small>" + t.n + "</small></button>";
+    }).join("") + '</div><p class="small muted" style="font-weight:650;margin:12px 0 0">Tap a team to switch</p></section>' +
+      '<section class="card wait"><div class="pulse"></div><p class="big">' + (v.round ? "Next Round Soon" : "Waiting for the First Prompt") + "</p><p>Watch the board</p></section>";
+  }
+  function renderCollect(v) {
+    var mine = v.me.read, draft = Net.mine("pf-read-" + S.room + "-" + v.round);
+    $("app").innerHTML = strip(v) + promptCard(v) +
+      '<section class="card"><label class="eyebrow" for="rd">How Do You Read This Prompt</label>' +
+      '<textarea class="inbox" id="rd" maxlength="' + PF.MAX_READ + '" placeholder="e.g. a fresh start after a mistake"></textarea>' +
+      '<div class="wstat"><span id="wc"></span><span id="ws"></span></div></section>' +
+      '<p class="note blue">Your tutor builds the answer board from the whole class</p>';
+    $("rd").value = draft != null ? draft : mine || "";
+    $("rd").addEventListener("input", function () { Net.mine("pf-read-" + S.room + "-" + v.round, this.value); readStatus(); });
+    $("rd").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); sendRead(); } });
+    bar('<button class="btn primary big" id="send" type="button"></button>');
+    $("send").onclick = sendRead;
+    readStatus();
+  }
+  function readStatus() {
+    var v = S.view, el = $("rd"); if (!el || !v) return;
+    var t = el.value.trim(), sent = v.me.read, same = PF.clean(t, PF.MAX_READ) === sent;
+    $("wc").textContent = t.length + " of " + PF.MAX_READ;
+    var ws = $("ws");
+    if (!sent) { ws.className = ""; ws.textContent = ""; }
+    else if (same) { ws.className = "ok"; ws.textContent = "Sent, you can change it until readings close"; }
+    else { ws.className = "warn"; ws.textContent = "Changes not sent yet"; }
+    var b = $("send"); if (b) { b.textContent = !sent ? "Send my reading" : same ? "Sent" : "Send changes"; b.disabled = S.sending || !t || (sent && same); }
+  }
+  function sendRead() {
+    var el = $("rd"); if (!el || S.sending || !el.value.trim()) return;
+    S.sending = true; readStatus();
+    Net.call("pf.read", { room: S.room, pid: S.pid, text: el.value }).then(function (r) {
+      S.sending = false;
+      if (!r.ok) { toast(r.message || "Try again"); readStatus(); return; }
+      S.view.me.read = r.t; readStatus(); toast("Reading sent"); poller.now();
+    });
+  }
+  function renderGroup(v) {
+    bar("");
+    $("app").innerHTML = strip(v) + promptCard(v) +
+      '<section class="card wait"><div class="pulse"></div><p class="big">Building the Board</p><p>Your tutor is grouping the class readings into answers</p></section>' +
+      (v.me.read ? '<section class="card"><p class="eyebrow">Your Reading</p><p style="margin:0;font-size:19px;font-weight:700">' + esc(v.me.read) + "</p></section>" : "");
+  }
+  function guessList(v) {
+    var l = (v.mine || []).slice().reverse();
+    if (!l.length) return "";
+    var lab = { h: "Hit", x: "Strike", p: "Judging", d: "Skipped" };
+    return '<section class="card"><p class="eyebrow">Your Team\'s Guesses</p><ul class="gl">' + l.map(function (g) {
+      return '<li class="' + g.st + '"><span>' + esc(g.t || "Said aloud") + '</span><span class="r">' + lab[g.st] + "</span></li>";
+    }).join("") + "</ul></section>";
+  }
+  function renderPlay(v) {
+    var mine = v.me.team, act = v.active, myTurn = act === mine, team = v.teams[act] || {};
+    var status;
+    if (v.pending && v.pending.team === mine) status = '<p class="note blue">Guess sent: ' + esc(v.pending.t) + ". Waiting for the tutor</p>";
+    else if (v.pending) status = '<p class="note blue">' + esc(team.name) + " guessed " + esc(v.pending.t) + "</p>";
+    else if (myTurn) status = '<p class="note ' + (v.steal ? "red" : "green") + '">' + (v.steal ? "Steal! Your team gets one guess to take the points" : "Your team is guessing. Agree on an answer, then one of you sends it") + "</p>";
+    else status = '<p class="note orange">' + esc(team.name) + (v.steal ? " are trying to steal" : " are guessing") + "</p>";
+    var flip = {};
+    if (S.prevTiles && S.prevRound === v.round) v.tiles.forEach(function (t, i) { if (t.o && !(S.prevTiles[i] || {}).o) flip[i] = 1; });
+    $("app").innerHTML = strip(v) + promptCard(v) +
+      '<div class="status"><div class="bank"><span>Bank</span><b>' + v.bank + "</b></div>" + (v.steal ? '<span class="stealchip">Steal</span>' : UI.strikesHtml(v.strikes)) + "</div>" +
+      UI.boardHtml(v.tiles, { flip: flip, one: true }) + status + guessList(v);
+    S.prevTiles = v.tiles; S.prevRound = v.round;
+    var canGuess = myTurn && !v.pending;
+    if (canGuess) {
+      bar('<input id="gs" class="inbox" style="min-height:0;padding:12px 14px;flex:2" maxlength="' + PF.MAX_GUESS + '" placeholder="Your team\'s guess" autocomplete="off"><button class="btn primary big" id="send" type="button">Send</button>');
+      var gs = $("gs"); gs.value = S.guessDraft || "";
+      gs.oninput = function () { S.guessDraft = gs.value; };
+      gs.onkeydown = function (e) { if (e.key === "Enter") sendGuess(); };
+      $("send").onclick = sendGuess;
+    } else bar("");
+  }
+  function sendGuess() {
+    var el = $("gs"); if (!el || S.sending || !el.value.trim()) return;
+    S.sending = true; $("send").disabled = true;
+    Net.call("pf.guess", { room: S.room, pid: S.pid, text: el.value }).then(function (r) {
+      S.sending = false;
+      if (!r.ok) { toast(r.message || "Try again"); if ($("send")) $("send").disabled = false; return; }
+      S.guessDraft = ""; toast("Guess sent"); S.lastKey = ""; poller.now();
+    });
+  }
+  function renderEnd(v) {
+    bar("");
+    var w = v.teams[v.winner], mine = v.winner === v.me.team;
+    $("app").innerHTML = strip(v) +
+      '<section class="card wait"><p class="big">' + (w ? esc(w.name) + " Win the Round" : "Round Over") + "</p><p>" + (w ? UI.pts(v.bank) + (mine ? " for your team" : "") : "No points this time") + "</p></section>" +
+      promptCard(v) + UI.boardHtml(v.tiles, { one: true }) + guessList(v);
+    if (mine && S.party !== S.room + v.round) { S.party = S.room + v.round; UI.confetti(2600); }
+  }
+  function renderLeaderboard(v) {
+    bar("");
+    var rows = v.board.map(function (r, i) {
+      return '<li class="' + (r.i === v.me.team ? "me" : "") + '" style="' + UI.teamStyle(r.i) + ";animation-delay:" + (0.2 + i * 0.25) + 's"><span class="pos">' + UI.ordinal(r.rank) + '</span><span class="an">' + esc(r.name) + '</span><span class="pp">' + UI.pts(r.score) + "</span></li>";
+    }).join("");
+    var mine = v.board.filter(function (r) { return r.i === v.me.team; })[0];
+    $("app").innerHTML = strip(v) + '<section class="card"><h2>Team Leaderboard</h2><ol class="mini">' + rows + "</ol></section>" +
+      (v.hist.length ? '<section class="card"><p class="eyebrow">Rounds</p><ul class="gl">' + v.hist.map(function (h) {
+        return '<li class="' + (h.winner === v.me.team ? "h" : "d") + '"><span>' + esc(h.prompt) + '</span><span class="r">' + (v.teams[h.winner] ? esc(v.teams[h.winner].name) + " " + h.bank : "No winner") + "</span></li>";
+      }).join("") + "</ul></section>" : "");
+    if (mine && mine.rank === 1 && S.party !== S.room + "lb") { S.party = S.room + "lb"; setTimeout(function () { UI.confetti(3200); }, 900); }
+  }
+
+  /* Hits, strikes and steals, once each, as they happen. */
+  function events(v) {
+    var l = v.last;
+    if (!l) { S.ev = 0; return; }
+    if (S.ev == null) { S.ev = l.n; return; }
+    if (l.n === S.ev) return;
+    S.ev = l.n;
+    if (l.kind === "strike") { if (navigator.vibrate) navigator.vibrate(160); UI.bigStrike(l.steal ? 3 : v.steal || l.won ? 1 : v.strikes); }
+    if (l.steal) setTimeout(function () { UI.banner("Steal<small>" + esc(v.teams[v.active].name) + " get one guess</small>", "red"); }, 1300);
+    if (l.kind === "hit" && v.tiles[l.i] && !l.won) toast("Hit: " + v.tiles[l.i].t + ", " + UI.pts(v.tiles[l.i].pts));
+  }
+
+  $("app").addEventListener("click", function (e) {
+    var b = e.target.closest("#sw [data-team]"); if (!b || S.sending) return;
+    var t = +b.dataset.team; if (t === S.view.me.team) return;
+    S.sending = true;
+    Net.call("pf.team", { room: S.room, pid: S.pid, team: t }).then(function (r) {
+      S.sending = false;
+      if (!r.ok) { toast(r.message || "Try again"); return; }
+      toast("You are in " + S.view.teams[t].name); S.lastKey = ""; poller.now();
+    });
+  });
+
+  function render(v, same) {
+    if (!S.joined || !v) return;
+    if (!v.ok) { if (v.error === "room") { S.joined = false; Net.mine("pf-joined", null); renderJoin("That room has closed. Ask for the new code."); } return; }
+    if (!v.me) { S.joined = false; Net.mine("pf-joined", null); renderJoin(); return; }
+    S.view = v;
+    $("meChip").innerHTML = (Net.demo ? '<span class="chip orange">Demo</span>' : "") + '<span class="chip">' + esc(S.room) + "</span>";
+    if (same) return;
+    events(v);
+    if (v.phase === "collect" && $("rd") && S.lastPhase === "collect" && S.lastRound === v.round) { readStatus(); return; }
+    var key = [v.v, v.phase].join("|");
+    if (key === S.lastKey) return;
+    var focusGuess = document.activeElement && document.activeElement.id === "gs";
+    var first = S.lastPhase !== v.phase;
+    S.lastKey = key; S.lastPhase = v.phase; S.lastRound = v.round;
+    var sy = window.scrollY;
+    if (v.phase === "lobby") renderLobby(v);
+    else if (v.phase === "collect") renderCollect(v);
+    else if (v.phase === "group") renderGroup(v);
+    else if (v.phase === "play") renderPlay(v);
+    else if (v.phase === "end") renderEnd(v);
+    else renderLeaderboard(v);
+    window.scrollTo(0, first ? 0 : sy);
+    if (focusGuess && $("gs")) $("gs").focus();
+  }
+
+  var poller = Net.poll(function () { return S.joined ? { room: S.room, extra: { pid: S.pid } } : null; }, render);
+  if (!S.joined) renderJoin();
+})();
+</script>
+</body>
+</html>

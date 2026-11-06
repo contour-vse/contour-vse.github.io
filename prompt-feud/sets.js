@@ -10,32 +10,32 @@ window.PF_SETS = [
     "kind": "",
     "answers": [
      {
-      "t": "Someone forgets their umbrella and I give it back",
-      "pts": 9,
+      "t": "Holding on to the memory of someone who died",
+      "pts": 10,
       "alt": []
      },
      {
-      "t": "Missing the tram and getting left at the stop",
+      "t": "A friend who moved away left this behind",
+      "pts": 8,
+      "alt": []
+     },
+     {
+      "t": "The one who stays when everyone else leaves",
       "pts": 7,
       "alt": []
      },
      {
-      "t": "Friends or family leave without me",
-      "pts": 5,
+      "t": "Choosing to leave something behind on purpose",
+      "pts": 6,
       "alt": []
      },
      {
-      "t": "I find the umbrella and keep it",
-      "pts": 4,
-      "alt": []
-     },
-     {
-      "t": "A toy or pet left behind at an old house",
+      "t": "Someone forgets their umbrella and I give it back",
       "pts": 3,
       "alt": []
      },
      {
-      "t": "Falling behind in a race or at school",
+      "t": "Missing the tram and getting left at the stop",
       "pts": 2,
       "alt": []
      }
@@ -46,33 +46,33 @@ window.PF_SETS = [
     "kind": "",
     "answers": [
      {
-      "t": "Missing the last bus and walking home in the dark",
+      "t": "A last ride with someone before they move away",
       "pts": 10,
       "alt": []
      },
      {
-      "t": "A creepy stranger on the last bus",
-      "pts": 6,
+      "t": "The driver's last shift before retiring",
+      "pts": 9,
+      "alt": []
+     },
+     {
+      "t": "Getting off one stop early to face something",
+      "pts": 7,
+      "alt": []
+     },
+     {
+      "t": "Missing the last bus and walking home in the dark",
+      "pts": 4,
       "alt": []
      },
      {
       "t": "Falling asleep and waking up somewhere unknown",
-      "pts": 4,
-      "alt": []
-     },
-     {
-      "t": "The driver's last shift before retiring",
-      "pts": 4,
-      "alt": []
-     },
-     {
-      "t": "The bus breaks down or gets lost at night",
       "pts": 3,
       "alt": []
      },
      {
-      "t": "Saying goodbye to a friend at the bus stop",
-      "pts": 3,
+      "t": "A creepy stranger on the last bus",
+      "pts": 2,
       "alt": []
      }
     ]
@@ -82,32 +82,32 @@ window.PF_SETS = [
     "kind": "",
     "answers": [
      {
-      "t": "A student who feels invisible at school",
+      "t": "Hiding something sad so well that nobody noticed",
       "pts": 10,
       "alt": []
      },
      {
       "t": "Doing something kind that nobody sees",
-      "pts": 6,
+      "pts": 9,
       "alt": []
      },
      {
-      "t": "Someone runs away and nobody notices",
-      "pts": 5,
-      "alt": []
-     },
-     {
-      "t": "A ghost nobody can see",
-      "pts": 4,
+      "t": "The day I finally made them notice",
+      "pts": 7,
       "alt": []
      },
      {
       "t": "A friend is sad and nobody spots it",
+      "pts": 6,
+      "alt": []
+     },
+     {
+      "t": "A student who feels invisible at school",
       "pts": 3,
       "alt": []
      },
      {
-      "t": "A small mistake or theft nobody saw",
+      "t": "A ghost nobody can see",
       "pts": 2,
       "alt": []
      }
@@ -124,23 +124,23 @@ window.PF_SETS = [
     "kind": "",
     "answers": [
      {
-      "t": "Hanging off a cliff or a ledge",
-      "pts": 9,
-      "alt": []
-     },
-     {
       "t": "Holding on to the memory of someone who died",
-      "pts": 7,
+      "pts": 10,
       "alt": []
      },
      {
-      "t": "A swing, a rope or a branch about to snap",
-      "pts": 5,
+      "t": "Not letting go of a parent who has left",
+      "pts": 8,
+      "alt": []
+     },
+     {
+      "t": "Wanting to let go but not being able to",
+      "pts": 6,
       "alt": []
      },
      {
       "t": "Holding on to a friendship that is ending",
-      "pts": 4,
+      "pts": 5,
       "alt": []
      },
      {
@@ -149,8 +149,8 @@ window.PF_SETS = [
       "alt": []
      },
      {
-      "t": "Not letting go of a sick or old pet",
-      "pts": 2,
+      "t": "Hanging off a cliff or a ledge",
+      "pts": 1,
       "alt": []
      }
     ]
@@ -160,18 +160,18 @@ window.PF_SETS = [
     "kind": "",
     "answers": [
      {
-      "t": "Stuck in a lift or a locked room",
+      "t": "Can't move on after someone leaves",
       "pts": 10,
       "alt": []
      },
      {
-      "t": "Lost or trapped in a forest, cave or snow",
-      "pts": 6,
+      "t": "Stuck being who everyone expects you to be",
+      "pts": 8,
       "alt": []
      },
      {
-      "t": "Something stuck in a tree or a fence",
-      "pts": 5,
+      "t": "Choosing to stay stuck, because moving on means forgetting",
+      "pts": 6,
       "alt": []
      },
      {
@@ -180,13 +180,13 @@ window.PF_SETS = [
       "alt": []
      },
      {
-      "t": "Stuck at a school or town you hate",
-      "pts": 3,
+      "t": "Something stuck in a tree or a fence",
+      "pts": 2,
       "alt": []
      },
      {
-      "t": "Can't move on after someone leaves",
-      "pts": 2,
+      "t": "Stuck in a lift or a locked room",
+      "pts": 1,
       "alt": []
      }
     ]
@@ -196,33 +196,33 @@ window.PF_SETS = [
     "kind": "",
     "answers": [
      {
-      "t": "Left behind on a school excursion or camp",
-      "pts": 9,
+      "t": "Staying while everyone else moves on",
+      "pts": 10,
       "alt": []
      },
      {
-      "t": "A best friend moves away",
+      "t": "Friends growing up and leaving you behind",
+      "pts": 8,
+      "alt": []
+     },
+     {
+      "t": "What a person leaves behind when they die",
       "pts": 7,
       "alt": []
      },
      {
-      "t": "Missing the bus, train or plane",
+      "t": "A best friend moves away",
       "pts": 5,
       "alt": []
      },
      {
-      "t": "A lost toy or bag left somewhere",
-      "pts": 4,
-      "alt": []
-     },
-     {
-      "t": "Left behind after the world ends or everyone vanishes",
+      "t": "A pet left at home when the family moves",
       "pts": 3,
       "alt": []
      },
      {
-      "t": "A pet left at home when the family moves",
-      "pts": 2,
+      "t": "Left behind on a school excursion or camp",
+      "pts": 1,
       "alt": []
      }
     ]

@@ -76,6 +76,8 @@ body.screen .bank span{font-size:15px}
 .gcard .who{font-weight:800;color:var(--muted);font-size:15px}
 .gcard .g{font-weight:850;font-size:28px;color:var(--navy);letter-spacing:-.02em;line-height:1.15;margin:2px 0 0;overflow-wrap:anywhere}
 .tg{display:flex;gap:8px;margin-top:4px}
+.tgl{display:block;margin:10px 0 2px;font-weight:850;font-size:17px;color:var(--navy)}
+.tgh{margin:6px 0 0;font-size:14px;font-weight:700;color:var(--muted)}
 .tg input{flex:1;min-width:0;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:17px}
 .tg input:focus{border-color:var(--blue);outline:none}
 .alist{display:grid;gap:6px}
@@ -237,6 +239,12 @@ body.hideans .ans-t:hover,body.hideans button:focus-visible .ans-t{filter:none}
     var n = +last("nteams", "2"), names = (last("tnames", "") || PF.TEAM_NAMES.join("|")).split("|");
     $("main").innerHTML = '<section class="panel setup"><h2>Start Prompt Feud</h2>' +
       '<p class="small" style="text-align:center;font-size:18px;margin:0 0 18px">' + esc(msg || "Teams guess how the class reads a prompt") + "</p>" +
+      '<div class="howto"><h3>How to Run This</h3><ol>' +
+      "<li>Pick the campus and class, name the teams, then create the room</li>" +
+      "<li>Put this screen on the projector. Students scan the QR or go to /go/prompt-feud, type the code and join a team</li>" +
+      "<li>Pick a prompt from the set, or run a live round where the class writes its own readings first</li>" +
+      "<li>Teams take turns guessing. Students without a device call it out and you type the guess said aloud</li>" +
+      "<li>Tap the matching answer or give a strike, then show the leaderboard. It is for this lesson only</li></ol></div>" +
       '<div class="two"><div class="f"><label for="campus">Campus</label><select id="campus"><option value="">Pick a campus</option>' +
       camps.map(function (c) { return "<option" + (c === last("campus", "") ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("") + "</select></div>" +
       '<div class="f"><label for="cls">Class</label><input id="cls" maxlength="40" placeholder="e.g. Sat 10am Y8 Writing" value="' + esc(last("cls", "")) + '"></div></div>' +
@@ -497,7 +505,7 @@ body.hideans .ans-t:hover,body.hideans button:focus-visible .ans-t{filter:none}
     }).join("");
     var act = v.active, top = pg ?
       '<div class="gcard" style="' + UI.teamStyle(pg.team) + '"><div class="who">' + esc(teamName(v, pg.team)) + (pg.a ? ", " + esc(pg.a) + (B.priv ? " " + esc(nameOfA(v, pg.a)) : "") : "") + " guessed</div><div class=\"g\">" + esc(pg.t) + "</div></div>" :
-      '<div class="gcard" style="' + UI.teamStyle(act) + '"><div class="who">' + (v.steal ? "Steal: " : "") + esc(teamName(v, act)) + ' are guessing</div><div class="tg"><input id="tguess" maxlength="' + PF.MAX_GUESS + '" placeholder="Type a guess said aloud" autocomplete="off"><button class="btn navy" id="tsend" type="button">Add</button></div></div>';
+      '<div class="gcard" style="' + UI.teamStyle(act) + '"><div class="who">' + (v.steal ? "Steal: " : "") + esc(teamName(v, act)) + ' are guessing</div><label class="tgl" for="tguess">Type a Guess Said Aloud</label><div class="tg"><input id="tguess" maxlength="' + PF.MAX_GUESS + '" placeholder="Type a guess said aloud" autocomplete="off"><button class="btn navy" id="tsend" type="button">Add Guess</button></div><p class="tgh">For students without a device, or when a team calls it out</p></div>';
     var side = '<section class="panel judge"><h3>Judge the Guess</h3>' + top +
       '<h3>Tap the Matching Answer</h3><div class="alist">' + rows + "</div>" +
       '<div class="jbtns"><button class="btn strike big" type="button" data-judge="-1">' + UI.X + 'Strike</button>' +

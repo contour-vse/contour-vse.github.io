@@ -53,11 +53,11 @@ var UI = (function () {
     var tot = 0, any = false;
     var rows = WB.CRIT.map(function (c) {
       var n = (r && r[c]) || 0; tot += n; if (n) any = true;
-      var dots = ""; for (var i = 1; i <= 5; i++) dots += '<i class="' + (i <= n ? "on" : "") + '"></i>';
+      var dots = ""; for (var i = 1; i <= WB.RUB_MAX; i++) dots += '<i class="' + (i <= n ? "on" : "") + '"></i>';
       return '<div class="rb"><span class="rl">' + c + '</span><span class="dots">' + dots + '</span><b>' + (n || "") + "</b></div>";
     }).join("");
     if (!any && opts.hideEmpty) return "";
-    return '<div class="rubric">' + rows + '<div class="rtot"><span>Total</span><b>' + tot + " / 20</b></div></div>";
+    return '<div class="rubric">' + rows + '<div class="rtot"><span>Total</span><b>' + tot + " / " + WB.RUB_MAX * WB.CRIT.length + "</b></div></div>";
   }
   function starSvg(size, fill) {
     return '<svg width="' + (size || 20) + '" height="' + (size || 20) + '" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="' + (fill || "currentColor") + '"/></svg>';

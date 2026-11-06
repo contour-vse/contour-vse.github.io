@@ -58,7 +58,7 @@ body.screen .pbody{overflow:hidden}
 .pp .st{font-size:12px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .pp.in .st{color:var(--green-ink)}
 .tmbox{border:2px dashed var(--line);border-radius:14px;padding:12px 14px}
-.tmrow{display:grid;grid-template-columns:100px repeat(5,1fr);gap:5px;align-items:center;margin-top:6px}
+.tmrow{display:grid;grid-template-columns:96px repeat(10,minmax(0,1fr));gap:5px;align-items:center;margin-top:6px}
 .tmrow span{font-weight:800;color:var(--navy);font-size:15px}
 .tmrow i{height:30px;border-radius:8px;background:var(--wash);border:2px solid var(--line);display:grid;place-items:center;font-style:normal;font-family:var(--mono);font-weight:800;color:var(--muted);font-size:14px}
 .tmrow i.on{background:var(--orange);border-color:var(--orange);color:#fff}
@@ -94,7 +94,7 @@ body.screen .pbody{overflow:hidden}
 .f textarea.tall{min-height:220px}
 .f input:focus,.f select:focus,.f textarea:focus{border-color:var(--blue);outline:none}
 .rgrid{display:grid;gap:8px}
-.rrow{display:grid;grid-template-columns:100px repeat(5,1fr);gap:5px;align-items:center}
+.rrow{display:grid;grid-template-columns:96px repeat(10,minmax(0,1fr));gap:5px;align-items:center}
 .rrow span{font-weight:800;color:var(--navy);font-size:15px}
 .rrow button{border:2px solid var(--line);background:#fff;border-radius:10px;height:40px;font-family:var(--mono);font-weight:800;font-size:16px;color:var(--navy);padding:0}
 .rrow button.on{background:var(--orange);border-color:var(--orange);color:#fff}
@@ -130,6 +130,7 @@ body.screen .pbody{overflow:hidden}
   <main id="main"></main>
 </div>
 <div class="controls" id="controls" hidden></div>
+<div class="modal" id="modal" hidden></div>
 <div class="toast" id="toast" hidden></div>
 
 <script src="../../config.js"></script>
@@ -173,6 +174,12 @@ body.screen .pbody{overflow:hidden}
     var last = function (k, d) { return Net.ls("mm-" + k) || d; };
     $("main").innerHTML = '<section class="panel setup"><h2>Start Marker Match</h2>' +
       '<p class="small" style="text-align:center;font-size:18px;margin:0 0 18px">' + esc(msg || "Students mark a piece, then see how close they came to you") + "</p>" +
+      '<div class="howto"><h3>How to Run This</h3><ol>' +
+      "<li>Pick the campus, class and set, then create the room</li>" +
+      "<li>Put this screen on the projector. Students scan the QR or go to /go/marker-match and type the code and their first name</li>" +
+      "<li>Pick a piece and check your marks out of 10, then put it up. Students mark it on their phones and lock in</li>" +
+      "<li>Students without a device call out or write their marks. Enter them with Add Paper Marks before you reveal</li>" +
+      "<li>Reveal to show the class spread and points, then the next piece. The leaderboard is for this lesson only</li></ol></div>" +
       '<div class="two"><div class="f"><label for="campus">Campus</label><select id="campus"><option value="">Pick a campus</option>' +
       camps.map(function (c) { return "<option" + (c === last("campus", "") ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("") + "</select></div>" +
       '<div class="f"><label for="cls">Class</label><input id="cls" maxlength="40" placeholder="e.g. Sat 10am Y8 Writing" value="' + esc(last("cls", "")) + '"></div></div>' +
@@ -204,6 +211,7 @@ body.screen .pbody{overflow:hidden}
     if (!l.length) return '<p class="empty">Nobody has joined yet</p>';
     return '<div class="people">' + l.map(function (p) {
       return '<div class="pp' + (marking && p.locked ? " in" : "") + '"><span class="an">' + esc(p.a) + "</span>" + (B.priv && !SCREEN ? '<span class="rn">' + esc(p.n) + "</span>" : "") +
+        (p.pp && !SCREEN ? ' <span class="paperchip">Paper</span>' : "") +
         (marking ? '<span class="st">' + (p.locked ? "Locked in" : "Marking") + "</span>" : '<span class="st">' + UI.pts(p.tot) + "</span>") + "</div>";
     }).join("") + "</div>";
   }
@@ -240,9 +248,9 @@ body.screen .pbody{overflow:hidden}
           '<div class="f"><label for="dx">Piece</label><textarea class="tall" id="dx" maxlength="8000">' + esc(d.text) + "</textarea></div>" :
           '<h3 style="margin-top:0">' + esc(d.kind || "Piece") + '</h3><p class="ptitle" style="font-size:28px;margin-bottom:8px">' + esc(d.title) + '</p><div class="prv ptext">' + esc(d.text) + "</div>") +
         '<div class="f"><span class="lab">Your marks</span><div class="rgrid" id="rg">' + MM.CRIT.map(function (c) {
-          var b = ""; for (var s = 1; s <= 5; s++) b += '<button type="button" data-c="' + c + '" data-n="' + s + '" class="' + (d.marks[c] === s ? "on" : "") + '">' + s + "</button>";
+          var b = ""; for (var s = 1; s <= MM.TOP; s++) b += '<button type="button" data-c="' + c + '" data-n="' + s + '" class="' + (d.marks[c] === s ? "on" : "") + '">' + s + "</button>";
           return '<div class="rrow"><span>' + c + "</span>" + b + "</div>";
-        }).join("") + '</div><p class="small" style="margin:6px 0 0;font-weight:700">Total <b id="dtot">' + UI.total(d.marks) + "</b> of 20, hidden from students until you reveal</p></div>" +
+        }).join("") + '</div><p class="small" style="margin:6px 0 0;font-weight:700">Total <b id="dtot">' + UI.total(d.marks) + "</b> of " + MM.MAX_PTS + ", hidden from students until you reveal</p></div>" +
         '<div class="f"><label for="dw">Why, in one line</label><textarea id="dw" maxlength="240" style="min-height:70px">' + esc(d.why) + "</textarea></div>" +
         '<p class="err" id="perr"></p><button class="btn primary big block" id="startR" type="button">Put piece ' + (v.round + (v.phase === "marking" ? 0 : 1)) + " up</button>";
     }
@@ -293,9 +301,9 @@ body.screen .pbody{overflow:hidden}
     }
     var side = '<section class="panel"><div class="head"><p class="eyebrow" style="margin:0">Marking</p><span class="chip green">' + v.locked + " of " + v.joined + " locked in</span></div>" +
       '<div class="stats"><div><b>' + v.locked + "</b><span>Locked in</span></div><div><b>" + v.joined + '</b><span>Students</span></div></div><div class="meter"><i style="width:' + pct + '%"></i></div>' +
-      (SCREEN ? '<h3 style="margin-top:22px">Mark It on Your Phone</h3><p style="margin:0 0 14px;font-weight:700;font-size:19px">Ideas, Structure, Language and Control, 1 to 5 each, then lock in</p>' + joinBox(true) :
+      (SCREEN ? '<h3 style="margin-top:22px">Mark It on Your Phone</h3><p style="margin:0 0 14px;font-weight:700;font-size:19px">Ideas, Structure, Language and Control, 1 to 10 each, then lock in</p>' + joinBox(true) :
         "<h3 style=\"margin-top:22px\">Your Marks</h3>" + (B.peek ? '<div class="tmbox">' + MM.CRIT.map(function (c) {
-          var b = ""; for (var s = 1; s <= 5; s++) b += '<i class="' + (v.tm[c] === s ? "on" : "") + '">' + s + "</i>";
+          var b = ""; for (var s = 1; s <= MM.TOP; s++) b += '<i class="' + (v.tm[c] === s ? "on" : "") + '">' + s + "</i>";
           return '<div class="tmrow"><span>' + c + "</span>" + b + "</div>";
         }).join("") + (v.why ? '<p class="small" style="margin:10px 0 0;font-weight:700">' + esc(v.why) + "</p>" : "") + "</div>" : '<div class="tmbox small" style="font-weight:700">Hidden until you reveal. Switch on Show my marks to check them privately</div>') +
         "<h3>Students</h3>" + people(v, true)) + "</section>";
@@ -310,12 +318,12 @@ body.screen .pbody{overflow:hidden}
       return '<li style="animation-delay:' + (2.2 + i * 0.18).toFixed(2) + 's"><span class="pos">' + UI.ordinal(r.rank) + '</span><span class="an">' + esc(r.a) + (B.priv && !SCREEN ? "<small>" + esc(nameOf(v, r.k)) + "</small>" : "") + '</span><span class="ps">' + r.pts + "</span></li>";
     }).join("") + "</ol>" : '<p class="empty">Nobody locked in</p>';
     $("main").innerHTML = '<div class="grid"><section class="panel"><div class="head"><p class="eyebrow" style="margin:0">Piece ' + v.round + " Reveal</p>" +
-      '<span class="tmtot">Tutor total <b>' + UI.total(v.tm) + "</b>/ 20</span></div>" +
+      '<span class="tmtot">Tutor total <b>' + UI.total(v.tm) + "</b>/ " + MM.MAX_PTS + "</span></div>" +
       '<h2 class="ptitle" style="font-size:clamp(26px,2.4vw,40px);margin-bottom:18px">' + esc(v.piece.title) + "</h2>" +
       UI.plots(v.spread, v.tm, { avg: v.avg, big: true }) +
       '<div class="legend" style="margin-top:18px"><span><i></i>One student</span><span><i class="tm"></i>Tutor mark</span><span><i class="avg"></i>Class average</span></div></section>' +
       '<section class="panel">' + (v.why ? '<div class="why" style="margin:0 0 18px"><span class="lab">Why</span>' + esc(v.why) + "</div>" : "") + '<div class="head"><p class="eyebrow" style="margin:0">Closest This Piece</p><span class="chip">' + v.locked + " marked</span></div>" + list +
-      '<p class="small" style="margin:14px 0 0;font-weight:700">20 points minus how far your marks are from the tutor\'s</p></section></div>';
+      '<p class="small" style="margin:14px 0 0;font-weight:700">40 points minus how far your marks are from the tutor\'s</p></section></div>';
     if (B.party !== B.room + v.round && top.length) { B.party = B.room + v.round; setTimeout(function () { UI.confetti(2600); }, 2600); }
   }
 
@@ -331,7 +339,7 @@ body.screen .pbody{overflow:hidden}
       (rest.length ? '<ol class="rest">' + rest.map(function (r) {
         return '<li><span class="pos">' + UI.ordinal(r.rank) + '</span><span class="an">' + esc(r.a) + (B.priv && !SCREEN ? "<small>" + esc(nameOf(v, r.k)) + "</small>" : "") + '</span><span class="ps">' + UI.pts(r.tot) + "</span></li>";
       }).join("") + "</ol>" : "") +
-      '<p class="small" style="text-align:center;margin-top:18px;font-weight:700">' + v.rounds + (v.rounds === 1 ? " piece" : " pieces") + ", up to 20 points each</p></section>";
+      '<p class="small" style="text-align:center;margin-top:18px;font-weight:700">' + v.rounds + (v.rounds === 1 ? " piece" : " pieces") + ", up to " + MM.MAX_PTS + " points each. This leaderboard is for this lesson only</p></section>";
     if (B.party !== B.room + "lb" + v.rounds && top.length) { B.party = B.room + "lb" + v.rounds; setTimeout(function () { UI.confetti(); }, 1300); }
   }
 
@@ -345,7 +353,7 @@ body.screen .pbody{overflow:hidden}
     var c = [];
     if (B.picking) c.push('<button class="btn" id="cBack" type="button">Back</button>');
     else if (v.phase === "lobby") { c.push('<button class="btn primary big" id="cPick" type="button">' + (v.rounds ? "Next piece" : "Pick a piece") + "</button>"); if (v.rounds) c.push('<button class="btn orange" data-op="leaderboard" type="button">Leaderboard</button>'); }
-    else if (v.phase === "marking") { c.push('<button class="btn orange big" data-op="reveal" type="button">Reveal</button>'); if (!v.locked) c.push('<button class="btn" id="cPick" type="button">Change piece</button>'); c.push('<label class="sw"><input type="checkbox" id="peek"' + (B.peek ? " checked" : "") + ">Show my marks</label>"); }
+    else if (v.phase === "marking") { c.push('<button class="btn orange big" data-op="reveal" type="button">Reveal</button>'); c.push('<button class="btn" id="cPaper" type="button">Add Paper Marks</button>'); if (!v.locked) c.push('<button class="btn" id="cPick" type="button">Change piece</button>'); c.push('<label class="sw"><input type="checkbox" id="peek"' + (B.peek ? " checked" : "") + ">Show my marks</label>"); }
     else if (v.phase === "reveal") { c.push('<button class="btn primary big" id="cPick" type="button">Next piece</button>'); c.push('<button class="btn orange big" data-op="leaderboard" type="button">Leaderboard</button>'); }
     else { c.push('<button class="btn primary big" id="cPick" type="button">Next piece</button>'); c.push('<button class="btn" id="again" type="button">Replay celebration</button>'); }
     c.push('<span class="sep"></span><label class="sw"><input type="checkbox" id="priv"' + (B.priv ? " checked" : "") + ">Names</label>");
@@ -360,7 +368,45 @@ body.screen .pbody{overflow:hidden}
     if ($("again")) $("again").onclick = function () { UI.confetti(); };
     if ($("cPick")) $("cPick").onclick = function () { B.picking = true; force(); window.scrollTo(0, 0); };
     if ($("cBack")) $("cBack").onclick = function () { B.picking = false; force(); };
+    if ($("cPaper")) $("cPaper").onclick = function () { paperModal(v); };
   }
+  /* Add Paper Marks: a student without a device calls out or writes their marks, the tutor enters them. */
+  function paperModal(v) {
+    var m = $("modal"), d = {}, names = (v.players || []).filter(function (p) { return p.pp; }).map(function (p) { return p.n; });
+    function draw() {
+      m.innerHTML = '<section class="panel"><h2 style="font-size:30px">Add Paper Marks</h2>' +
+        '<p class="small" style="margin:0 0 14px;font-weight:700">For a student without a device. Use the same first name each piece and their points add up on the leaderboard</p>' +
+        '<div class="f"><label for="ppName">First name</label><input id="ppName" maxlength="20" autocomplete="off" list="ppNames" value="' + esc(d.name || "") + '">' +
+        '<datalist id="ppNames">' + names.map(function (n) { return "<option value=\"" + esc(n) + "\">"; }).join("") + "</datalist></div>" +
+        '<div class="f"><span class="lab">Their marks</span><div class="rgrid" id="ppGrid">' + MM.CRIT.map(function (c) {
+          var b = ""; for (var s = 1; s <= MM.TOP; s++) b += '<button type="button" data-c="' + c + '" data-n="' + s + '" class="' + (d[c] === s ? "on" : "") + '">' + s + "</button>";
+          return '<div class="rrow"><span>' + c + "</span>" + b + "</div>";
+        }).join("") + "</div></div>" +
+        '<p class="err" id="ppErr"></p><div class="row"><button class="btn" type="button" id="ppCancel">Cancel</button><button class="btn primary big" type="button" id="ppSave">Add marks</button></div></section>';
+      $("ppName").oninput = function () { d.name = this.value; };
+      $("ppGrid").onclick = function (e) {
+        var b = e.target.closest("[data-c]"); if (!b) return;
+        d[b.dataset.c] = +b.dataset.n;
+        Array.prototype.forEach.call(this.querySelectorAll('[data-c="' + b.dataset.c + '"]'), function (x) { x.classList.toggle("on", x === b); });
+      };
+      $("ppCancel").onclick = closeModal;
+      $("ppSave").onclick = function () {
+        var n = $("ppName").value.trim(), r = {}, btn = this;
+        MM.CRIT.forEach(function (c) { r[c] = d[c]; });
+        if (!n) { $("ppErr").textContent = "Type the student's first name"; return; }
+        if (!MM.marks(r)) { $("ppErr").textContent = "Mark all four criteria"; return; }
+        btn.disabled = true;
+        call("mm.paper", { name: n, r: r }).then(function (res) {
+          btn.disabled = false;
+          if (!res.ok) { $("ppErr").textContent = res.message || "Try again"; return; }
+          closeModal(); toast("Marks added for " + n); refresh();
+        });
+      };
+    }
+    draw(); m.hidden = false; $("ppName").focus();
+  }
+  function closeModal() { $("modal").hidden = true; $("modal").innerHTML = ""; }
+  $("modal").addEventListener("mousedown", function (e) { if (e.target === this) closeModal(); });
   function fullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
   $("controls").addEventListener("click", function (e) {
     var b = e.target.closest("[data-op]"); if (!b) return;

@@ -3,12 +3,13 @@
    No DOM, no network, no clock: the caller passes ctx = {now, rand}.
    A room R = {meta, piece, marks}:
      meta  = {code, tk, created, v, campus, cls, set, phase, round, title, kind,
-              players: {pid: {n, a (anonymous name), k (public key), at, tot (points), ex (exact marks), pr: {round: points}}},
+              players: {pid: {n, a (anonymous name), k (public key), at, tot (points), ex (exact marks), pr: {round: points}, pp (paper: the tutor enters the marks)}},
               rounds: [{n, title, kind, idx, tm: {Ideas..Control}, why (one line), done, lk (marks in), avg: {}, spread: {}}]}
      piece = {title, kind, prompt, text, rubric: {Ideas..Control: what a strong mark looks like}} (the piece being marked now)
-     marks = {pid: {r: {Ideas..Control: 1 to 5}, at, d (distance), pts}} (this round only)
+     marks = {pid: {r: {Ideas..Control: 1 to 10}, at, d (distance), pts}} (this round only)
    phase: lobby | marking (students mark and lock in) | reveal (class spread, tutor marks, points) | leaderboard
-   Points for a piece = 20 minus the total distance from the tutor's marks (4 criteria, 1 to 5 each).
+   Points for a piece = 40 minus the total distance from the tutor's marks (4 criteria, 1 to 10 each), never below 0.
+   Leaderboards are per lesson (per room).
    store = {exists(code), meta(code) -> meta|null, load(code) -> R|null, save(code, R, dirty)}. */
 var MM = (function () {
   var ALPHA = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -17,7 +18,7 @@ var MM = (function () {
   var KINDS = ["Narrative", "Persuasive"];
   var COLOURS = ["Teal", "Coral", "Amber", "Indigo", "Jade", "Ruby", "Olive", "Plum", "Cobalt", "Mint", "Scarlet", "Violet", "Copper", "Silver", "Gold", "Saffron", "Crimson", "Azure", "Lilac", "Ochre"];
   var ANIMALS = ["Fox", "Owl", "Otter", "Koala", "Wombat", "Panda", "Falcon", "Lynx", "Gecko", "Heron", "Quokka", "Puffin", "Echidna", "Dingo", "Kestrel", "Possum", "Platypus", "Magpie", "Dolphin", "Emu", "Robin", "Seal"];
-  var MAX_PTS = 20, MAX_TEXT = 8000, MAX_WHY = 240, MAX_PLAYERS = 80, MAX_ROUNDS = 30;
+  var TOP = 10, MAX_PTS = 40, MAX_TEXT = 8000, MAX_WHY = 240, MAX_PLAYERS = 80, MAX_ROUNDS = 30;
 
   function err(code, msg) { return { ok: false, error: code, message: msg || code }; }
   function clean(s, max) { return String(s == null ? "" : s).replace(/[\u0000-\u001f<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max); }
@@ -32,15 +33,15 @@ var MM = (function () {
   }
   function int(x) { var n = Number(x); return Math.floor(n) === n ? n : NaN; }
 
-  /* {Ideas..Control} with every criterion a whole number 1 to 5, else null. */
+  /* {Ideas..Control} with every criterion a whole number 1 to 10, else null. */
   function marks(r) {
     if (!r || typeof r !== "object") return null;
     var o = {};
-    for (var i = 0; i < CRIT.length; i++) { var n = int(r[CRIT[i]]); if (!(n >= 1 && n <= 5)) return null; o[CRIT[i]] = n; }
+    for (var i = 0; i < CRIT.length; i++) { var n = int(r[CRIT[i]]); if (!(n >= 1 && n <= TOP)) return null; o[CRIT[i]] = n; }
     return o;
   }
   function distance(r, tm) { var d = 0; CRIT.forEach(function (c) { d += Math.abs(r[c] - tm[c]); }); return d; }
-  function points(r, tm) { return MAX_PTS - distance(r, tm); }
+  function points(r, tm) { return Math.max(0, MAX_PTS - distance(r, tm)); }
 
   function newRoom(code, tk, now, info) {
     return {
@@ -80,7 +81,7 @@ var MM = (function () {
   }
   function spread(R) {
     var s = {}, avg = {}, n = 0;
-    CRIT.forEach(function (c) { s[c] = [0, 0, 0, 0, 0]; avg[c] = 0; });
+    CRIT.forEach(function (c) { s[c] = []; for (var i = 0; i < TOP; i++) s[c].push(0); avg[c] = 0; });
     for (var pid in R.marks) {
       if (!R.meta.players[pid]) continue;
       n++; CRIT.forEach(function (c) { s[c][R.marks[pid].r[c] - 1]++; avg[c] += R.marks[pid].r[c]; });
@@ -132,6 +133,25 @@ var MM = (function () {
       return done({ r: r });
     }
 
+    if (a === "mm.paper") {
+      if (M.phase !== "marking") return err("phase", "Put a piece up first");
+      var pn = clean(b.name, 20); if (!pn) return err("name", "Type the student's first name");
+      var pr = marks(b.r); if (!pr) return err("marks", "Mark all four criteria first");
+      var ppid = null;
+      for (var x in M.players) if (M.players[x].pp && M.players[x].n.toLowerCase() === pn.toLowerCase()) ppid = x;
+      if (!ppid) {
+        if (Object.keys(M.players).length >= MAX_PLAYERS) return err("full", "This room is full");
+        var ks = {}; for (var q2 in M.players) ks[M.players[q2].k] = 1;
+        var pk; do { pk = makeCode(ctx.rand, 8); } while (ks[pk]);
+        do { ppid = "paper" + makeCode(ctx.rand, 10); } while (M.players[ppid]);
+        M.players[ppid] = { n: pn, a: anonFor(M, ctx.rand), k: pk, at: now, tot: 0, ex: 0, pr: {}, pp: 1 };
+      }
+      R.marks[ppid] = { r: pr, at: now }; dirty.marks = true;
+      cur(M).lk = Object.keys(R.marks).length;
+      log.push(markLog(R, ppid, now));
+      return done({ k: M.players[ppid].k, a: M.players[ppid].a });
+    }
+
     if (a === "mm.phase") {
       var op = b.op;
       if (op === "round") {
@@ -155,7 +175,7 @@ var MM = (function () {
         for (var pid in R.marks) {
           var pl = M.players[pid]; if (!pl) continue;
           var m = R.marks[pid];
-          m.d = distance(m.r, rd.tm); m.pts = MAX_PTS - m.d;
+          m.d = distance(m.r, rd.tm); m.pts = points(m.r, rd.tm);
           pl.pr[M.round] = m.pts; pl.tot += m.pts;
           CRIT.forEach(function (c) { if (m.r[c] === rd.tm[c]) pl.ex++; });
           log.push(markLog(R, pid, now));
@@ -194,7 +214,7 @@ var MM = (function () {
       v.done = M.rounds.map(function (x) { return x.idx; });
       v.players = Object.keys(M.players).sort(function (x, y) { return M.players[x].at - M.players[y].at; }).map(function (pid) {
         var p = M.players[pid], m = R.marks[pid];
-        return { k: p.k, a: p.a, n: p.n, locked: !!m, r: m ? m.r : null, pts: m && m.pts != null ? m.pts : null, tot: p.tot };
+        return { k: p.k, a: p.a, n: p.n, pp: p.pp ? 1 : 0, locked: !!m, r: m ? m.r : null, pts: m && m.pts != null ? m.pts : null, tot: p.tot };
       });
       v.board = lb.map(function (r) { return { k: r.k, a: r.a, tot: r.tot, ex: r.ex, rank: r.rank, n: r.n }; });
       if (M.phase === "reveal") v.top = roundBoard(R).map(function (r) { return { k: r.k, a: r.a, pts: r.pts, rank: r.rank }; });
@@ -235,7 +255,7 @@ var MM = (function () {
     }
     var R1 = store.load(room);
     if (!R1) return err("room", "Room not found");
-    if (a === "mm.phase" && b.tk !== R1.meta.tk) return err("tutor", "Tutor key needed");
+    if ((a === "mm.phase" || a === "mm.paper") && b.tk !== R1.meta.tk) return err("tutor", "Tutor key needed");
     var r = apply(R1, b, ctx);
     if (r.ok) { R1.meta.v++; store.save(room, R1, r.dirty); }
     delete r.dirty;
@@ -245,7 +265,7 @@ var MM = (function () {
 
   return {
     handle: handle, apply: apply, view: view, board: board, spread: spread, marks: marks, distance: distance, points: points, cleanText: cleanText,
-    CRIT: CRIT, PHASES: PHASES, KINDS: KINDS, MAX_PTS: MAX_PTS
+    CRIT: CRIT, PHASES: PHASES, KINDS: KINDS, TOP: TOP, MAX_PTS: MAX_PTS
   };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = MM;

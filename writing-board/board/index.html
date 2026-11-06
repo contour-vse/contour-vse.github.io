@@ -87,9 +87,9 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
 .whole:focus,.ed input:focus{border-color:var(--blue);outline:none}
 .wholeshow{background:var(--navy-soft);border-radius:14px;padding:12px 14px;font-weight:650;font-size:18px;white-space:pre-line}
 .rgrid{display:grid;gap:8px}
-.rrow{display:grid;grid-template-columns:96px repeat(5,1fr);gap:5px;align-items:center}
+.rrow{display:grid;grid-template-columns:88px repeat(10,minmax(0,1fr));gap:3px;align-items:center}
 .rrow span{font-weight:800;color:var(--navy);font-size:15px}
-.rrow button{border:2px solid var(--line);background:#fff;border-radius:10px;height:38px;font-family:var(--mono);font-weight:800;font-size:16px;color:var(--navy);padding:0}
+.rrow button{border:2px solid var(--line);background:#fff;border-radius:8px;height:36px;font-family:var(--mono);font-weight:800;font-size:14px;color:var(--navy);padding:0;min-width:0}
 .rrow button.on{background:var(--blue);border-color:var(--blue);color:#fff}
 .rrow button.lo{background:var(--blue-soft);border-color:#B9D8FF}
 .star{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:2px solid #FFD27A;background:#FFFBEF;color:#8A5A00;border-radius:14px;padding:12px;font-weight:850;font-size:18px}
@@ -136,6 +136,11 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
 .err{color:var(--orange-ink);font-weight:700;min-height:1.4em;margin:0 0 8px}
 .small{font-size:15px;color:var(--muted)}
 .empty{text-align:center;padding:30px 10px;color:var(--muted);font-size:19px;font-weight:700}
+.modal{position:fixed;inset:0;z-index:45;background:rgba(11,30,70,.45);display:grid;place-items:center;padding:16px}
+.modal .panel{width:min(640px,100%);max-height:calc(100vh - 32px);overflow:auto}
+.modal h2{font-size:30px}
+.modal .f textarea{min-height:200px}
+.modal .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
 @media (max-width:1100px){.grid,.pv{grid-template-columns:1fr}.duo{grid-template-columns:1fr}.types{grid-template-columns:1fr 1fr}.pod{grid-template-columns:1fr}.pod .p{order:0!important}}
 </style>
 </head>
@@ -153,6 +158,7 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
 </div>
 <div class="controls" id="controls" hidden></div>
 <div class="pal" id="pal" hidden></div>
+<div class="modal" id="modal" hidden></div>
 <div class="toast" id="toast" hidden></div>
 
 <script src="../../config.js"></script>
@@ -173,6 +179,12 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
   $("markIcon").innerHTML = UI.PEN;
   if (SCREEN) document.body.classList.add("screen");
   var PH = [["writing", "Writing"], ["reading", "Reading"], ["feedback", "Feedback"], ["leaderboard", "Leaderboard"]];
+  var HOWTO = '<div class="howto"><h3>How to Run This</h3><ol>' +
+    "<li>Pick the campus and class, type the task and prompt, then create the room</li>" +
+    "<li>Put this screen on the projector. Students scan the QR or go to /go/writing-board and type the code and their first name</li>" +
+    "<li>Start the timer. Students without a device write on paper, then you type it in with Add from Paper</li>" +
+    "<li>Close writing so students read and vote, then open pieces to highlight, mark out of 10 and star the best</li>" +
+    "<li>Show the leaderboard for this lesson, then the Term Ladder to celebrate tutor stars across the term</li></ol></div>";
 
   function toast(m) { var t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
   function now() { return Date.now() + B.offset; }
@@ -201,7 +213,7 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
     var last = function (k, d) { return Board.ls("wb-" + k) || d; };
     var type = last("type", "Paragraph"), mins = +last("mins", "10");
     $("main").innerHTML = '<section class="panel setup"><h2>Start a Writing Board</h2>' +
-      '<p class="small" style="text-align:center;font-size:18px;margin:0 0 18px">' + esc(msg || "Students write on their phones, you mark on the big screen") + "</p>" +
+      '<p class="small" style="text-align:center;font-size:18px;margin:0 0 18px">' + esc(msg || "Students write on their phones, you mark on the big screen") + "</p>" + HOWTO +
       '<div class="two"><div class="f"><label for="campus">Campus</label><select id="campus"><option value="">Pick a campus</option>' +
       camps.map(function (c) { return "<option" + (c === last("campus", "") ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("") + "</select></div>" +
       '<div class="f"><label for="cls">Class</label><input id="cls" maxlength="40" placeholder="e.g. Sat 10am Y8 Writing" value="' + esc(last("cls", "")) + '"></div></div>' +
@@ -213,7 +225,7 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
       '<div class="two"><div class="f"><label for="mins">Time limit</label><select id="mins">' + WB.LIMITS.map(function (m) {
         return '<option value="' + m + '"' + (m === mins ? " selected" : "") + ">" + (m ? m + " minutes" : "No time limit") + "</option>";
       }).join("") + "</select></div>" +
-      '<div class="f"><span class="lab">Rubric</span><label class="tick"><input type="checkbox" id="rubric"' + (last("rubric", "1") === "1" ? " checked" : "") + '><span>Mark with the rubric<small>Ideas, Structure, Language, Control, 1 to 5</small></span></label></div></div>' +
+      '<div class="f"><span class="lab">Rubric</span><label class="tick"><input type="checkbox" id="rubric"' + (last("rubric", "1") === "1" ? " checked" : "") + '><span>Mark with the rubric<small>Ideas, Structure, Language, Control, 0 to 10 each</small></span></label></div></div>' +
       '<p class="err" id="err"></p><button class="btn primary big block" id="mk" type="button">Create room</button></section>';
     $("mk").onclick = function () {
       var t = document.querySelector('input[name="type"]:checked');
@@ -245,6 +257,7 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
       tags.push("<span>" + p.w + " words</span>");
       if (hl || mk.c || (mk.r && Object.keys(mk.r).length)) tags.push('<span class="tag mk">Marked</span>');
       if (B.priv && !SCREEN && v.phase !== "writing") tags.push('<span class="tag v">' + UI.votes(p.votes || 0) + "</span>");
+      if (p.pp && !SCREEN) tags.push('<span class="paperchip">Paper</span>');
     }
     var inner = (mk.star ? '<span class="st" title="Tutor star">' + UI.starSvg(22) + "</span>" : "") +
       '<span class="an">' + esc(p.a) + "</span>" + (B.priv && !SCREEN ? '<span class="rn">' + esc(p.n) + "</span>" : "") +
@@ -274,11 +287,11 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
     drawQr(); tick();
   }
   function renderReading(v) {
-    var pct = v.joined ? Math.round(v.voted / v.joined * 100) : 0;
+    var voters = v.joined - (v.paper || 0), pct = voters > 0 ? Math.round(v.voted / voters * 100) : 0;
     $("main").innerHTML = '<div class="grid"><section class="panel"><div class="head"><p class="eyebrow" style="margin:0">Reading</p><span class="typechip">' + esc(v.type) + "</span></div>" +
       "<h2>Read and vote</h2>" +
       '<ol class="steps"><li><b>1</b>Read every piece on your phone</li><li><b>2</b>Tap Vote on the one you think works best</li><li><b>3</b>One vote each, not your own, and you can change it</li></ol>' +
-      '<div class="stats"><div><b>' + v.submitted + "</b><span>Pieces in</span></div><div><b>" + v.voted + "</b><span>Votes cast</span></div><div><b>" + v.joined + "</b><span>Students</span></div></div>" +
+      '<div class="stats"><div><b>' + v.submitted + "</b><span>Pieces in</span></div><div><b>" + v.voted + "</b><span>Votes cast</span></div><div><b>" + voters + "</b><span>On devices</span></div></div>" +
       '<div class="meter"><i style="width:' + pct + '%"></i></div>' +
       '<p class="eyebrow" style="margin-top:22px">Prompt</p><div class="prompt" style="font-size:19px">' + esc(v.prompt) + "</div></section>" +
       '<section class="panel" id="side">' + cardsPanel(v, "Pieces") + "</section></div>";
@@ -314,6 +327,7 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
     var mk = p.mk || { h: [], c: "", r: {}, star: 0 }, long = p.t.length > 1800;
     var left = '<section class="panel"><div class="ptop"><div class="who"><span class="an">' + esc(p.a) + "</span>" +
       (B.priv && !SCREEN ? '<span class="rn">' + esc(p.n) + "</span>" : "") + '<span class="chip">' + p.w + " words</span>" +
+      (p.pp && !SCREEN ? '<button class="btn" type="button" id="editPaper">Edit paper piece</button>' : "") +
       (mk.star ? '<span class="starchip">' + UI.starSvg(16) + "Tutor star</span>" : "") + "</div>" +
       (SCREEN ? '<span class="typechip">' + esc(v.type) + "</span>" :
         '<div class="nav"><button class="btn" type="button" data-go="-1"' + (i <= 0 ? " disabled" : "") + '>Back</button><button class="btn" type="button" data-go="1"' + (i >= list.length - 1 ? " disabled" : "") + '>Next</button><button class="btn navy" type="button" id="closeP">All pieces</button></div>') +
@@ -331,9 +345,9 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
       }).join("");
       var rub = v.rubric ? "<h3>Rubric</h3><div class=\"rgrid\">" + WB.CRIT.map(function (c) {
         var n = (mk.r || {})[c] || 0, b = "";
-        for (var s = 1; s <= 5; s++) b += '<button type="button" data-crit="' + c + '" data-n="' + s + '" class="' + (s === n ? "on" : s < n ? "lo" : "") + '">' + s + "</button>";
+        for (var s = 1; s <= WB.RUB_MAX; s++) b += '<button type="button" data-crit="' + c + '" data-n="' + s + '" class="' + (s === n ? "on" : s < n ? "lo" : "") + '">' + s + "</button>";
         return '<div class="rrow"><span>' + c + "</span>" + b + "</div>";
-      }).join("") + '<div class="rtot"><span>Total</span><b>' + WB.CRIT.reduce(function (t, c) { return t + ((mk.r || {})[c] || 0); }, 0) + " / 20</b></div></div>" : "";
+      }).join("") + '<div class="rtot"><span>Total</span><b>' + WB.CRIT.reduce(function (t, c) { return t + ((mk.r || {})[c] || 0); }, 0) + " / " + WB.RUB_MAX * WB.CRIT.length + "</b></div></div>" : "";
       side = '<section class="panel side"><div class="hint">Select words in the piece, then pick a category</div>' +
         "<h3>Highlights</h3>" + (notes ? '<ol class="notes ed">' + notes + "</ol>" : '<p class="muted" style="margin:0">None yet</p>') +
         '<h3>Whole piece</h3><textarea class="whole" id="whole" maxlength="1200" placeholder="A comment on the whole piece">' + esc(mk.c || "") + "</textarea>" + rub +
@@ -366,6 +380,7 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
     });
     $("whole").onchange = function () { mark(p.k, "note", { c: this.value }).then(function (r) { if (r.ok) toast("Comment saved"); }); };
     $("starBtn").onclick = function () { mark(p.k, "star", { on: !(p.mk && p.mk.star) }); };
+    if ($("editPaper")) $("editPaper").onclick = function () { paperModal(p); };
   }
 
   function showPalette(el, p) {
@@ -400,6 +415,76 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
     else renderLeaderboard(v);
   }
 
+  /* ---------- Add from Paper: the tutor types a piece for a student without a device ---------- */
+  function paperModal(p) {
+    var m = $("modal"), edit = !!(p && p.k);
+    hidePalette();
+    m.innerHTML = '<section class="panel"><h2>' + (edit ? "Edit Paper Piece" : "Add from Paper") + "</h2>" +
+      '<p class="small" style="margin:0 0 14px;font-weight:700">For a student without a device. It joins the board as an anonymous piece, so the class can read it, vote for it and you can mark and star it</p>' +
+      '<div class="f"><label for="ppName">First name</label><input id="ppName" maxlength="20" autocomplete="off" value="' + esc(edit ? p.n : "") + '"></div>' +
+      '<div class="f"><label for="ppText">Their writing</label><textarea id="ppText" maxlength="' + WB.MAX_PAPER + '" placeholder="Type the piece as the student wrote it">' + esc(edit ? p.t : "") + "</textarea></div>" +
+      '<p class="err" id="ppErr"></p><div class="row"><button class="btn" type="button" id="ppCancel">Cancel</button><button class="btn primary big" type="button" id="ppSave">' + (edit ? "Save changes" : "Add piece") + "</button></div></section>";
+    m.hidden = false;
+    $("ppName").focus();
+    $("ppCancel").onclick = closeModal;
+    $("ppSave").onclick = function () {
+      var n = $("ppName").value.trim(), t = $("ppText").value.trim(), btn = this;
+      if (!n) { $("ppErr").textContent = "Type the student's first name"; return; }
+      if (!t) { $("ppErr").textContent = "Type the piece first"; return; }
+      btn.disabled = true;
+      call("wb.paper", { name: n, text: t, k: edit ? p.k : "" }).then(function (r) {
+        btn.disabled = false;
+        if (!r.ok) { $("ppErr").textContent = r.message || "Try again"; return; }
+        closeModal(); toast(edit ? "Paper piece saved" : "Added " + r.a + " from paper"); refresh();
+      });
+    };
+  }
+  function closeModal() { $("modal").hidden = true; $("modal").innerHTML = ""; }
+  $("modal").addEventListener("mousedown", function (e) { if (e.target === this) closeModal(); });
+
+  /* ---------- Term Ladder: tutor stars per student across every lesson this term ---------- */
+  function ladderArgs(v) { return { term: (v.ladder && v.ladder.term) || "" }; }
+  function loadLadder(v) {
+    var want = JSON.stringify([v.v, ladderArgs(v).term]);
+    if (B.lad && B.lad.want === want && Date.now() - B.lad.at < 20000) return;
+    if (B.ladBusy) return;
+    B.ladBusy = true;
+    Board.call("wb.ladder", Object.assign({ room: B.room, tk: B.tk }, ladderArgs(v))).then(function (r) {
+      B.ladBusy = false;
+      var same = B.lad && JSON.stringify(B.lad.data) === JSON.stringify(r) && $("main").querySelector(".ladder");
+      B.lad = { want: want, at: Date.now(), data: r };
+      if (!same && B.view && B.view.ladder && B.view.ladder.on) { B.lastKey = ""; render(B.view, false, true); }
+    });
+  }
+  function starRow(n) {
+    var out = "", k = Math.min(n, 10);
+    for (var i = 0; i < k; i++) out += UI.starSvg(SCREEN ? 26 : 22, "#E8A400");
+    return out + "<b>" + n + "</b>";
+  }
+  function renderLadder(v) {
+    var L = B.lad && B.lad.data, anon = !!(v.ladder && v.ladder.anon);
+    loadLadder(v);
+    if (!L || !L.ok) {
+      $("main").innerHTML = '<section class="panel ladder"><h2>Term Ladder</h2><p class="empty">' + (L && L.message ? esc(L.message) : "Loading the stars") + "</p></section>";
+      return;
+    }
+    var rows = L.rows.map(function (r, i) {
+      var name = anon ? r.anon : r.n;
+      return '<li class="' + (r.rank === 1 ? "r1" : "") + '" style="animation-delay:' + (0.1 + Math.min(i, 14) * 0.08).toFixed(2) + 's"><span class="pos">' + UI.ordinal(r.rank) + '</span><span class="nm">' + esc(name) +
+        (anon && B.priv && !SCREEN ? "<small>" + esc(r.n) + "</small>" : "") + "<small>" + r.lessons + (r.lessons === 1 ? " lesson" : " lessons") + " with a star</small></span>" +
+        '<span class="ss" aria-label="' + r.stars + ' stars">' + starRow(r.stars) + "</span></li>";
+    }).join("");
+    $("main").innerHTML = '<section class="panel ladder"><p class="eyebrow" style="text-align:center">' + esc(L.cls) + ", " + esc(L.campus) + "</p><h2>Term Ladder</h2>" +
+      '<p class="small" style="text-align:center;font-weight:750;margin:0">' + esc(L.label) + ", tutor stars from every lesson this term</p>" +
+      (rows ? '<ol class="lrows">' + rows + "</ol>" : '<p class="empty">No tutor stars yet this term. Star a piece in feedback and it lands here</p>') +
+      '<p class="small" style="text-align:center;margin-top:18px;font-weight:700">' + L.stars + (L.stars === 1 ? " star" : " stars") + " so far. Each lesson's leaderboard starts fresh, stars carry across the term</p></section>";
+    if (B.ladParty !== B.room + L.term && rows) { B.ladParty = B.room + L.term; setTimeout(function () { UI.confetti(2600); }, 900); }
+  }
+  function ladder(on, extra) {
+    var cur = B.view.ladder || {};
+    return phase("ladder", Object.assign({ on: on, term: cur.term || "", anon: cur.anon || 0 }, extra || {}));
+  }
+
   /* ---------- top bar and controls ---------- */
   function topRight(v) {
     $("topRight").innerHTML = '<span class="classchip">' + esc(v.cls) + ", " + esc(v.campus) + "</span>" +
@@ -419,7 +504,12 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
   function controls(v) {
     if (SCREEN) { $("controls").hidden = true; return; }
     var c = [];
-    if (v.phase === "writing") {
+    if (v.ladder && v.ladder.on) {
+      var L = B.lad && B.lad.data, terms = (L && L.terms) || [{ id: v.term, label: WB.termLabel(v.term) }], cur = (L && L.term) || v.ladder.term || v.term;
+      c.push('<button class="btn primary big" id="ladOff" type="button">Close Term Ladder</button>');
+      c.push('<select id="ladTerm" aria-label="Term">' + terms.map(function (t) { return '<option value="' + esc(t.id) + '"' + (t.id === cur ? " selected" : "") + ">" + esc(t.label) + "</option>"; }).join("") + "</select>");
+      c.push('<label class="sw"><input type="checkbox" id="ladAnon"' + (v.ladder.anon ? " checked" : "") + ">Anonymous</label>");
+    } else if (v.phase === "writing") {
       var running = v.endAt && v.endAt > now();
       if (running) { c.push('<button class="btn" data-op="timerAdd" type="button">Add 1 minute</button>'); c.push('<button class="btn" data-op="timerClear" type="button">Stop timer</button>'); }
       else {
@@ -437,6 +527,10 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
       c.push('<button class="btn" data-phase="feedback" type="button">Back to feedback</button>');
       c.push('<button class="btn" id="again" type="button">Replay celebration</button>');
     }
+    if (!(v.ladder && v.ladder.on)) {
+      if (v.phase !== "leaderboard") c.push('<button class="btn" id="paperBtn" type="button">Add from Paper</button>');
+      c.push('<button class="btn" id="ladOn" type="button">' + UI.starSvg(18, "#E8A400") + " Term Ladder</button>");
+    }
     c.push('<span class="sep"></span><label class="sw"><input type="checkbox" id="priv"' + (B.priv ? " checked" : "") + '>Names and votes</label>');
     c.push('<button class="btn" id="proj" type="button">Projector screen</button><button class="btn" id="fs" type="button">Full screen<span class="k">F</span></button>');
     c.push('<button class="btn" id="newRoom" type="button">New room</button>');
@@ -446,6 +540,11 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
     $("proj").onclick = function () { window.open("?room=" + B.room + "&screen=1", "wb-screen-" + B.room); };
     $("newRoom").onclick = function () { if (!confirm("Leave this room and set up a new one?")) return; Board.ls("wb-board-room", null); B.room = ""; B.view = null; history.replaceState(null, "", "./"); poller.reset(); renderEmpty(); };
     if ($("again")) $("again").onclick = function () { UI.confetti(); };
+    if ($("paperBtn")) $("paperBtn").onclick = function () { paperModal(null); };
+    if ($("ladOn")) $("ladOn").onclick = function () { B.open = null; B.lad = null; ladder(1); };
+    if ($("ladOff")) $("ladOff").onclick = function () { ladder(0); };
+    if ($("ladTerm")) $("ladTerm").onchange = function () { B.lad = null; ladder(1, { term: this.value }); };
+    if ($("ladAnon")) $("ladAnon").onchange = function () { ladder(1, { anon: this.checked ? 1 : 0 }); };
   }
   function fullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
   $("controls").addEventListener("click", function (e) {
@@ -457,10 +556,12 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
   document.addEventListener("keydown", function (e) {
     if (!B.view || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
     if (e.key.toLowerCase() === "f") fullscreen();
+    if (e.key === "Escape" && !$("modal").hidden) { closeModal(); return; }
     if (e.key === "Escape" && B.open && $("pal").hidden) closePiece();
   });
 
   var tickInt = setInterval(tick, 250);
+  setInterval(function () { if (B.view && B.view.ladder && B.view.ladder.on) loadLadder(B.view); }, 5000);
   function tick() {
     var v = B.view, el = $("tm"); if (!v || !el || !v.endAt) return;
     var ms = v.endAt - now(); el.textContent = ms > 0 ? Board.clock(ms) : "Time is up"; el.classList.toggle("low", ms < 60000);
@@ -474,15 +575,16 @@ body.screen .pv .side{max-height:calc(100vh - 110px)}
     if (!v.tutor) { B.room = ""; renderEmpty("This screen is not the tutor board for that room. Make a new room here."); return; }
     B.view = v; B.offset = v.now - Date.now();
     if (same && !force) return;
-    var open = SCREEN ? (v.focus && v.phase !== "leaderboard" ? v.focus : null) : B.open;
-    var key = [v.v, open, B.priv, B.hl].join("|");
+    var lad = !!(v.ladder && v.ladder.on);
+    var open = lad ? null : SCREEN ? (v.focus && v.phase !== "leaderboard" ? v.focus : null) : B.open;
+    var key = [v.v, open, B.priv, B.hl, lad].join("|");
     if (key === B.lastKey && !force) return;
     var ae = document.activeElement;
     if (!force && ae && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && $("main").contains(ae)) { topRight(v); return; }
     if (!force && !$("pal").hidden) return;
     B.lastKey = key;
     var sy = window.scrollY, pb = document.querySelector(".pbody"), psy = pb ? pb.scrollTop : 0;
-    if (open) renderPiece(v, open); else renderPhase(v);
+    if (lad) renderLadder(v); else if (open) renderPiece(v, open); else renderPhase(v);
     window.scrollTo(0, sy); pb = document.querySelector(".pbody"); if (pb) pb.scrollTop = psy;
     topRight(v); controls(v);
     document.title = (SCREEN ? "Screen" : "Writing Board") + ", " + B.room;

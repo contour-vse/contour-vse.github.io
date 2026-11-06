@@ -21,7 +21,13 @@ var Board = (function () {
       exists: function (c) { return !!db.rooms[c]; },
       meta: function (c) { return db.rooms[c] ? copy(db.rooms[c].meta) : null; },
       load: function (c) { return copy(db.rooms[c]); },
-      save: function (c, R) { db.rooms[c] = R; wrote = true; }
+      save: function (c, R) { db.rooms[c] = R; wrote = true; },
+      /* Term Ladder in demo mode: every star in every room on this computer. */
+      stars: function (ck) {
+        var out = [];
+        for (var c in db.rooms) WB.starRows(db.rooms[c]).forEach(function (r) { if (r.ck === ck) out.push(r); });
+        return out;
+      }
     };
     var res = WB.handle(body, store, { now: Date.now(), rand: Math.random });
     delete res.log;

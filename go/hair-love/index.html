@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="8; url=https://www.youtube.com/watch?v=kNw8V_Fkw28">
+<title>Hair Love</title>
+<link rel="canonical" href="https://www.youtube.com/watch?v=kNw8V_Fkw28">
+<link rel="stylesheet" href="../../team-challenge/live.css">
+<style>
+body{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.go{width:100%;max-width:460px;text-align:center;padding:30px 24px}
+.go .mark{width:64px;height:64px;border-radius:18px;margin:0 auto 18px}
+.go .mark svg{width:32px;height:32px}
+.go h1{font-size:30px;font-weight:850;letter-spacing:-.025em;color:var(--navy);margin:4px 0 8px;line-height:1.1}
+.go p.sub{color:var(--muted);font-weight:650;margin:0 0 22px}
+.go .btn{display:block;text-decoration:none}
+.go .dots{display:flex;justify-content:center;gap:6px;margin:0 0 18px}
+.go .dots i{width:9px;height:9px;border-radius:50%;background:var(--blue);animation:b 1.2s infinite ease-in-out}
+.go .dots i:nth-child(2){animation-delay:.15s}.go .dots i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+.go .foot{font-size:14px;color:var(--muted);font-weight:650;margin:16px 0 0}
+.cite{background:var(--navy-soft);border-radius:16px;padding:14px 16px;margin:0 0 20px;text-align:left}
+.cite dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:16px}
+.cite dt{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-ink);padding-top:3px}
+.cite dd{margin:0;font-weight:750;color:var(--ink)}
+.moved{background:#FFF4D6;border:2px solid #FFD27A;color:#6B4700;border-radius:14px;padding:12px 14px;font-weight:750;margin:0 0 18px}
+.count{font-family:var(--mono);font-weight:800;color:var(--navy)}
+.brandline{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:22px;font-weight:850;color:var(--navy);font-size:15px;letter-spacing:.02em}
+.brandline span{width:10px;height:10px;border-radius:3px;background:var(--navy)}
+</style>
+</head>
+<body>
+<main class="card go">
+  <div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="#fff"/></svg></div>
+  <p class="eyebrow">Free Short Film</p>
+  <h1>Hair Love</h1>
+  <div class="cite"><dl>
+    <dt>Title</dt><dd>Hair Love</dd>
+    <dt>Studio</dt><dd>Sony Pictures Animation</dd>
+    <dt>Year</dt><dd>2019</dd>
+    <dt>Director</dt><dd>Matthew A. Cherry, with Everett Downing Jr. and Bruce W. Smith</dd>
+  </dl></div>
+  <a class="btn primary big" id="go" href="https://www.youtube.com/watch?v=kNw8V_Fkw28">Watch Hair Love</a>
+  <p class="foot">Opening YouTube in <span class="count" id="count">6</span>. The full short, free on the studio&#x27;s official channel</p>
+  <div class="brandline"><span></span>Contour TestPrep</div>
+</main>
+<script>
+(function () {
+  var url = "https://www.youtube.com/watch?v=kNw8V_Fkw28";
+  var left = 6, go = document.getElementById("go"), c = document.getElementById("count");
+  go.href = url;
+  function tick() {
+    if (c) c.textContent = left;
+    if (left <= 0) { try { location.replace(url); } catch (e) {} return; }
+    left--; setTimeout(tick, 1000);
+  }
+  tick();
+})();
+</script>
+</body>
+</html>

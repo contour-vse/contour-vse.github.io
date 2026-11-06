@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="How to run Contour's live class tools: Team Challenge, Swiftread, Writing Board, Prompt Feud and Marker Match.">
+<meta name="robots" content="noindex">
+<title>How to Run Contour Live Tools</title>
+<link rel="stylesheet" href="../team-challenge/live.css">
+<style>
+body{padding:22px 16px 40px}
+.sheet{max-width:1080px;margin:0 auto}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.head h1{font-size:clamp(26px,3.4vw,36px);font-weight:850;letter-spacing:-.025em;color:var(--navy);margin:2px 0 0;line-height:1.1}
+.head .lead{margin:6px 0 0;font-weight:650;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tool{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:12px;break-inside:avoid}
+.tool h2{display:flex;align-items:center;gap:10px;margin:0 0 4px;font-size:21px;font-weight:850;letter-spacing:-.015em;color:var(--navy)}
+.tool h2 .mark{width:30px;height:30px;border-radius:9px}
+.tool h2 .mark svg{width:17px;height:17px}
+.tool .what{margin:0 0 8px;font-weight:700;color:var(--blue-ink);font-size:15px}
+.tool ol{margin:0;padding:0;list-style:none;display:grid;gap:5px;counter-reset:s}
+.tool li{display:grid;grid-template-columns:22px 1fr;gap:7px;font-size:14.5px;font-weight:600;line-height:1.38;counter-increment:s}
+.tool li::before{content:counter(s);width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;font-family:var(--mono);font-weight:800;font-size:12px;display:grid;place-items:center;margin-top:1px}
+.tool b{color:var(--navy)}
+.qrbox{text-align:center}
+.qr{width:112px;height:112px;border:2px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.qr svg{display:block;width:100%;height:100%}
+.qrbox p{margin:6px 0 0;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.qrbox a{display:block;font-family:var(--mono);font-size:11px;color:var(--blue-ink);word-break:break-all;margin-top:2px;text-decoration:none}
+.tool.wide{grid-column:1 / -1}
+.tips{background:var(--navy);color:#fff;border-radius:18px;padding:14px 18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.tips h3{margin:0 0 4px;font-size:15px;font-weight:850}
+.tips p{margin:0;font-size:14px;font-weight:600;opacity:.92;line-height:1.38}
+.foot{display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-size:13px;font-weight:700;color:var(--muted)}
+.brandline{display:flex;align-items:center;gap:8px;font-weight:850;color:var(--navy)}
+.brandline span{width:10px;height:10px;border-radius:3px;background:var(--navy)}
+@media (max-width:760px){.grid,.tips{grid-template-columns:1fr}.tool{grid-template-columns:1fr}.qrbox{display:flex;gap:12px;align-items:center;text-align:left}.qrbox p{margin:0}}
+@page{size:A4;margin:9mm}
+@media print{
+  body{background:#fff;padding:0;font-size:12px}
+  .noprint{display:none!important}
+  .sheet{max-width:none}
+  .head{margin-bottom:8px}
+  .head h1{font-size:23px}
+  .head .lead{font-size:12.5px;margin-top:3px}
+  .grid{gap:7px}
+  .tool{padding:9px 11px;border-radius:12px;grid-template-columns:minmax(0,1fr) 92px;gap:8px}
+  .tool h2{font-size:16px;margin-bottom:2px}
+  .tool h2 .mark{width:22px;height:22px;border-radius:7px}
+  .tool h2 .mark svg{width:13px;height:13px}
+  .tool .what{font-size:11.5px;margin-bottom:5px}
+  .tool ol{gap:3px}
+  .tool li{font-size:11px;line-height:1.3;grid-template-columns:17px 1fr;gap:5px}
+  .tool li::before{width:15px;height:15px;font-size:9.5px}
+  .qr{width:92px;height:92px}
+  .qrbox p{font-size:9px}
+  .qrbox a{font-size:8.5px}
+  .tips{padding:9px 12px;border-radius:12px;gap:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tips h3{font-size:12px}.tips p{font-size:10.5px}
+  .mark,.tool li::before{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .foot{font-size:10px;margin-top:6px}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header class="head">
+    <div>
+      <p class="eyebrow">Contour TestPrep, Tutor Guide</p>
+      <h1>How to Run Contour Live Tools</h1>
+      <p class="lead">Scan a QR on the class computer to open that tool's tutor screen. Students join on their phones with the room code.</p>
+    </div>
+    <button class="btn primary noprint" type="button" onclick="window.print()">Print This Guide</button>
+  </header>
+
+  <div class="grid" id="tools"></div>
+
+  <section class="tips" style="margin-top:12px">
+    <div><h3>No Device? No Problem</h3><p>Writing Board: <b>Add from Paper</b>. Marker Match: <b>Add Paper Marks</b>. Prompt Feud: <b>Type a Guess Said Aloud</b>.</p></div>
+    <div><h3>Names Stay Private</h3><p>In the writing tools students see made up names like Teal Fox. Real names only show on your screen when you switch Names on.</p></div>
+    <div><h3>Projector Screen</h3><p>Open Projector screen from the tutor controls. It shows the game without names or your marks.</p></div>
+  </section>
+  <footer class="foot"><span class="brandline"><span></span>Contour TestPrep</span><span>Leaderboards reset each lesson. Writing Board stars carry across the term on the Term Ladder.</span></footer>
+</div>
+
+<script src="../team-challenge/qr.js"></script>
+<script>
+(function () {
+  var I = {
+    team: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.5 19c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5M14.5 14.6c2.6-.4 4.9.9 5.8 4.4"/></svg>',
+    swift: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+    wb: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
+    pf: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 14.5h18M12 4v16"/></svg>',
+    mm: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18h3M4 13h7M4 8h11"/><path d="M14.5 16.5l2.5 2.5 4.5-5"/></svg>'
+  };
+  var TOOLS = [
+    { name: "Team Challenge", icon: I.team, path: "team-challenge/board/", what: "Teams race through warm up and challenge questions, then a solo sprint and quiz", steps: [
+      "Pick the campus, class and resource, tick the parts you will run and type your prize, then <b>Create room</b>",
+      "Students join on their phones with the code and pick a team",
+      "Run Round 1 and Round 2, then reveal each answer and talk it through",
+      "Start the 12 minute Exam Sprint or Quiz. Winners go up in the weekly Hall of Fame"] },
+    { name: "Swiftread", icon: I.swift, path: "swiftread/?mode=class", what: "Word flash, scan drills and read then recall on this week's passages", steps: [
+      "Open it in <b>Class mode</b> on the projector and pick the passage",
+      "Run Word Flash to warm up, then a Scan drill to find details fast",
+      "Run Read then Recall: read once, then answer without looking back",
+      "Students can repeat the drills on their own at /swiftread"] },
+    { name: "Writing Board", icon: I.wb, path: "writing-board/board/", what: "Students write on their phones, read and vote anonymously, you mark live", steps: [
+      "Pick the campus and class, type the task and prompt, then <b>Create room</b>",
+      "Students go to /go/writing-board and type the code and first name. Start the timer",
+      "Type in paper pieces with <b>Add from Paper</b>, then close writing so the class reads and votes",
+      "Open pieces to highlight, mark out of 10 and star. Show the leaderboard, then the <b>Term Ladder</b>"] },
+    { name: "Prompt Feud", icon: I.pf, path: "prompt-feud/board/", what: "Teams guess the most common ways the class reads a prompt", steps: [
+      "Pick the campus and class, name two to four teams, then <b>Create room</b>",
+      "Students go to /go/prompt-feud, type the code and join a team",
+      "Pick a prompt, or run a live round where the class writes its readings first",
+      "Tap the matching answer or give a strike. <b>Type a Guess Said Aloud</b> for students without a device"] },
+    { name: "Marker Match", icon: I.mm, path: "marker-match/board/", what: "Students mark a real piece out of 10 per criterion and see how close they came to you", steps: [
+      "Pick the campus, class and set, then <b>Create room</b>",
+      "Students go to /go/marker-match and type the code and first name",
+      "Put a piece up. Students mark Ideas, Structure, Language and Control, then lock in",
+      "Enter paper students with <b>Add Paper Marks</b>, then <b>Reveal</b>. Points are 40 minus the gap to your marks"] }
+  ];
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var html = TOOLS.map(function (t, i) {
+    var url = new URL("../" + t.path, location.href).href;
+    return '<section class="tool' + (i === TOOLS.length - 1 && TOOLS.length % 2 ? " wide" : "") + '"><div><h2><span class="mark">' + t.icon + "</span>" + esc(t.name) + "</h2>" +
+      '<p class="what">' + esc(t.what) + "</p><ol>" + t.steps.map(function (s) { return "<li><span>" + s + "</span></li>"; }).join("") + "</ol></div>" +
+      '<div class="qrbox"><div class="qr" data-url="' + esc(url) + '"></div><div><p>Tutor screen</p><a href="' + esc(url) + '">' + esc(url.replace(/^https?:\/\//, "")) + "</a></div></div></section>";
+  }).join("");
+  document.getElementById("tools").innerHTML = html;
+  Array.prototype.forEach.call(document.querySelectorAll(".qr[data-url]"), function (el) { el.innerHTML = QR.svg(el.dataset.url, { dark: "#0B3D91" }); });
+})();
+</script>
+</body>
+</html>

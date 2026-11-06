@@ -152,20 +152,20 @@ h2{font-size:28px;font-weight:850;letter-spacing:-.025em;color:var(--navy);margi
 
   function renderLobby(v) {
     bar("");
-    $("app").innerHTML = strip(v) + '<section class="card wait"><div class="pulse"></div><p class="big">' + (v.rounds ? "Next Piece Soon" : "Get Ready to Mark") + "</p><p>Read the piece, mark it out of 5 on each criterion and lock in</p></section>";
+    $("app").innerHTML = strip(v) + '<section class="card wait"><div class="pulse"></div><p class="big">' + (v.rounds ? "Next Piece Soon" : "Get Ready to Mark") + "</p><p>Read the piece, mark it out of 10 on each criterion and lock in</p></section>";
   }
   function renderMarking(v) {
     var mine = v.me.r, d = mine || draft(v), rub = v.piece.rubric || {};
     var rows = MM.CRIT.map(function (c) {
       var b = "";
-      for (var i = 1; i <= 5; i++) b += '<button type="button" data-c="' + c + '" data-n="' + i + '" class="' + (d[c] === i ? "on" : "") + '"' + (mine ? " disabled" : "") + ">" + i + "</button>";
+      for (var i = 1; i <= MM.TOP; i++) b += '<button type="button" data-c="' + c + '" data-n="' + i + '" class="' + (d[c] === i ? "on" : "") + '"' + (mine ? " disabled" : "") + ">" + i + "</button>";
       return '<div class="cr' + (d[c] ? " done" : "") + '"><div class="ch"><b>' + c + "</b><small>" + esc(rub[c] || UI.HINT[c]) + '</small></div><div class="nums' + (mine ? " locked" : "") + '">' + b + "</div></div>";
     }).join("");
     $("app").innerHTML = strip(v) + pieceCard(v) +
       (mine ? '<p class="note green">Locked in. Wait for the reveal</p>' : '<p class="note blue">Mark it the way your tutor would, then lock in</p>') +
       '<section class="card"><p class="eyebrow">Your Marks</p><div class="crit" id="crit">' + rows + "</div></section>";
     if ($("more")) $("more").onclick = function () { S.open = true; S.lastKey = ""; render(S.view, false); };
-    if (mine) { bar('<span class="sum">' + UI.total(mine) + ' / 20</span><button class="btn green big" type="button" disabled>Locked in</button>'); return; }
+    if (mine) { bar('<span class="sum">' + UI.total(mine) + ' / ' + MM.MAX_PTS + '</span><button class="btn green big" type="button" disabled>Locked in</button>'); return; }
     lockBar(v, d);
     $("crit").onclick = function (e) {
       var b = e.target.closest("[data-c]"); if (!b) return;
@@ -177,7 +177,7 @@ h2{font-size:28px;font-weight:850;letter-spacing:-.025em;color:var(--navy);margi
   }
   function lockBar(v, d) {
     var n = MM.CRIT.filter(function (c) { return d[c]; }).length;
-    bar('<span class="sum">' + UI.total(d) + ' / 20</span><button class="btn primary big" id="lock" type="button"' + (n < 4 || S.sending ? " disabled" : "") + ">" + (n < 4 ? "Mark all four" : "Lock in") + "</button>");
+    bar('<span class="sum">' + UI.total(d) + ' / ' + MM.MAX_PTS + '</span><button class="btn primary big" id="lock" type="button"' + (n < 4 || S.sending ? " disabled" : "") + ">" + (n < 4 ? "Mark all four" : "Lock in") + "</button>");
     $("lock").onclick = function () {
       if (S.sending) return; S.sending = true; this.disabled = true;
       Net.call("mm.lock", { room: S.room, pid: S.pid, r: draft(v) }).then(function (r) {
@@ -190,11 +190,11 @@ h2{font-size:28px;font-weight:850;letter-spacing:-.025em;color:var(--navy);margi
   function renderReveal(v) {
     bar("");
     var me = v.me, r = me.r;
-    var top = r ? '<section class="card"><div class="score"><div class="n">' + me.pts + '<small>/20</small></div><div class="t">' + (me.d === 0 ? "A Perfect Match" : me.d <= 2 ? "So Close to Your Tutor" : me.d <= 5 ? "Close to Your Tutor" : "Some Way Off This Time") +
+    var top = r ? '<section class="card"><div class="score"><div class="n">' + me.pts + '<small>/' + MM.MAX_PTS + '</small></div><div class="t">' + (me.d === 0 ? "A Perfect Match" : me.d <= 4 ? "So Close to Your Tutor" : me.d <= 10 ? "Close to Your Tutor" : "Some Way Off This Time") +
       "<span>" + (me.d === 1 ? "1 mark away" : me.d + " marks away") + ", " + UI.pts(me.tot) + " in total, " + UI.ordinal(me.rank) + " of " + me.of + "</span></div></div>" +
       '<div class="cmp" style="margin-top:14px"><div><span class="h">Criterion</span><span class="h" style="text-align:center">You</span><span class="h" style="text-align:center">Tutor</span><span class="h" style="text-align:center">Gap</span></div>' + MM.CRIT.map(function (c) {
         var g = Math.abs(r[c] - v.tm[c]);
-        return "<div><span>" + c + "</span><b>" + r[c] + '</b><b class="t">' + v.tm[c] + '</b><span class="off ' + (g === 0 ? "z" : g === 1 ? "o" : "f") + '">' + (g === 0 ? "Match" : g) + "</span></div>";
+        return "<div><span>" + c + "</span><b>" + r[c] + '</b><b class="t">' + v.tm[c] + '</b><span class="off ' + (g === 0 ? "z" : g <= 2 ? "o" : "f") + '">' + (g === 0 ? "Match" : g) + "</span></div>";
       }).join("") + "</div></section>" :
       '<section class="card wait"><p class="big">No Marks From You This Time</p><p>Your tutor\'s marks are below</p></section>';
     $("app").innerHTML = strip(v) + top +
@@ -202,7 +202,7 @@ h2{font-size:28px;font-weight:850;letter-spacing:-.025em;color:var(--navy);margi
       UI.plots(v.spread, v.tm, { mine: r, avg: v.avg }) +
       '<div class="legend" style="margin-top:16px"><span><i></i>Class</span>' + (r ? '<span><i class="me"></i>You</span>' : "") + '<span><i class="tm"></i>Tutor</span><span><i class="avg"></i>Average</span></div></section>' +
       (v.why ? '<div class="why"><span class="lab">Why</span>' + esc(v.why) + "</div>" : "");
-    if (r && me.d <= 2 && S.party !== S.room + v.round) { S.party = S.room + v.round; setTimeout(function () { UI.confetti(2600); }, 1400); }
+    if (r && me.d <= 4 && S.party !== S.room + v.round) { S.party = S.room + v.round; setTimeout(function () { UI.confetti(2600); }, 1400); }
   }
   function renderLeaderboard(v) {
     bar("");

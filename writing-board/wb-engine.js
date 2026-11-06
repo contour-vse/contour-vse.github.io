@@ -3,12 +3,14 @@
    No DOM, no network, no clock: the caller passes ctx = {now, rand}.
    A room R = {meta, pieces, marks}:
      meta   = {code, tk, created, v, campus, cls, title, type, prompt, mins, rubric, phase, endAt, focus,
-               players: {pid: {n, a (anonymous name), k (public piece key), at, s (has a piece), m (has marks)}},
-               votes: {voterPid: pieceKey}}
+               players: {pid: {n, a (anonymous name), k (public piece key), at, s (has a piece), m (has marks), pp (a paper piece the tutor typed)}},
+               votes: {voterPid: pieceKey}, ladder: {on, term, anon} (the Term Ladder on the projector)}
      pieces = {pid: {t (text), at (first submit), up (last submit), w (words)}}
-     marks  = {pid: {h: [{id, s, e, q, cat, g, c}], c (whole piece comment), r: {Ideas..Control: 1 to 5}, star}}
+     marks  = {pid: {h: [{id, s, e, q, cat, g, c}], c (whole piece comment), r: {Ideas..Control: 0 to 10}, star}}
    The pid is a student's private id (it signs their actions); everyone else only ever sees the piece key k.
-   store = {exists(code), meta(code) -> meta|null, load(code) -> R|null, save(code, R, dirty)}. */
+   Term Ladder: tutor stars carry across the term. A class is campus + class text (normalised), a student is their first name in that class,
+   a term is the calendar quarter of the room's start (Melbourne time). Each star is a WBStars row: starRow() below.
+   store = {exists(code), meta(code) -> meta|null, load(code) -> R|null, save(code, R, dirty), stars(classKey) -> [starRow] (for wb.ladder)}. */
 var WB = (function () {
   var ALPHA = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   var TYPES = ["Short Answer", "Plan", "Paragraph", "Full Essay"];
@@ -19,7 +21,7 @@ var WB = (function () {
   var LIMITS = [0, 3, 5, 8, 10, 12, 15, 20, 25, 30, 35, 40, 45];
   var COLOURS = ["Teal", "Coral", "Amber", "Indigo", "Jade", "Ruby", "Olive", "Plum", "Cobalt", "Mint", "Scarlet", "Violet", "Copper", "Silver", "Gold", "Saffron", "Crimson", "Azure", "Lilac", "Ochre"];
   var ANIMALS = ["Fox", "Owl", "Otter", "Koala", "Wombat", "Panda", "Falcon", "Lynx", "Gecko", "Heron", "Quokka", "Puffin", "Echidna", "Dingo", "Kestrel", "Possum", "Platypus", "Magpie", "Dolphin", "Emu", "Robin", "Seal"];
-  var STAR = 3, MAX_TEXT = 8000, MAX_HL = 80, MAX_NOTE = 400, MAX_WHOLE = 1200;
+  var STAR = 3, RUB_MAX = 10, MAX_TEXT = 8000, MAX_HL = 80, MAX_NOTE = 400, MAX_WHOLE = 1200, MAX_PAPER = 3000, MEL = 10 * 3600000;
 
   function err(code, msg) { return { ok: false, error: code, message: msg || code }; }
   function clean(s, max) { return String(s == null ? "" : s).replace(/[\u0000-\u001f<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max); }
@@ -68,6 +70,58 @@ var WB = (function () {
     return null;
   }
   function blankMarks() { return { h: [], c: "", r: {}, star: 0 }; }
+
+  /* ---- Term Ladder ---- */
+  function norm(s) { return String(s == null ? "" : s).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
+  function classKey(campus, cls) { return norm(campus) + "|" + norm(cls); }
+  function firstName(n) {
+    var w = String(n == null ? "" : n).replace(/[^A-Za-z\u00C0-\u024F' ]+/g, " ").trim().split(/\s+/)[0] || "";
+    return w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : "";
+  }
+  /* Calendar quarter in Melbourne time (AEST, close enough at the edges): {id: "2026-T4", label: "Term 4 2026"}. */
+  function termOf(ms) {
+    var d = new Date(Number(ms) + MEL), y = d.getUTCFullYear(), q = Math.floor(d.getUTCMonth() / 3) + 1;
+    return { id: y + "-T" + q, label: "Term " + q + " " + y };
+  }
+  function termLabel(id) { var m = /^(\d{4})-T([1-4])$/.exec(id || ""); return m ? "Term " + m[2] + " " + m[1] : ""; }
+  /* One star record per piece: the WBStars row (and the demo store) are built from this. */
+  function starRow(M, pid, star) {
+    var p = M.players[pid];
+    return { key: M.code + ":" + pid, room: M.code, term: termOf(M.created).id, ck: classKey(M.campus, M.cls), campus: M.campus, cls: M.cls, n: firstName(p && p.n), star: star ? 1 : 0 };
+  }
+  function starRows(R) {
+    var out = [];
+    for (var pid in R.marks) if (R.marks[pid].star && R.meta.players[pid]) out.push(starRow(R.meta, pid, 1));
+    return out;
+  }
+  function starLog(M, pid, star, now) {
+    var r = starRow(M, pid, star);
+    return { tab: "WBStars", key: r.key, ck: r.ck, row: [r.key, new Date(now), r.room, r.term, r.ck, r.campus, r.cls, r.n, r.star] };
+  }
+  /* A colour and an animal that stay the same for one student all term (for the anonymous ladder). */
+  function ladderAnon(ck, n) {
+    var rnd = seeded(ck + "|" + n.toLowerCase());
+    return COLOURS[Math.floor(rnd() * COLOURS.length)] + " " + ANIMALS[Math.floor(rnd() * ANIMALS.length)];
+  }
+  /* Stars per first name for one class and one term. rows: starRow list (any class; others are skipped). */
+  function ladder(rows, ck, term) {
+    var by = {}, terms = {}, out = [], used = {};
+    (rows || []).forEach(function (r) {
+      if (r.ck !== ck || !r.n) return;
+      terms[r.term] = 1;
+      if (r.term !== term || !Number(r.star)) return;
+      var key = r.n.toLowerCase(), e = by[key] || (by[key] = { n: r.n, stars: 0, rooms: {} });
+      if (!e.rooms[r.room]) { e.rooms[r.room] = 1; }
+      e.stars++;
+    });
+    for (var k in by) out.push({ n: by[k].n, stars: by[k].stars, lessons: Object.keys(by[k].rooms).length });
+    out.sort(function (x, y) { return (y.stars - x.stars) || (x.n < y.n ? -1 : x.n > y.n ? 1 : 0); });
+    out.forEach(function (r) {
+      r.rank = 1 + out.filter(function (o) { return o.stars > r.stars; }).length;
+      var a = ladderAnon(ck, r.n), i = 2; while (used[a]) a = ladderAnon(ck, r.n + i++); used[a] = 1; r.anon = a;
+    });
+    return { rows: out, terms: Object.keys(terms) };
+  }
 
   /* Where a highlight sits in the text now: its saved offsets if the quote still matches, else the quote's first match. */
   function locate(text, h) {
@@ -132,9 +186,36 @@ var WB = (function () {
       else if (op === "focus") {
         if (b.k && !R.pieces[byKey(M, b.k)]) return err("piece", "That piece is not in");
         M.focus = b.k || "";
+      } else if (op === "ladder") {
+        var tm = String(b.term || "");
+        if (tm && !termLabel(tm)) return err("term", "Pick a term");
+        M.ladder = { on: b.on ? 1 : 0, term: tm, anon: b.anon ? 1 : 0 };
       } else return err("op");
       dirty.meta = true; log.push(roomLog(M, now));
       return done();
+    }
+
+    if (a === "wb.paper") {
+      if (M.phase === "leaderboard") return err("phase", "Go back to reading or feedback to add a piece");
+      var pn = clean(b.name, 20); if (!pn) return err("name", "Type the student's first name");
+      var pt = cleanText(b.text, MAX_PAPER); if (!pt) return err("empty", "Type the piece first");
+      var ppid = b.k ? byKey(M, String(b.k)) : null, pl;
+      if (b.k) {
+        if (!ppid || !M.players[ppid].pp) return err("piece", "That paper piece is gone");
+        pl = M.players[ppid]; pl.n = pn;
+      } else {
+        do { ppid = "paper" + makeCode(ctx.rand, 10); } while (M.players[ppid]);
+        var pk; do { pk = makeCode(ctx.rand, 8); } while (byKey(M, pk));
+        pl = M.players[ppid] = { n: pn, a: anonFor(M, ctx.rand), k: pk, at: now, pp: 1 };
+      }
+      var ppc = R.pieces[ppid] || { at: now };
+      ppc.t = pt; ppc.up = now; ppc.w = words(pt);
+      R.pieces[ppid] = ppc; pl.s = 1;
+      dirty.pieces.push(ppid); dirty.meta = true;
+      log.push(roomLog(M, now));
+      log.push({ tab: "WBPieces", key: M.code + ":" + ppid, row: [M.code + ":" + ppid, new Date(now), M.code, ppid, pl.n + " (paper)", pl.a, pt, ppc.w, new Date(ppc.at), new Date(ppc.up)] });
+      if (R.marks[ppid] && R.marks[ppid].star) log.push(starLog(M, ppid, 1, now));
+      return done({ k: pl.k, a: pl.a });
     }
 
     var me = M.players[b.pid];
@@ -196,10 +277,11 @@ var WB = (function () {
       } else if (hop === "rubric") {
         if (!M.rubric) return err("rubric", "The rubric is off for this room");
         var n = int(b.n);
-        if (CRIT.indexOf(b.crit) < 0 || !(n >= 0 && n <= 5)) return err("rubric");
+        if (CRIT.indexOf(b.crit) < 0 || !(n >= 0 && n <= RUB_MAX)) return err("rubric");
         if (n) mk.r[b.crit] = n; else delete mk.r[b.crit];
       } else if (hop === "star") {
         mk.star = b.on ? 1 : 0;
+        log.push(starLog(M, pid, mk.star, now));
       } else return err("op");
       R.marks[pid] = mk; M.players[pid].m = 1;
       dirty.marks.push(pid); dirty.meta = true;
@@ -230,9 +312,13 @@ var WB = (function () {
     lb.forEach(function (r) { byK[r.k] = r; });
     if (tutor) {
       v.tutor = true;
+      v.paper = Object.keys(M.players).filter(function (p) { return M.players[p].pp; }).length;
+      v.ladder = M.ladder || { on: 0, term: "", anon: 0 };
+      v.term = termOf(M.created).id;
       v.players = Object.keys(M.players).sort(function (x, y) { return M.players[x].at - M.players[y].at; }).map(function (pid) {
         var p = M.players[pid], pc = R.pieces[pid], r = byK[p.k];
         var o = { k: p.k, a: p.a, n: p.n, s: !!pc, voted: !!M.votes[pid] };
+        if (p.pp) o.pp = 1;
         if (pc) { o.t = pc.t; o.w = pc.w; o.at = pc.at; o.up = pc.up; o.votes = r.votes; o.pts = r.pts; o.mk = marksOut(pid); }
         return o;
       });
@@ -294,9 +380,28 @@ var WB = (function () {
       var R0 = store.load(room);
       return R0 ? view(R0, b, ctx) : err("room", "Room not found");
     }
+    if (a === "wb.ladder") {
+      var RL = store.load(room);
+      if (!RL) return err("room", "Room not found");
+      if (b.tk !== RL.meta.tk) return err("tutor", "Tutor key needed");
+      var ML = RL.meta, ck = classKey(ML.campus, ML.cls), now0 = termOf(ctx.now).id, here = termOf(ML.created).id;
+      var want = String(b.term || (ML.ladder && ML.ladder.term) || here);
+      if (!termLabel(want)) return err("term", "Pick a term");
+      /* This room's own stars win over what the store has (the store can lag a write behind). */
+      var mineRows = starRows(RL), seen = {};
+      mineRows.forEach(function (r) { seen[r.key] = 1; });
+      var all = (store.stars ? store.stars(ck) || [] : []).filter(function (r) { return !seen[r.key] && r.room !== ML.code; }).concat(mineRows);
+      var L = ladder(all, ck, want), ts = {};
+      L.terms.concat([now0, here, want]).forEach(function (t) { ts[t] = 1; });
+      return {
+        ok: true, campus: ML.campus, cls: ML.cls, term: want, label: termLabel(want), anon: ML.ladder && ML.ladder.anon ? 1 : 0,
+        terms: Object.keys(ts).sort().reverse().map(function (t) { return { id: t, label: termLabel(t) }; }),
+        rows: L.rows, stars: L.rows.reduce(function (s, r) { return s + r.stars; }, 0)
+      };
+    }
     var R1 = store.load(room);
     if (!R1) return err("room", "Room not found");
-    if ((a === "wb.mark" || a === "wb.phase") && b.tk !== R1.meta.tk) return err("tutor", "Tutor key needed");
+    if ((a === "wb.mark" || a === "wb.phase" || a === "wb.paper") && b.tk !== R1.meta.tk) return err("tutor", "Tutor key needed");
     var r = apply(R1, b, ctx);
     if (r.ok) { R1.meta.v++; store.save(room, R1, r.dirty); }
     delete r.dirty;
@@ -306,7 +411,8 @@ var WB = (function () {
 
   return {
     handle: handle, apply: apply, view: view, board: board, locate: locate, words: words, cleanText: cleanText,
-    TYPES: TYPES, GOOD: GOOD, FIX: FIX, CRIT: CRIT, PHASES: PHASES, LIMITS: LIMITS, STAR: STAR, MAX_TEXT: MAX_TEXT
+    classKey: classKey, firstName: firstName, termOf: termOf, termLabel: termLabel, starRow: starRow, starRows: starRows, ladder: ladder,
+    TYPES: TYPES, GOOD: GOOD, FIX: FIX, CRIT: CRIT, PHASES: PHASES, LIMITS: LIMITS, STAR: STAR, RUB_MAX: RUB_MAX, MAX_TEXT: MAX_TEXT, MAX_PAPER: MAX_PAPER
   };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = WB;

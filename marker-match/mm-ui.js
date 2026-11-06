@@ -4,27 +4,27 @@ var UI = (function () {
   var ICON = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18h3M4 13h7M4 8h11"/><path d="M14.5 16.5l2.5 2.5 4.5-5"/></svg>';
   var HINT = { Ideas: "How fresh and clear the idea is", Structure: "How the piece is built and paced", Language: "Word choice, showing, variety", Control: "Tense, punctuation, sentences" };
 
-  /* One criterion: a dot per student on a 1 to 5 track, the tutor's mark boxed.
-     counts = [n1..n5]; opts: {tm, mine, avg, big, delay (s)} */
+  /* One criterion: a dot per student on a 1 to 10 track, the tutor's mark boxed.
+     counts = [n1..n10]; opts: {tm, mine, avg, big, delay (s)} */
   function dotRow(crit, counts, opts) {
     opts = opts || {};
     var cols = "", d = opts.delay || 0, maxN = Math.max.apply(null, counts.concat([1]));
-    for (var i = 1; i <= 5; i++) {
+    for (var i = 1; i <= MM.TOP; i++) {
       var n = counts[i - 1] || 0, dots = "";
       for (var j = 0; j < n; j++) {
         var me = opts.mine === i && j === 0;
-        dots += '<i class="' + (me ? "me" : "") + '" style="animation-delay:' + (d + 0.25 + (i - 1) * 0.08 + j * 0.035).toFixed(2) + 's"></i>';
+        dots += '<i class="' + (me ? "me" : "") + '" style="animation-delay:' + (d + 0.25 + (i - 1) * 0.04 + j * 0.035).toFixed(2) + 's"></i>';
       }
       cols += '<div class="dpc' + (opts.tm === i ? " tm" : "") + '">' + (opts.tm === i ? '<span class="flag" style="animation-delay:' + (d + 0.9).toFixed(2) + 's">Tutor</span>' : "") +
         '<div class="stack">' + dots + '</div><span class="ax">' + i + "</span></div>";
     }
-    var avg = opts.avg ? '<span class="avgm" style="left:' + ((opts.avg - 0.5) / 5 * 100).toFixed(1) + '%" title="Class average ' + opts.avg + '"></span>' : "";
+    var avg = opts.avg ? '<span class="avgm" style="left:' + ((opts.avg - 0.5) / MM.TOP * 100).toFixed(1) + '%" title="Class average ' + opts.avg + '"></span>' : "";
     return '<div class="dp' + (opts.big ? " big" : "") + '" style="--maxn:' + maxN + '"><div class="dpl"><span>' + crit + "</span>" + (opts.tm ? '<b style="animation-delay:' + (d + 0.9).toFixed(2) + 's">' + opts.tm + "</b>" : "") + '</div><div class="dpt">' + cols + avg + "</div></div>";
   }
   function plots(spread, tm, opts) {
     opts = opts || {};
     return '<div class="plots">' + MM.CRIT.map(function (c, k) {
-      return dotRow(c, (spread || {})[c] || [0, 0, 0, 0, 0], { tm: tm && tm[c], mine: opts.mine && opts.mine[c], avg: opts.avg && opts.avg[c], big: opts.big, delay: k * 0.35 });
+      return dotRow(c, (spread || {})[c] || [], { tm: tm && tm[c], mine: opts.mine && opts.mine[c], avg: opts.avg && opts.avg[c], big: opts.big, delay: k * 0.35 });
     }).join("") + "</div>";
   }
   /* Largest font (max to min px) at which el fits inside box without scrolling; long pieces get two columns on wide screens. */

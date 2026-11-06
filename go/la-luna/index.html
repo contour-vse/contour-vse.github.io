@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<meta http-equiv="refresh" content="0; url=https://www.disneyplus.com/browse/entity-fad7407a-95a1-492c-9f4c-2f8eb2f7769c">
+<meta http-equiv="refresh" content="8; url=../hair-love/">
 <title>La Luna</title>
-<link rel="canonical" href="https://www.disneyplus.com/browse/entity-fad7407a-95a1-492c-9f4c-2f8eb2f7769c">
+<link rel="canonical" href="../hair-love/">
 <link rel="stylesheet" href="../../team-challenge/live.css">
 <style>
 body{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
-.go{width:100%;max-width:440px;text-align:center;padding:30px 24px}
+.go{width:100%;max-width:460px;text-align:center;padding:30px 24px}
 .go .mark{width:64px;height:64px;border-radius:18px;margin:0 auto 18px}
 .go .mark svg{width:32px;height:32px}
 .go h1{font-size:30px;font-weight:850;letter-spacing:-.025em;color:var(--navy);margin:4px 0 8px;line-height:1.1}
@@ -21,6 +21,12 @@ body{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
 .go .dots i:nth-child(2){animation-delay:.15s}.go .dots i:nth-child(3){animation-delay:.3s}
 @keyframes b{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
 .go .foot{font-size:14px;color:var(--muted);font-weight:650;margin:16px 0 0}
+.cite{background:var(--navy-soft);border-radius:16px;padding:14px 16px;margin:0 0 20px;text-align:left}
+.cite dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:16px}
+.cite dt{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-ink);padding-top:3px}
+.cite dd{margin:0;font-weight:750;color:var(--ink)}
+.moved{background:#FFF4D6;border:2px solid #FFD27A;color:#6B4700;border-radius:14px;padding:12px 14px;font-weight:750;margin:0 0 18px}
+.count{font-family:var(--mono);font-weight:800;color:var(--navy)}
 .brandline{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:22px;font-weight:850;color:var(--navy);font-size:15px;letter-spacing:.02em}
 .brandline span{width:10px;height:10px;border-radius:3px;background:var(--navy)}
 </style>
@@ -28,19 +34,24 @@ body{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
 <body>
 <main class="card go">
   <div class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="#fff"/></svg></div>
-  <p class="eyebrow">Disney+</p>
-  <h1>Opening La Luna</h1>
-  <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
-  <p class="sub">If nothing happens, tap the button</p>
-  <a class="btn primary big" id="go" href="https://www.disneyplus.com/browse/entity-fad7407a-95a1-492c-9f4c-2f8eb2f7769c">Open La Luna on Disney+</a>
-  <p class="foot">A Pixar short. Sign in to Disney+ if it asks</p>
+  <p class="eyebrow">Film Moved</p>
+  <h1>La Luna Has Moved</h1>
+  <p class="moved">We now use Hair Love, a free short with no sign in. Like La Luna, it is a warm story about family and one big moment</p>
+  <a class="btn primary big" id="go" href="../hair-love/">Watch Hair Love</a>
+  <p class="foot">Opening Hair Love in <span class="count" id="count">6</span></p>
   <div class="brandline"><span></span>Contour TestPrep</div>
 </main>
 <script>
 (function () {
-  var url = "https://www.disneyplus.com/browse/entity-fad7407a-95a1-492c-9f4c-2f8eb2f7769c";
-  document.getElementById("go").href = url;
-  try { location.replace(url); } catch (e) {}
+  var url = "../hair-love/";
+  var left = 6, go = document.getElementById("go"), c = document.getElementById("count");
+  go.href = url;
+  function tick() {
+    if (c) c.textContent = left;
+    if (left <= 0) { try { location.replace(url); } catch (e) {} return; }
+    left--; setTimeout(tick, 1000);
+  }
+  tick();
 })();
 </script>
 </body>

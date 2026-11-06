@@ -82,3 +82,10 @@ textarea:focus-visible,select:focus-visible{outline:3px solid var(--blue);outlin
 .sw input:checked{background:var(--navy)}
 .sw input:checked::after{left:21px}
 @media (prefers-reduced-motion:reduce){.tile .inner,.tile.open.flip .inner{transition:none;animation:none}}
+
+/* How to Run panel (tutor setup screen) */
+.howto{background:var(--navy-soft);border-radius:16px;padding:14px 18px;margin:0 0 18px}
+.howto h3,.panel .howto h3{margin:0 0 8px;font-size:16px;font-weight:850;color:var(--navy);letter-spacing:-.01em;text-transform:none;font-family:inherit}
+.howto ol{margin:0;padding:0;list-style:none;display:grid;gap:6px;counter-reset:h}
+.howto li{display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:start;font-size:15px;font-weight:650;line-height:1.4;color:var(--ink);counter-increment:h}
+.howto li::before{content:counter(h);width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-family:var(--mono);font-weight:800;font-size:13px;display:grid;place-items:center}

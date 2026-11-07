@@ -70,6 +70,7 @@ button{font:inherit;cursor:pointer;border:0}
 .offer{background:var(--cream);color:var(--navy);border-radius:16px;padding:12px 16px;font:400 26px var(--H);display:flex;gap:10px;align-items:center;animation:pop .6s cubic-bezier(.3,1.6,.5,1) both}
 .qrbox{background:#fff;border-radius:26px;padding:18px;text-align:center;color:var(--navy)}
 .qrbox img{width:300px;height:300px;display:block}
+.tag{display:inline-block;background:var(--lime);color:var(--char);font:400 26px var(--H);border-radius:12px;padding:4px 14px;margin-bottom:12px;animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
 .keys{position:fixed;right:16px;bottom:12px;font-size:13px;opacity:.45}
 .hqa{display:grid;gap:12px}
 .hqa div{background:var(--cream);color:var(--char);border-radius:18px;padding:16px 20px;display:flex;gap:18px;align-items:center;font:700 26px var(--B);cursor:pointer}
@@ -80,20 +81,24 @@ button{font:inherit;cursor:pointer;border:0}
 </head>
 <body>
 <div id="app"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
-var EP="https://script.google.com/macros/s/AKfycbwD3QFP29DxqKClsoMkYQ9fnai_N2sA_TVp6Y-ac-NvUkzNVikNUoMqfWXICuxbyYqF/exec",SET="family-2026-11-08",DEF_ROOM="CLASH",QR="data:image/png;base64,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";
+var DBURL="https://contour-challenge-default-rtdb.asia-southeast1.firebasedatabase.app",DEF_ROOM="CLASH",QR="data:image/png;base64,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";
 var F=[["Comets","☄️","#007AFF"],["Falcons","🦅","#1F9D55"],["Rockets","🚀","#E5484D"],["Sharks","🦈","#E08A00"]];
 var OC=["#007AFF","#E5484D","#E0A100","#1F9D55"],L=["A","B","C","D"];
 var Q=[
- {q:"Ron Clarke from Melbourne High lit the Olympic cauldron at which Olympic Games?",o:["Sydney 2000","Melbourne 1956","London 1948","Rome 1960"],f:"He also went on to break 17 world records in running"},
- {q:"Sir John Eccles went to Melbourne High. What did he go on to win?",o:["A Brownlow Medal","The Archibald Prize","A Nobel Prize","The Stawell Gift"],f:"The Nobel Prize in Medicine, for how nerve cells talk to each other"},
- {q:"Mac.Rob was built with money from the man who made which lolly?",o:["Freddo Frog","Tim Tam","Violet Crumble","Caramello Koala"],f:"Sir Macpherson Robertson gave £40,000 to build the school. Cherry Ripe was his too"},
- {q:"Tan Le from Mac.Rob started a tech company. What does its headset read?",o:["Your fingerprints","Your heartbeat","Your eye colour","Your brain waves"],f:"She was also Young Australian of the Year"},
- {q:"Michael Gudinski from Melbourne High started the record label that launched which star?",o:["Taylor Swift","Ed Sheeran","Kylie Minogue","Beyoncé"],f:"Mushroom Records became one of the biggest labels in Australia"},
- {q:"About how many students apply for roughly 1,000 Year 9 places?",o:["2,000","6,000","20,000","100,000"],f:"About 1 in 6 get an offer. Today only the top 1 in 6 players get one too"},
- {q:"Nossal High trusts its students so much that it has no what?",o:["School bells","Teachers","Homework","Lockers"],f:"Students are expected to know where to be and when"},
- {q:"Lindsay Fox from Melbourne High built which giant company?",o:["Linfox trucks","Qantas","Woolworths","Bunnings"],f:"You see his red trucks on every freeway in Australia"}
+ {t:"WARM UP 🔥",q:"You overtake the person in 2nd place. What place are you in now?",o:["1st","3rd","2nd","Last"],f:"You took their spot, not first. The exam is full of traps like this one"},
+ {t:"BRAIN BREAKER 🧠",q:"A bat and a ball cost $1.10. The bat costs $1 more than the ball. How much is the ball?",o:["10c","1c","15c","5c"],f:"Most adults say 10c. Two seconds of checking beats them"},
+ {t:"PATTERN HUNTER 👀",q:"What comes next? 2, 6, 12, 20, 30, ?",o:["40","42","36","44"],f:"The gaps grow 4, 6, 8, 10, 12. Spot the gap, crack the pattern"},
+ {t:"THE ODDS ⚔️",q:"About how many students go for roughly 1,000 selective school places?",o:["6,000","1,500","3,000","20,000"],f:"That is why every single mark matters"},
+ {t:"TRICK QUESTION 🪤",q:"How many months have 28 days?",o:["1","2","All 12","6"],f:"Every month has at least 28 days. Read what is actually asked"},
+ {t:"SCHOOL LORE 🏫",q:"Nossal High is named after Sir Gustav Nossal. What made him famous?",o:["Science of the immune system","Captaining the Wallabies","Being Prime Minister","Walking in space"],f:"One of the world's great immunologists, and a school is named after him"},
+ {t:"SCHOOL LORE 🧬",q:"Suzanne Cory High is named after a scientist. What did she research?",o:["Volcanoes","Space travel","Dinosaur fossils","Cancer and blood cells"],f:"Professor Suzanne Cory led the Walter and Eliza Hall Institute"},
+ {t:"SPOT THE ERROR 🔍",q:"Which word is spelled wrong?",o:["Necessary","Accomodate","Rhythm","Separate"],f:"Accommodate has two Cs and two Ms"},
+ {t:"CLOCK CHALLENGE ⏰",q:"At exactly 3:00, what is the angle between the clock hands?",o:["180°","120°","90°","45°"],f:"A quarter of a full turn of 360° is 90°"},
+ {t:"BOSS ROUND 👑",q:"A frog is at the bottom of a 10 m well. Each day it climbs 3 m, each night it slips 2 m. On which day does it get out?",o:["Day 10","Day 7","Day 9","Day 8"],f:"On day 8 it starts at 7 m and climbs straight out. No slipping back"}
 ];
+var KEY=[2,3,1,0,2,0,3,1,2,3];
 var P=new URLSearchParams(location.search),HOST=P.has("host"),ROOM=(P.get("room")||DEF_ROOM).toUpperCase().replace(/[^A-Z0-9]/g,"");
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -101,8 +106,10 @@ function uid(){var a="abcdefghjkmnpqrstuvwxyz23456789",s="";for(var i=0;i<12;i++
 var PID=ls("cc-pid")||uid();ls("cc-pid",PID);
 var NAME=ls("cc-name")||"",HK=ls("cc-hk-"+ROOM)||"";
 var S=null,OFF=0,app=document.getElementById("app");
-function call(a,b){b=Object.assign({action:a,room:ROOM},b||{});return fetch(EP,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(b)}).then(function(r){return r.json()}).catch(function(){return{ok:false,error:"network"}})}
-function poll(){return fetch(EP+"?action=state&room="+ROOM+"&t="+Date.now()).then(function(r){return r.json()}).then(function(v){if(v&&v.ok){OFF=v.now-Date.now();S=v;render()}else if(v&&v.error==="room"){S=null;render()}}).catch(function(){})}
+firebase.initializeApp({databaseURL:DBURL,projectId:"contour-challenge"});
+var db=firebase.database(),RR=db.ref("rooms/"+ROOM),SV=firebase.database.ServerValue.TIMESTAMP;
+db.ref(".info/serverTimeOffset").on("value",function(v){OFF=v.val()||0});
+function poll(){return Promise.resolve()}
 function now(){return Date.now()+OFF}
 function me(){return S&&S.players.filter(function(p){return p.id===PID})[0]}
 function rankOf(id){var ps=S.players.slice().sort(function(a,b){return b.s-a.s});for(var i=0;i<ps.length;i++)if(ps[i].id===id)return i+1;return 0}
@@ -113,11 +120,14 @@ var joined=!!ls("cc-joined-"+ROOM),picked={},sorted=!!ls("cc-sorted-"+ROOM),last
 function pRender(){
  if(!S){app.innerHTML='<div class="pw"><div class="brand"><i>C</i>Contour Challenge</div><div class="card"><h2 style="color:var(--navy)">Hang tight</h2><p>The challenge opens in a moment</p></div></div>';return}
  var m=me();
+ if(joined&&!m&&NAME){var fi0=+(ls("cc-f-"+ROOM)||0);if(!pRender.rj){pRender.rj=1;RR.child("pl/"+PID).once("value",function(v){if(!v.val())RR.child("pl/"+PID).set({n:NAME,f:fi0,ts:SV})})}
+  m={id:PID,n:NAME,f:fi0,s:0,c:0,last:null}}
  if(!joined||!m){
   if(document.getElementById("nm"))return;
   app.innerHTML='<div class="pw"><div class="brand"><i>C</i>Contour Challenge</div><h1 style="font-size:44px">Ready to <span class="hl">compete?</span></h1><div class="card" style="display:grid;gap:14px"><label for="nm" style="font-weight:800;color:var(--navy)">Your first name</label><input id="nm" class="inp" maxlength="22" autocomplete="off" value="'+esc(NAME)+'"><button class="big" id="go">Join</button><div class="muted" style="font-size:14px;color:#555">Sharing a phone? Put both names in</div></div></div>';
   var go=document.getElementById("go"),nm=document.getElementById("nm");
-  go.onclick=function(){var n=nm.value.trim();if(!n)return nm.focus();go.disabled=true;go.textContent="Joining…";call("join",{pid:PID,name:n}).then(function(r){if(r.ok){NAME=n;ls("cc-name",n);joined=true;ls("cc-joined-"+ROOM,"1");poll().then(function(){if(!sorted)sortAnim(r.f);})}else{go.disabled=false;go.textContent="Try again"}})};
+  go.onclick=function(){var n=nm.value.trim();if(!n)return nm.focus();go.disabled=true;go.textContent="Joining…";var ex=S.players.filter(function(p){return p.id===PID})[0],fi;if(ex)fi=ex.f;else{var c=S.factions.map(function(x){return x.n}),mn=Math.min.apply(null,c),op=[];c.forEach(function(x,i){if(x===mn)op.push(i)});fi=op[Math.floor(Math.random()*op.length)]}
+  NAME=n;ls("cc-name",n);joined=true;ls("cc-joined-"+ROOM,"1");RR.child("pl/"+PID).set({n:n,f:fi,ts:SV});ls("cc-f-"+ROOM,String(fi));S.players.push({id:PID,n:n,f:fi,s:0,c:0,last:null});S.factions[fi].n++;if(!sorted)sortAnim(fi);else{lastKey="";render()}};
   return}
  var f=F[m.f];
  var key=S.phase+"|"+S.qi+"|"+(S.phase==="qa"?JSON.stringify(S.qa):"")+"|"+(S.phase==="reveal"||S.phase==="board"||S.phase==="final"?m.s:"");
@@ -127,19 +137,19 @@ function pRender(){
  if(S.phase==="lobby"){app.innerHTML='<div class="pw">'+head+'<div class="badge" style="background:'+f[2]+'"><div class="e">'+f[1]+'</div><h1 style="font-size:46px;margin-top:8px">'+f[0]+'</h1><div style="font-weight:700;margin-top:6px">'+S.factions[m.f].n+' teammates so far</div></div><div class="card" style="text-align:center"><h2 style="color:var(--navy);font-size:26px">'+esc(m.n)+', you’re in</h2><p style="margin:6px 0 0">Eyes on the big screen</p></div></div>';return}
  if(S.phase==="q"){var q=Q[S.qi],a=picked[S.qi];
   if(!document.getElementById("qv")||document.getElementById("qv").dataset.qi!=S.qi){
-   app.innerHTML='<div class="pw" id="qv" data-qi="'+S.qi+'">'+head+'<div style="font-weight:800" class="muted">Question '+(S.qi+1)+' of '+Q.length+'</div><h2 style="font-size:26px;line-height:1.25">'+esc(q.q)+'</h2><div class="bar"><i id="tb"></i></div><div class="ans'+(a!=null?' locked':'')+'" id="ans">'+q.o.map(function(o,k){return '<button data-k="'+k+'" class="'+(a===k?'me':'')+'" style="background:'+OC[k]+'"><b>'+L[k]+'</b>'+esc(o)+'</button>'}).join("")+'</div><div id="lk" style="text-align:center;font:400 26px var(--H);color:var(--lime)">'+(a!=null?'Locked in':'')+'</div></div>';
-   [].forEach.call(document.querySelectorAll("#ans button"),function(b){b.onclick=function(){if(picked[S.qi]!=null)return;var k=+b.dataset.k;picked[S.qi]=k;b.classList.add("me");document.getElementById("ans").classList.add("locked");document.getElementById("lk").textContent="Locked in";if(navigator.vibrate)navigator.vibrate(30);call("answer",{pid:PID,qi:S.qi,choice:k})}})}
+   app.innerHTML='<div class="pw" id="qv" data-qi="'+S.qi+'">'+head+'<div class="tag" style="font-size:18px">'+q.t+'</div><div style="font-weight:800" class="muted">Round '+(S.qi+1)+' of '+Q.length+'</div><h2 style="font-size:26px;line-height:1.25">'+esc(q.q)+'</h2><div class="bar"><i id="tb"></i></div><div class="ans'+(a!=null?' locked':'')+'" id="ans">'+q.o.map(function(o,k){return '<button data-k="'+k+'" class="'+(a===k?'me':'')+'" style="background:'+OC[k]+'"><b>'+L[k]+'</b>'+esc(o)+'</button>'}).join("")+'</div><div id="lk" style="text-align:center;font:400 26px var(--H);color:var(--lime)">'+(a!=null?'Locked in':'')+'</div></div>';
+   [].forEach.call(document.querySelectorAll("#ans button"),function(b){b.onclick=function(){if(picked[S.qi]!=null)return;var k=+b.dataset.k;picked[S.qi]=k;b.classList.add("me");document.getElementById("ans").classList.add("locked");document.getElementById("lk").textContent="Locked in";if(navigator.vibrate)navigator.vibrate(30);RR.child("ans/"+S.qi+"/"+PID).set({c:k,t:SV})}})}
   return}
  if(S.phase==="reveal"){var l=m.last,ok=l&&l[1],q2=Q[S.qi];
   app.innerHTML='<div class="pw">'+head+'<div class="res" style="background:'+(ok?'var(--green)':(l?'var(--red)':'rgba(255,255,255,.12)'))+'"><div class="e">'+(ok?'🎉':(l?'😬':'⏰'))+'</div><h1 style="font-size:44px">'+(ok?'+'+l[2]:(l?'Not this time':'Too slow'))+'</h1><div style="font-weight:800;margin-top:8px">Answer: '+L[S.key]+' '+esc(q2.o[S.key])+'</div></div><div class="card" style="display:flex;justify-content:space-around;text-align:center"><div><div class="muted" style="font-weight:800">Your score</div><div style="font:400 40px var(--H);color:var(--navy)">'+m.s+'</div></div><div><div class="muted" style="font-weight:800">Your rank</div><div style="font:400 40px var(--H);color:var(--navy)">#'+rankOf(PID)+'</div></div></div></div>';return}
- if(S.phase==="board"||S.phase==="final"){var fr=facRank(),pos=fr.map(function(x){return x.i}).indexOf(m.f)+1,rk=rankOf(PID),n=S.players.length,cut=Math.max(1,Math.ceil(n/6)),offer=S.phase==="final"&&rk<=cut;
-  app.innerHTML='<div class="pw">'+head+(offer?'<div class="res" style="background:var(--lime);color:var(--char)"><div class="e">📜</div><h1 style="font-size:40px">Round 1 Offer</h1><div style="font-weight:800">Top 1 in 6 of the room</div></div>':'')+'<div class="badge" style="background:'+f[2]+'"><div class="e">'+f[1]+'</div><h1 style="font-size:38px;margin-top:6px">'+f[0]+' are #'+pos+'</h1></div><div class="card" style="display:flex;justify-content:space-around;text-align:center"><div><div class="muted" style="font-weight:800">Your score</div><div style="font:400 40px var(--H);color:var(--navy)">'+m.s+'</div></div><div><div class="muted" style="font-weight:800">Your rank</div><div style="font:400 40px var(--H);color:var(--navy)">#'+rk+' of '+n+'</div></div></div></div>';return}
+ if(S.phase==="board"||S.phase==="final"){var fr=facRank(),pos=fr.map(function(x){return x.i}).indexOf(m.f)+1,rk=rankOf(PID),n=S.players.length,offer=S.phase==="final"&&rk<=3;
+  app.innerHTML='<div class="pw">'+head+(offer?'<div class="res" style="background:var(--lime);color:var(--char)"><div class="e">'+["🥇","🥈","🥉"][rk-1]+'</div><h1 style="font-size:40px">Podium</h1><div style="font-weight:800">Hall of Fame</div></div>':'')+'<div class="badge" style="background:'+f[2]+'"><div class="e">'+f[1]+'</div><h1 style="font-size:38px;margin-top:6px">'+f[0]+' are #'+pos+'</h1></div><div class="card" style="display:flex;justify-content:space-around;text-align:center"><div><div class="muted" style="font-weight:800">Your score</div><div style="font:400 40px var(--H);color:var(--navy)">'+m.s+'</div></div><div><div class="muted" style="font-weight:800">Your rank</div><div style="font:400 40px var(--H);color:var(--navy)">#'+rk+' of '+n+'</div></div></div></div>';return}
  if(S.phase==="qa"){var ta=document.getElementById("ask");if(ta)draft=ta.value;
-  var list=S.qa.slice().sort(function(a,b){return(a.d-b.d)||(b.v-a.v)||(a.id-b.id)});
+  var list=S.qa.slice().sort(function(a,b){return(a.d-b.d)||(b.v-a.v)||(a.ts-b.ts)});
   app.innerHTML='<div class="pw">'+head+'<h1 style="font-size:38px">Ask the <span class="hl">panel</span></h1><div class="card" style="display:grid;gap:10px"><textarea id="ask" class="inp" rows="3" maxlength="160" style="resize:none;font-size:18px">'+esc(draft)+'</textarea><button class="big" id="send">Send question</button></div><div style="display:grid;gap:10px">'+list.map(function(x){var on=x.vs.indexOf(PID)>=0;return '<div class="qa-item'+(x.d?' done':'')+'"><button class="v'+(on?' on':'')+'" data-q="'+x.id+'">▲ '+x.v+'</button><div style="flex:1"><div style="font-weight:700">'+esc(x.t)+'</div><div style="font-size:13px;color:#666">'+esc(x.n)+'</div></div></div>'}).join("")+'</div></div>';
   var t=document.getElementById("ask");t.oninput=function(){draft=t.value};
-  document.getElementById("send").onclick=function(){var v=t.value.trim();if(!v)return;draft="";t.value="";call("ask",{pid:PID,name:NAME,text:v}).then(function(){lastKey="";poll()})};
-  [].forEach.call(document.querySelectorAll("[data-q]"),function(b){b.onclick=function(){b.classList.toggle("on");call("vote",{pid:PID,qid:+b.dataset.q}).then(function(){lastKey="";poll()})}});
+  document.getElementById("send").onclick=function(){var v=t.value.trim();if(!v)return;draft="";t.value="";RR.child("qa").push({t:v.slice(0,160),n:NAME,by:PID,ts:SV})};
+  [].forEach.call(document.querySelectorAll("[data-q]"),function(b){b.onclick=function(){var on=b.classList.toggle("on");RR.child("votes/"+b.dataset.q+"/"+PID).set(on?true:null)}});
   return}
 }
 function sortAnim(fi){sorted=true;ls("cc-sorted-"+ROOM,"1");
@@ -150,15 +160,34 @@ function tick(){if(!S||S.phase!=="q")return;var tb=document.getElementById("tb")
 
 /* =================== HOST =================== */
 var hLast="";
-function hNext(){if(!S)return;var ph=S.phase,qi=S.qi;
+function hNext(){var ph=CTL.phase,qi=CTL.qi;
  if(ph==="lobby")return go("q",0);
  if(ph==="q")return go("reveal",qi);
  if(ph==="reveal")return go(qi>=Q.length-1?"final":"board",qi);
  if(ph==="board")return go("q",qi+1);
  if(ph==="final"||ph==="qa")return;}
-function go(ph,qi){var b={hk:HK,phase:ph,ms:20000};if(qi!=null)b.qi=qi;return call("go",b).then(poll)}
-function ensureRoom(){if(HK)return call("create",{set:SET,code:ROOM,hk:HK}).then(function(r){if(!r.ok&&r.error==="taken"){HK="";return ensureRoom()}return poll()});
- return call("create",{set:SET,code:ROOM}).then(function(r){if(r.ok){HK=r.hk;ls("cc-hk-"+ROOM,HK)}else alert0("Room "+ROOM+" is already running on another computer. Open this page with ?host&room=NEWCODE");return poll()})}
+var CTL={phase:"lobby",qi:-1,qStart:0,qEnd:0,hist:{}},PL={},ANS={},QA={},VO={},QD={},pubT=0;
+function go(ph,qi){var c=JSON.parse(JSON.stringify(CTL));c.phase=ph;if(qi!=null)c.qi=qi;if(ph==="lobby")c.qi=-1;
+ if(ph==="q"){var t=now()+900;c.qStart=t;c.qEnd=t+20000;c.hist=c.hist||{};c.hist[qi]={s:c.qStart,e:c.qEnd}}
+ CTL=c;RR.child("ctl").set(c);build();return Promise.resolve()}
+function sched(){if(pubT)return;pubT=setTimeout(function(){pubT=0;build()},40)}
+function build(){var c=CTL,fs=[],players=[],dist=[0,0,0,0],answered=0;for(var i=0;i<4;i++)fs.push({n:0,s:0});
+ Object.keys(PL).forEach(function(id){var p=PL[id];if(!p||p.f==null)return;var sc=0,cr=0,last=null;
+  Object.keys(ANS).forEach(function(qi){var a=ANS[qi]&&ANS[qi][id],h=c.hist&&c.hist[qi];if(!a||!h)return;qi=+qi;
+   var inT=a.t<=h.e+1500,ok=inT&&a.c===KEY[qi],fr=Math.max(0,Math.min(1,(a.t-h.s)/(h.e-h.s))),pts=ok?500+Math.round(500*(1-fr)):0;
+   var revealed=!(qi===c.qi&&c.phase==="q");if(revealed){sc+=pts;if(ok)cr++}
+   if(qi===c.qi){last=c.phase==="q"?[-1,0,0]:[a.c,ok?1:0,pts];if(inT){answered++;dist[a.c]++}}});
+  players.push({id:id,n:p.n,f:p.f,s:sc,c:cr,last:last});fs[p.f].n++;fs[p.f].s+=sc});
+ var qa=Object.keys(QA).map(function(k){var x=QA[k],vs=Object.keys(VO[k]||{});return{id:k,t:x.t,n:x.n,by:x.by,ts:x.ts||0,v:vs.length,vs:vs,d:QD[k]?1:0}});
+ var o={ok:true,phase:c.phase,qi:c.qi,qStart:c.qStart,qEnd:c.qEnd,players:players,factions:fs,answered:answered,qa:qa};
+ if(c.phase==="reveal"){o.dist=dist;o.key=KEY[c.qi]}
+ S=o;render();RR.child("pub").set(o)}
+function ensureRoom(){
+ RR.child("ctl").once("value",function(v){if(v.val())CTL=v.val();else RR.child("ctl").set(CTL);if(!CTL.hist)CTL.hist={};
+  [["pl",function(v){PL=v||{}}],["ans",function(v){ANS=v||{}}],["qa",function(v){QA=v||{}}],["votes",function(v){VO=v||{}}],["qad",function(v){QD=v||{}}]].forEach(function(x){RR.child(x[0]).on("value",function(s){x[1](s.val());sched()})});
+  build()});
+ return Promise.resolve()}
+function resetGame(){ANS={};CTL={phase:"lobby",qi:-1,qStart:0,qEnd:0,hist:{}};RR.child("ans").remove();RR.child("ctl").set(CTL);build()}
 function alert0(t){app.innerHTML='<div class="hw"><h1>'+esc(t)+'</h1></div>'}
 function ring(left,tot){var r=74,C=2*Math.PI*r;return '<div class="ring"><svg width="170" height="170"><circle cx="85" cy="85" r="'+r+'" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="14"/><circle id="rp" cx="85" cy="85" r="'+r+'" fill="none" stroke="var(--lime)" stroke-width="14" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-left/tot))+'"/></svg><div class="v" id="rv">'+Math.ceil(left/1000)+'</div></div>'}
 function hRender(){
@@ -167,32 +196,33 @@ function hRender(){
  var key=ph+"|"+S.qi+"|"+n+"|"+S.answered+"|"+JSON.stringify(S.factions)+(ph==="qa"?JSON.stringify(S.qa):"");
  if(key===hLast)return;var first=hLast.split("|").slice(0,2).join("|")!==ph+"|"+S.qi;hLast=key;
  var facs=function(chips){return '<div class="facs">'+F.map(function(f,i){var fs=S.factions[i];var names=S.players.filter(function(p){return p.f===i}).slice(-14).map(function(p){return '<span>'+esc(p.n)+'</span>'}).join("");return '<div class="fac" style="background:'+f[2]+'"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="e">'+f[1]+'</div><div class="n">'+(chips?fs.n:fs.s)+'</div></div><h3>'+f[0]+'</h3>'+(chips?'<div class="chips">'+names+'</div>':'')+'</div>'}).join("")+'</div>'};
- if(ph==="lobby"){app.innerHTML='<div class="hw"><div class="top"><h1>The <span class="hl">Challenge Round</span></h1><span class="pill">'+n+' players</span></div><div style="display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start"><div class="qrbox"><img src="'+QR+'" alt=""><div style="font:400 26px var(--H);margin-top:8px">contour-vse.github.io/challenge</div><div style="font-weight:800;font-size:20px">Room '+ROOM+'</div></div><div style="display:grid;gap:18px">'+facs(true)+'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">'+[["📱","Scan and join"],["⚡","8 questions, 20 seconds each"],["📜","Top 1 in 6 get a Round 1 Offer"]].map(function(x){return '<div style="background:rgba(255,255,255,.1);border-radius:18px;padding:16px;font-weight:800;font-size:22px;display:flex;gap:12px;align-items:center"><span style="font-size:36px">'+x[0]+'</span>'+x[1]+'</div>'}).join("")+'</div></div></div></div>';return}
+ if(ph==="lobby"){app.innerHTML='<div class="hw"><div class="top"><h1>The <span class="hl">Challenge Round</span></h1><span class="pill">'+n+' players</span></div><div style="display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:start"><div class="qrbox"><img src="'+QR+'" alt=""></div><div style="display:grid;gap:18px">'+facs(true)+'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">'+[["📱","Scan and join"],["⚡","10 rounds, speed scores"],["👑","Top faction takes the crown"]].map(function(x){return '<div style="background:rgba(255,255,255,.1);border-radius:18px;padding:16px;font-weight:800;font-size:22px;display:flex;gap:12px;align-items:center"><span style="font-size:36px">'+x[0]+'</span>'+x[1]+'</div>'}).join("")+'</div></div></div></div>';return}
  if(ph==="q"||ph==="reveal"){var q=Q[S.qi],rev=ph==="reveal",d=S.dist||[0,0,0,0],mx=Math.max(1,Math.max.apply(null,d));
   if(!first&&ph==="q"){var ac=document.getElementById("ac");if(ac){ac.textContent=S.answered+" of "+n+" answered";return}}
   app.innerHTML='<div class="hw'+(rev?' rev':'')+'"><div class="top"><span class="pill">Question '+(S.qi+1)+' of '+Q.length+'</span><span style="flex:1"></span><span class="pill" id="ac">'+S.answered+' of '+n+' answered</span></div><div style="display:flex;gap:30px;align-items:center"><div class="qbig" style="flex:1">'+esc(q.q)+'</div>'+(rev?'':'<div id="rg">'+ring(Math.max(0,S.qEnd-now()),S.qEnd-S.qStart)+'</div>')+'</div><div class="opts">'+q.o.map(function(o,k){return '<div class="opt '+(rev?(k===S.key?'yes':'no'):'')+'" style="background:'+OC[k]+'"><div class="fill" style="width:'+(rev?d[k]/mx*100:0)+'%"></div><b>'+L[k]+'</b><span style="position:relative">'+esc(o)+'</span>'+(rev?'<span class="cnt">'+d[k]+'</span>':'')+'</div>'}).join("")+'</div>'+(rev?'<div class="fact">💡 '+esc(q.f)+'</div>':'')+'</div>';return}
  if(ph==="board"||ph==="final"){var fr=facRank(),mx2=Math.max(1,fr[0].s),ps=S.players.slice().sort(function(a,b){return b.s-a.s}),cut=Math.max(1,Math.ceil(n/6));
   var race='<div class="race">'+fr.map(function(x,j){var f=F[x.i];return '<div class="lane"><span>'+(j===0?'👑 ':'')+f[0]+'</span><div class="tr"><i style="width:'+(x.s/mx2*100)+'%;background:'+f[2]+'">'+f[1]+'</i></div><span style="text-align:right">'+x.s+'</span></div>'}).join("")+'</div>';
   if(ph==="board"){app.innerHTML='<div class="hw"><div class="top"><h1>Faction <span class="hl">race</span></h1><span class="pill">After question '+(S.qi+1)+' of '+Q.length+'</span></div>'+race+'<h2 style="font-size:30px;margin-top:6px">Top players</h2><div class="tops">'+ps.slice(0,8).map(function(p,i){return '<div><b>'+(i+1)+'</b><span style="flex:1">'+esc(p.n)+'</span><span>'+F[p.f][1]+'</span><span>'+p.s+'</span></div>'}).join("")+'</div></div>';return}
-  app.innerHTML='<div class="hw"><div class="top"><h1>'+F[fr[0].i][1]+' '+F[fr[0].i][0]+' <span class="hl">win</span></h1><span class="pill">'+n+' players</span></div>'+race+'<h2 style="font-size:34px;margin-top:4px">📜 Round 1 Offers: the top 1 in 6</h2><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">'+ps.slice(0,cut).map(function(p,i){return '<div class="offer" style="animation-delay:'+(i*.12)+'s"><span>'+F[p.f][1]+'</span><span style="flex:1">'+esc(p.n)+'</span><span style="font-size:20px">'+p.s+'</span></div>'}).join("")+'</div></div>';return}
- if(ph==="qa"){var list=S.qa.slice().sort(function(a,b){return(a.d-b.d)||(b.v-a.v)||(a.id-b.id)});
+  app.innerHTML='<div class="hw"><div class="top"><h1>'+F[fr[0].i][1]+' '+F[fr[0].i][0]+' <span class="hl">win</span></h1><span class="pill">'+n+' players</span></div>'+race+'<h2 style="font-size:34px;margin-top:4px">Hall of Fame</h2><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">'+ps.slice(0,3).map(function(p,i){return '<div class="offer" style="animation-delay:'+(i*.25)+'s;font-size:34px;padding:20px"><span style="font-size:48px">'+["🥇","🥈","🥉"][i]+'</span><span style="flex:1">'+esc(p.n)+'</span><span style="font-size:24px">'+p.s+'</span></div>'}).join("")+'</div></div>';return}
+ if(ph==="qa"){var list=S.qa.slice().sort(function(a,b){return(a.d-b.d)||(b.v-a.v)||(a.ts-b.ts)});
   app.innerHTML='<div class="hw"><div class="top"><h1>Ask the <span class="hl">panel</span></h1><span class="pill">'+S.qa.length+' questions</span></div><div style="display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:start"><div class="qrbox"><img src="'+QR+'" alt="" style="width:240px;height:240px"><div style="font-weight:800;font-size:18px;margin-top:6px">Same link, same name</div></div><div class="hqa">'+list.slice(0,7).map(function(x){return '<div data-q="'+x.id+'" class="'+(x.d?'done':'')+'"><b>▲ '+x.v+'</b><span style="flex:1">'+esc(x.t)+'</span><span style="font-size:18px;opacity:.6">'+esc(x.n)+'</span></div>'}).join("")+'</div></div></div>';
-  [].forEach.call(document.querySelectorAll(".hqa [data-q]"),function(el){el.onclick=function(){call("qamod",{hk:HK,qid:+el.dataset.q,done:!el.classList.contains("done")}).then(function(){hLast="";poll()})}});return}
+  [].forEach.call(document.querySelectorAll(".hqa [data-q]"),function(el){el.onclick=function(){RR.child("qad/"+el.dataset.q).set(el.classList.contains("done")?null:1)}});return}
 }
 function hTick(){if(!S||S.phase!=="q")return;var left=Math.max(0,S.qEnd-now()),tot=S.qEnd-S.qStart,rp=document.getElementById("rp"),rv=document.getElementById("rv");
  if(rp){var C=2*Math.PI*74;rp.setAttribute("stroke-dashoffset",C*(1-left/tot));rv.textContent=Math.ceil(left/1000)}
- if(left<=0&&!hTick.busy){hTick.busy=true;go("reveal",S.qi).then(function(){hTick.busy=false})}}
+ if(left<=0&&CTL.phase==="q"){go("reveal",CTL.qi)}}
 function render(){if(HOST)hRender();else pRender()}
 if(HOST){document.addEventListener("keydown",function(e){if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;var k=e.key;
  if(k==="ArrowRight"||k===" "||k==="PageDown"||k==="Enter"){e.preventDefault();hNext()}
  else if(k==="q"||k==="Q")go(S&&S.phase==="qa"?"final":"qa",S?S.qi:-1);
  else if(k==="l"||k==="L")go("lobby");
+ else if(k==="x"||k==="X")resetGame();
  else if(k==="f"||k==="F")go("final",S?S.qi:0);
  else if(k==="b"||k==="B")go("board",S?S.qi:0)});
  document.addEventListener("click",function(e){if(!e.target.closest("[data-q]")&&S&&S.phase!=="qa")hNext()});
- app.insertAdjacentHTML("afterend",'<div class="keys">→ next · Q panel questions · B board · F final · L lobby</div>');
- ensureRoom();setInterval(poll,1200);setInterval(hTick,200);
-}else{poll();setInterval(function(){poll()},1800+Math.random()*700);setInterval(tick,200)}
+ app.insertAdjacentHTML("afterend",'<div class="keys">→ next   Q panel questions   B board   F final   L lobby   X reset scores</div>');
+ ensureRoom();setInterval(hTick,100);
+}else{RR.child("pub").on("value",function(v){var x=v.val();if(x){x.players=x.players||[];x.qa=x.qa||[];x.qa.forEach(function(q){q.vs=q.vs||[]});S=x}else S=null;render()});setInterval(tick,100)}
 </script>
 </body>
 </html>
